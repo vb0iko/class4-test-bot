@@ -488,7 +488,17 @@ def main() -> None:
     application.add_handler(CallbackQueryHandler(handle_language, pattern="^lang_.*$"))
     application.add_handler(CallbackQueryHandler(handle_mode, pattern="^mode_.*$"))
     application.add_handler(CallbackQueryHandler(handle_resume_pause, pattern="^RESUME_PAUSE$"))
-    application.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), text_handler))
+    application.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), handle_text_input))
+# --- Text input handler for question number ---
+async def handle_text_input(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    message = update.message.text.strip()
+    if message.isdigit():
+        index = int(message)
+        context.chat_data["question_index"] = index - 1
+        await update.message.reply_text(f"✅ Starting from question {index}. Use /start to continue.")
+    else:
+        await update.message.reply_text("ℹ️ Please enter a valid question number.")
+
 
     port = int(os.environ.get("PORT", 10000))
     render_url = os.environ.get("RENDER_EXTERNAL_URL")
