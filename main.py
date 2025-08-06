@@ -495,38 +495,41 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
                     break
 
         # Show result and explanation, then automatically move to next question
-        if image_path:
-            try:
-                import telegram
-                with open(image_path, "rb") as photo:
-                    await context.bot.edit_message_media(
-                        chat_id=query.message.chat.id,
-                        message_id=query.message.message_id,
-                        media=telegram.InputMediaPhoto(photo, caption=formatted_question, parse_mode=ParseMode.HTML),
-                        reply_markup=None
-                    )
-                context.chat_data["last_message_id"] = query.message.message_id
-            except Exception as e:
-                logger.warning(f"Failed to edit photo, fallback to delete/send: {e}")
-                if query.message:
-                    await context.bot.delete_message(chat_id=query.message.chat.id, message_id=query.message.message_id)
-                with open(image_path, "rb") as photo:
-                    msg = await context.bot.send_photo(
-                        chat_id=query.message.chat.id,
-                        photo=photo,
-                        caption=formatted_question,
-                        parse_mode=ParseMode.HTML,
-                        reply_markup=None
-                    )
-                context.chat_data["last_message_id"] = msg.message_id
-        else:
-            if query.message and query.message.text:
-                msg = await query.edit_message_text(
-                    text=formatted_question,
-                    reply_markup=None,
-                    parse_mode=ParseMode.HTML
+        import telegram
+        keyboard = None
+        formatted_text = formatted_question
+        try:
+            await query.edit_message_text(
+                text=formatted_text,
+                parse_mode=ParseMode.MARKDOWN,
+                reply_markup=keyboard
+            )
+        except telegram.error.BadRequest as e:
+            if "no text in the message" in str(e):
+                await context.bot.delete_message(
+                    chat_id=query.message.chat_id,
+                    message_id=query.message.message_id
                 )
-                context.chat_data["last_message_id"] = msg.message_id
+                if image_path:
+                    with open(image_path, "rb") as img:
+                        msg = await context.bot.send_photo(
+                            chat_id=query.message.chat_id,
+                            photo=img,
+                            caption=formatted_text,
+                            parse_mode=ParseMode.MARKDOWN,
+                            reply_markup=keyboard
+                        )
+                        context.chat_data["last_message_id"] = msg.message_id
+                else:
+                    msg = await context.bot.send_message(
+                        chat_id=query.message.chat_id,
+                        text=formatted_text,
+                        parse_mode=ParseMode.MARKDOWN,
+                        reply_markup=keyboard
+                    )
+                    context.chat_data["last_message_id"] = msg.message_id
+            else:
+                raise
         # Automatically proceed to next question after showing result
         import asyncio
         await asyncio.sleep(1.0)
