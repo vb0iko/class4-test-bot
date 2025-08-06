@@ -261,31 +261,36 @@ async def send_question(chat_id: int, context: CallbackContext) -> None:
         else:
             lines.append(f"       <b>{label}.</b> {options_en[idx]}")
 
-    text = "\n".join(lines)
-    keyboard = build_option_keyboard()
+    image_path_jpg = f"images/{index + 1}.jpg"
+    image_path_png = f"images/{index + 1}.png"
 
-    # --- New image sending logic before sending question text ---
-    import os
-    question_number = q.get("question_number")
-    possible_extensions = [".jpg", ".jpeg", ".png", ".webp"]
     image_path = None
-    if question_number is not None:
-        for ext in possible_extensions:
-            filename = f"images/{question_number}{ext}"
-            if os.path.exists(filename):
-                image_path = filename
-                break
-    if image_path:
-        await context.bot.send_photo(chat_id=chat_id, photo=open(image_path, "rb"))
+    if os.path.exists(image_path_jpg) and os.path.getsize(image_path_jpg) > 0:
+        image_path = image_path_jpg
+    elif os.path.exists(image_path_png) and os.path.getsize(image_path_png) > 0:
+        image_path = image_path_png
 
-    # Send the question text and options (image will appear above)
-    msg = await context.bot.send_message(
-        chat_id=chat_id,
-        text=text,
-        parse_mode=ParseMode.HTML,
-        reply_markup=keyboard
-    )
-    context.chat_data["last_message_id"] = msg.message_id
+    text = "\n".join(lines)
+
+    keyboard = build_option_keyboard()
+    if image_path:
+        with open(image_path, "rb") as photo:
+            msg = await context.bot.send_photo(
+                chat_id=chat_id,
+                photo=photo,
+                caption=text,
+                parse_mode=ParseMode.HTML,
+                reply_markup=keyboard
+            )
+        context.chat_data["last_message_id"] = msg.message_id
+    else:
+        msg = await context.bot.send_message(
+            chat_id=chat_id,
+            text=text,
+            parse_mode=ParseMode.HTML,
+            reply_markup=keyboard
+        )
+        context.chat_data["last_message_id"] = msg.message_id
 
 async def send_score(chat_id: int, context: CallbackContext) -> None:
     chat_data = context.chat_data
@@ -650,6 +655,3 @@ async def handle_resume_pause(update: Update, context: CallbackContext) -> None:
 
 if __name__ == "__main__":
     main()
-
-
-
