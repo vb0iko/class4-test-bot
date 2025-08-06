@@ -83,6 +83,7 @@ async def handle_language(update: Update, context: CallbackContext) -> None:
     context.chat_data["lang_mode"] = lang_mode
     context.chat_data["current_index"] = 0
     context.chat_data["score"] = 0
+    # New logic for text assignment based on lang_mode
     if lang_mode == "bilingual":
         text = (
             "🧠 <b>Learning Mode</b> – shows the correct answer and explanation immediately after each question. Includes all 120 questions.\n"
@@ -91,12 +92,22 @@ async def handle_language(update: Update, context: CallbackContext) -> None:
             "📝 <b>Режим іспиту</b> – 30 випадкових питань, без підказок. Для успішного складання потрібно дати щонайменше 25 правильних відповідей.\n\n"
             "Please choose mode / Будь ласка, оберіть режим:"
         )
-    else:
+    elif lang_mode == "en":
         text = (
             "🧠 <b>Learning Mode</b> – shows the correct answer and explanation immediately after each question. Includes all 120 questions.\n\n"
             "📝 <b>Exam Mode</b> – 30 random questions, no hints. You must answer at least 25 correctly to pass.\n\n"
             "Please choose a mode:"
         )
+    elif lang_mode == "learning":
+        text = (
+            "🧠 <b>Learning Mode</b> – shows the correct answer and explanation immediately after each question. Includes all 120 questions."
+        )
+    elif lang_mode == "exam":
+        text = (
+            "📝 <b>Exam Mode</b> – 30 random questions, no hints. You must answer at least 25 correctly to pass."
+        )
+    else:
+        text = "Please choose a mode:"
 
     await query.edit_message_text(
         text,
@@ -120,6 +131,18 @@ async def handle_mode(update: Update, context: CallbackContext) -> None:
     context.chat_data["current_index"] = 0
     context.chat_data["score"] = 0
     context.chat_data["paused"] = False
+
+    # Show explanation of the selected mode after setting mode (simplified)
+    if mode == "learning":
+        text = "🧠 <b>Learning Mode</b> – shows the correct answer and explanation immediately after each question. Includes all 120 questions."
+        if context.chat_data.get("lang_mode") == "bilingual":
+            text += "\n🧠 <b>Навчальний режим</b> – показує правильну відповідь і пояснення одразу після кожного питання. Усього 120 питань."
+    else:
+        text = "📝 <b>Exam Mode</b> – 30 random questions, no hints. You must answer at least 25 correctly to pass."
+        if context.chat_data.get("lang_mode") == "bilingual":
+            text += "\n📝 <b>Режим іспиту</b> – 30 випадкових питань, без підказок. Для успішного складання потрібно дати щонайменше 25 правильних відповідей."
+
+    await update.callback_query.message.reply_text(text, parse_mode=ParseMode.HTML)
 
     if mode == "exam":
         import random
@@ -347,18 +370,16 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
         options_uk = question.get("options_uk", [])
         options_text = []
 
+        # Bold the selected answer and the correct answer (with ✅), even if not selected
         for idx, opt_en in enumerate(options_en):
             opt_uk = options_uk[idx] if lang_mode == "bilingual" and options_uk else ""
             line = f"{opt_en}" if not opt_uk else f"{opt_en} / {opt_uk}"
-            emoji_prefix = ""
-            if idx == correct_index:
-                emoji_prefix = "✅"
-            elif idx == selected_index and selected_index != correct_index:
-                emoji_prefix = "❌"
 
-            # Bold only the selected answer, regardless of correctness
             if idx == selected_index:
+                emoji_prefix = "✅" if idx == correct_index else "❌"
                 options_text.append(f"<b>{emoji_prefix} {option_labels[idx]}. {line}</b>")
+            elif idx == correct_index:
+                options_text.append(f"<b>✅ {option_labels[idx]}. {line}</b>")
             else:
                 options_text.append(f"       {option_labels[idx]}. {line}")
 
