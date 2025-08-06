@@ -514,9 +514,12 @@ async def error_handler(update, context):
 
 
 def main() -> None:
+    logger.info("=== Bot startup ===")
+    logger.info("Step: checking RENDER_EXTERNAL_URL")
     render_url = os.environ.get("RENDER_EXTERNAL_URL")
     if not render_url:
         raise RuntimeError("RENDER_EXTERNAL_URL is not set.")
+    logger.info("Step: loading token and setting up webhook")
     token = os.getenv("BOT_TOKEN")
     if not token:
         raise RuntimeError("The BOT_TOKEN environment variable is not set.")
@@ -526,6 +529,7 @@ def main() -> None:
     ).post_init(post_init).build()
 
     from telegram.ext import MessageHandler, filters
+    logger.info("Step: adding handlers")
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CallbackQueryHandler(next_handler, pattern="^(NEXT|CONTINUE|RESTART)$"))
     application.add_handler(CallbackQueryHandler(answer_handler, pattern="^[ABCDSTOP]{1,4}$"))
@@ -537,6 +541,7 @@ def main() -> None:
     # Add global error handler
     application.add_error_handler(error_handler)
 
+    logger.info("Step: running webhook")
     application.run_webhook(
         listen="0.0.0.0",
         port=int(os.environ.get("PORT", "10000")),
