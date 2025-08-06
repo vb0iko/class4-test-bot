@@ -84,19 +84,9 @@ async def handle_language(update: Update, context: CallbackContext) -> None:
     context.chat_data["current_index"] = 0
     context.chat_data["score"] = 0
     if lang_mode == "bilingual":
-        text = (
-            "🧠 <b>Learning Mode</b> – shows the correct answer and explanation immediately after each question. Includes all 120 questions.\n"
-            "🧠 <b>Навчальний режим</b> – показує правильну відповідь і пояснення одразу після кожного питання. Усього 120 питань.\n\n"
-            "📝 <b>Exam Mode</b> – 30 random questions, no hints. You must answer at least 25 correctly to pass.\n"
-            "📝 <b>Режим іспиту</b> – 30 випадкових питань, без підказок. Для успішного складання потрібно дати щонайменше 25 правильних відповідей.\n\n"
-            "Please choose mode / Будь ласка, оберіть режим:"
-        )
+        text = "Please choose mode / Будь ласка, оберіть режим:\n\n<i>You can also enter a question number (1–120) to jump to a specific question in Learning Mode.</i>"
     else:
-        text = (
-            "🧠 <b>Learning Mode</b> – shows the correct answer and explanation immediately after each question. Includes all 120 questions.\n\n"
-            "📝 <b>Exam Mode</b> – 30 random questions, no hints. You must answer at least 25 correctly to pass.\n\n"
-            "Please choose a mode:"
-        )
+        text = "Please choose a mode:\n\n<i>You can enter a number (1–120) to go directly to a question in Learning Mode.</i>"
 
     await query.edit_message_text(
         text,
@@ -126,8 +116,7 @@ async def handle_mode(update: Update, context: CallbackContext) -> None:
         if len(QUESTIONS) < 30:
             await query.edit_message_text("❌ Not enough questions to start the exam. Please add more questions.")
             return
-        sample = random.sample(range(len(QUESTIONS)), 30)
-        context.chat_data["exam_questions"] = sample
+        context.chat_data["exam_questions"] = random.sample(range(len(QUESTIONS)), 30)
     await send_question(update.effective_chat.id, context)
 
 def build_option_keyboard() -> InlineKeyboardMarkup:
@@ -350,15 +339,15 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
         for idx, opt_en in enumerate(options_en):
             opt_uk = options_uk[idx] if lang_mode == "bilingual" and options_uk else ""
             line = f"{opt_en}" if not opt_uk else f"{opt_en} / {opt_uk}"
-            emoji_prefix = ""
-            if idx == correct_index:
-                emoji_prefix = "✅"
-            elif idx == selected_index and selected_index != correct_index:
-                emoji_prefix = "❌"
+            is_correct = (idx == correct_index)
+            is_selected = (idx == selected_index)
 
-            # Bold only the selected answer, regardless of correctness
-            if idx == selected_index:
+            if is_selected:
+                emoji_prefix = "✅" if is_correct else "❌"
                 options_text.append(f"<b>{emoji_prefix} {option_labels[idx]}. {line}</b>")
+            elif is_correct:
+                emoji_prefix = "✅"
+                options_text.append(f"{emoji_prefix} {option_labels[idx]}. {line}")
             else:
                 options_text.append(f"       {option_labels[idx]}. {line}")
 
@@ -492,14 +481,14 @@ def main() -> None:
         Defaults(parse_mode=ParseMode.MARKDOWN)
     ).post_init(post_init).build()
 
+    from telegram.ext import MessageHandler, filters
     application.add_handler(CommandHandler("start", start))
-    application.add_handler(CommandHandler("pause", handle_pause))
     application.add_handler(CallbackQueryHandler(next_handler, pattern="^(NEXT|CONTINUE|RESTART)$"))
     application.add_handler(CallbackQueryHandler(answer_handler, pattern="^[ABCDSTOP]{1,4}$"))
     application.add_handler(CallbackQueryHandler(handle_language, pattern="^lang_.*$"))
     application.add_handler(CallbackQueryHandler(handle_mode, pattern="^mode_.*$"))
-    application.add_handler(CallbackQueryHandler(handle_pause, pattern="^mode_pause$"))
     application.add_handler(CallbackQueryHandler(handle_resume_pause, pattern="^RESUME_PAUSE$"))
+    application.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), text_handler))
 
     port = int(os.environ.get("PORT", 10000))
     render_url = os.environ.get("RENDER_EXTERNAL_URL")
@@ -519,21 +508,7 @@ def main() -> None:
     )
 
 
-# --- Pause/resume handlers ---
-import telegram.error
-async def handle_pause(update: Update, context: CallbackContext) -> None:
-    query = update.callback_query
-    try:
-        await query.answer()
-    except telegram.error.BadRequest as e:
-        if "Query is too old" in str(e):
-            logger.warning("Callback query too old; skipping answer.")
-            return
-        else:
-            raise
-    context.chat_data["paused"] = True
-    context.chat_data["resume_question"] = context.chat_data.get("current_index", 0)
-    await query.edit_message_text("⏸ Test paused. You can continue anytime by selecting Continue from the main menu.")
+ # --- Pause/resume handlers ---
 
 async def handle_resume_pause(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
@@ -551,3 +526,14 @@ async def handle_resume_pause(update: Update, context: CallbackContext) -> None:
 
 if __name__ == "__main__":
     main()
+
+async def text_handler(update: Update, context: CallbackContext) -> None:
+    text = update.message.text.strip()
+    if not text.isdigit():
+        return
+    number = int(text)
+    if context.chat_data.get("mode") != "learning":
+        return
+    if 1 <= number <= len(QUESTIONS):
+        context.chat_data["current_index"] = number - 1
+        await send_question(update.effective_chat.id, context)
