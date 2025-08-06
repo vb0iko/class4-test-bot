@@ -132,17 +132,17 @@ async def handle_mode(update: Update, context: CallbackContext) -> None:
     context.chat_data["score"] = 0
     context.chat_data["paused"] = False
 
-    # Show explanation of the selected mode after setting mode (simplified)
+    # Show explanation of the selected mode after setting mode (single message, replaces previous)
     if mode == "learning":
-        text = "🧠 <b>Learning Mode</b> – shows the correct answer and explanation immediately after each question. Includes all 120 questions."
-        if context.chat_data.get("lang_mode") == "bilingual":
-            text += "\n🧠 <b>Навчальний режим</b> – показує правильну відповідь і пояснення одразу після кожного питання. Усього 120 питань."
+        return await query.edit_message_text(
+            "🧠 <b>Learning Mode</b> – shows the correct answer and explanation immediately after each question. Includes all 120 questions.",
+            parse_mode=ParseMode.HTML
+        )
     else:
-        text = "📝 <b>Exam Mode</b> – 30 random questions, no hints. You must answer at least 25 correctly to pass."
-        if context.chat_data.get("lang_mode") == "bilingual":
-            text += "\n📝 <b>Режим іспиту</b> – 30 випадкових питань, без підказок. Для успішного складання потрібно дати щонайменше 25 правильних відповідей."
-
-    await update.callback_query.message.reply_text(text, parse_mode=ParseMode.HTML)
+        return await query.edit_message_text(
+            "📝 <b>Exam Mode</b> – 30 random questions, no hints. You must answer at least 25 correctly to pass.",
+            parse_mode=ParseMode.HTML
+        )
 
     if mode == "exam":
         import random
