@@ -1,1550 +1,2318 @@
 [
-   {
-      "question_number":1,
-      "question":"Is an operator permitted to turn left from a one-way road onto a one-way road at a steady red traffic control light?",
-      "question_uk":"Чи дозволено водієві повернути ліворуч з дороги з одностороннім рухом на іншу дорогу з одностороннім рухом при сталому червоному сигналі світлофора?",
-      "options":[
-         "No, only right turns are permitted on a red light.",
-         "Yes, after reducing speed and yielding to any traffic or pedestrians.",
-         "Only when there is a sign permitting the turn at a red light.",
-         "Yes, after stopping, when it is safe, unless prohibited by a sign."
-      ],
-      "answer_index":2,
-      "explanation_en":"A left turn on red from a one-way to another one-way road is permitted only when a sign allows it.",
-      "explanation_uk":"Поворот ліворуч на червоне світло з дороги з одностороннім рухом на іншу дозволено лише за наявності відповідного знака.",
-      "image":"1.png/jpg"
-   },
-   {
-      "question_number":2,
-      "question":"What does a flashing yellow traffic control signal mean?",
-      "question_uk":"Що означає миготливий жовтий світлофор?",
-      "options":[
-         "Stop and wait for green light.",
-         "Proceed with caution and be prepared to stop.",
-         "Traffic signal is out of order.",
-         "Speed up to clear the intersection quickly."
-      ],
-      "answer_index":1,
-      "explanation_en":"A flashing yellow light means proceed with caution and be prepared to stop if necessary.",
-      "explanation_uk":"Миготливий жовтий світлофор означає рухатися обережно і бути готовим зупинитися за потреби.",
-      "image":"2.png/jpg"
-   },
-   {
-      "question_number":3,
-      "question":"What should you do when approaching a stop sign?",
-      "question_uk":"Що слід робити, наближаючись до знака «STOP»?",
-      "options":[
-         "Slow down and proceed if clear.",
-         "Stop only if there is other traffic.",
-         "Come to a complete stop and proceed when safe.",
-         "Yield to pedestrians only."
-      ],
-      "answer_index":2,
-      "explanation_en":"You must come to a complete stop at the stop sign and proceed only when it is safe.",
-      "explanation_uk":"Потрібно повністю зупинитися перед знаком і рушати лише коли це безпечно.",
-      "image":"3.png/jpg"
-   },
-   {
-      "question_number":4,
-      "question":"When must you use your headlights in Alberta?",
-      "question_uk":"Коли потрібно вмикати фари в Альберті?",
-      "options":[
-         "Only at night.",
-         "When visibility is less than 150 meters.",
-         "Only during bad weather.",
-         "At all times during winter months."
-      ],
-      "answer_index":1,
-      "explanation_en":"Headlights must be used when visibility is less than 150 meters, regardless of time of day.",
-      "explanation_uk":"Фари слід вмикати, коли видимість менша за 150 метрів, незалежно від часу доби.",
-      "image":"4.png/jpg"
-   },
-   {
-      "question_number":5,
-      "question":"What is the two-second rule related to driving?",
-      "question_uk":"Що таке правило двох секунд у керуванні?",
-      "options":[
-         "Minimum time to signal before turning.",
-         "Minimum following distance in seconds behind another vehicle.",
-         "Time to wait at a stop sign.",
-         "Time to check mirrors before lane change."
-      ],
-      "answer_index":1,
-      "explanation_en":"The two-second rule helps maintain a safe following distance by keeping at least two seconds behind the vehicle ahead.",
-      "explanation_uk":"Правило двох секунд допомагає підтримувати безпечну дистанцію, тримаючись не менше двох секунд позаду іншого транспортного засобу.",
-      "image":"5.png/jpg"
-   },
-   {
-      "question_number":6,
-      "question":"At a four-way stop, who has the right-of-way?",
-      "question_uk":"Хто має перевагу на перехресті з чотирма знаками STOP?",
-      "options":[
-         "The vehicle that arrives first.",
-         "The vehicle on the left.",
-         "The vehicle on the right.",
-         "The largest vehicle."
-      ],
-      "answer_index":0,
-      "explanation_en":"At a four-way stop, the vehicle that arrives first has the right-of-way.",
-      "explanation_uk":"На перехресті з чотирма знаками STOP перевагу має транспортний засіб, що прибув першим.",
-      "image":"6.png/jpg"
-   },
-   {
-      "question_number":7,
-      "question":"What does total stopping distance include?",
-      "question_uk":"З яких частин складається загальна відстань зупинки?",
-      "options":[
-         "Perception distance only.",
-         "Reaction distance only.",
-         "Braking distance only.",
-         "Perception, reaction, and braking distances."
-      ],
-      "answer_index":3,
-      "explanation_en":"Total stopping distance includes perception distance, reaction distance, and braking distance.",
-      "explanation_uk":"Загальна відстань зупинки включає відстань сприйняття, реакції та гальмування.",
-      "image":"7.png/jpg"
-   },
-   {
-      "question_number":8,
-      "question":"What is a space cushion when driving?",
-      "question_uk":"Що таке «простір безпеки» (space cushion) під час керування?",
-      "options":[
-         "The space needed to park a vehicle.",
-         "The gap maintained around your vehicle to allow for safe maneuvering.",
-         "The distance between your vehicle and the curb.",
-         "The space occupied by your vehicle in a lane."
-      ],
-      "answer_index":1,
-      "explanation_en":"A space cushion is the gap you maintain around your vehicle to allow for safe maneuvering and reaction.",
-      "explanation_uk":"Простір безпеки — це відстань, яку ви підтримуєте навколо свого автомобіля для безпечного маневрування та реакції.",
-      "image":"8.png/jpg"
-   },
-   {
-      "question_number":9,
-      "question":"What are the seat belt requirements in Alberta?",
-      "question_uk":"Які вимоги щодо ременів безпеки в Альберті?",
-      "options":[
-         "Only drivers must wear seat belts.",
-         "Seat belts are optional for passengers in the back seat.",
-         "All vehicle occupants must wear seat belts.",
-         "Seat belts are required only on highways."
-      ],
-      "answer_index":2,
-      "explanation_en":"In Alberta, all vehicle occupants are required by law to wear seat belts.",
-      "explanation_uk":"В Альберті всі пасажири транспортного засобу зобов’язані користуватися ременями безпеки.",
-      "image":"9.png/jpg"
-   },
-   {
-      "question_number":10,
-      "question":"Where should you stop at a stop sign if there is no stop line?",
-      "question_uk":"Де слід зупинитись на знак «STOP», якщо немає стоп-лінії?",
-      "options":[
-         "At the edge of the sidewalk or crosswalk.",
-         "Anywhere before the intersection.",
-         "At least 3 meters before the intersection.",
-         "Only if other vehicles are present."
-      ],
-      "answer_index":0,
-      "explanation_en":"If there is no stop line, you must stop at the edge of the sidewalk or crosswalk before entering the intersection.",
-      "explanation_uk":"Якщо немає стоп-лінії, потрібно зупинитися на краю тротуару або пішохідного переходу перед в’їздом на перехрестя.",
-      "image":"10.png/jpg"
-   },
-   {
-      "question_number":11,
-      "question":"This sign indicates:",
-      "question_uk":"Цей знак означає:",
-      "options":[
-         "Added lane (free flow)",
-         "T intersection",
-         "Traffic merging from the left",
-         "Road narrows left ahead"
-      ],
-      "answer_index":1,
-      "explanation_en":"This sign warns of a T-intersection where the road you are on does not continue straight ahead.",
-      "explanation_uk":"Цей знак попереджає про Т-подібне перехрестя, де дорога попереду закінчується.",
-      "image":"11.png/jpg"
-   },
-   {
-      "question_number":12,
-      "question":"When exiting or entering a roadway at a weave zone, you should ____________",
-      "question_uk":"Коли виїжджаєте або в'їжджаєте на дорогу в зоні переплетення, слід ____________",
-      "options":[
-         "Slow to exit the highway or increase speed to enter the highway.",
-         "Increase speed to exit the highway or slow to enter the highway.",
-         "Exercise caution and cooperation.",
-         "Both A & C."
-      ],
-      "answer_index":3,
-      "explanation_en":"In a weave zone, drivers should slow to exit or speed up to enter, and always exercise caution and cooperation.",
-      "explanation_uk":"У зоні переплетення слід зменшувати швидкість для з'їзду або збільшувати — для в’їзду, а також виявляти обережність і співпрацю.",
-      "image":"12.png/jpg"
-   },
-   {
-      "question_number":13,
-      "question":"When are dual turns permitted at an intersection?",
-      "question_uk":"Коли дозволено подвійні повороти на перехресті?",
-      "options":[
-         "Any time there are at least 2 lanes on the road being entered.",
-         "Only when turning from a one-way road onto a one-way road.",
-         "Only when the road has 6 or more lanes.",
-         "Only when indicated by pavement markings or traffic control signs."
-      ],
-      "answer_index":3,
-      "explanation_en":"Dual turns are only allowed when permitted by markings or traffic signs.",
-      "explanation_uk":"Подвійні повороти дозволені лише тоді, коли це дозволено дорожньою розміткою або знаками.",
-      "image":"13.png/jpg"
-   },
-   {
-      "question_number":14,
-      "question":"When transporting frail or weak seniors and those with reduced mobility, a driver should be aware of their increased risk of:",
-      "question_uk":"Перевозячи слабких або малорухомих людей похилого віку, водій повинен враховувати підвищений ризик:",
-      "options":[
-         "Drowsiness.",
-         "Impairment.",
-         "Injury.",
-         "Aggression."
-      ],
-      "answer_index":2,
-      "explanation_en":"Frail and weak seniors have increased risk of injury when being transported.",
-      "explanation_uk":"Слабкі та малорухомі літні люди мають підвищений ризик травмування під час перевезення.",
-      "image":"14.png/jpg"
-   },
-   {
-      "question_number":15,
-      "question":"What should a driver do if feeling unfit to drive?",
-      "question_uk":"Що повинен зробити водій, якщо відчуває, що не здатен керувати транспортом?",
-      "options":[
-         "Take medication.",
-         "Sleep in the vehicle.",
-         "Call a taxi or alternate transportation.",
-         "Drive carefully."
-      ],
-      "answer_index":2,
-      "explanation_en":"If unfit to drive, the driver must not operate the vehicle and should arrange alternate transportation.",
-      "explanation_uk":"Якщо водій не здатен керувати, він не повинен сідати за кермо і має знайти альтернативний спосіб пересування.",
-      "image":"15.png/jpg"
-   },
-   {
-      "question_number":16,
-      "question":"One of the following is NOT a general rule when transporting a person in a wheelchair:",
-      "question_uk":"Один із варіантів НЕ є загальним правилом під час перевезення людини в інвалідному візку:",
-      "options":[
-         "The wheelchair must be secured.",
-         "The brakes must be unlocked.",
-         "The occupant must be secured with a seatbelt.",
-         "The wheelchair must face forward."
-      ],
-      "answer_index":1,
-      "explanation_en":"The brakes of a wheelchair must be locked during transport. Leaving them unlocked is unsafe.",
-      "explanation_uk":"Гальма інвалідного візка повинні бути зафіксовані під час перевезення. Незаблоковані гальма — це небезпечно.",
-      "image":"16.png/jpg"
-   },
-   {
-      "question_number":17,
-      "question":"Which statement describes the steps required to reverse a passenger vehicle in a straight line?",
-      "question_uk":"Яке твердження описує кроки, необхідні для руху пасажирського автомобіля назад по прямій лінії?",
-      "options":[
-         "Look over your left shoulder and steer left.",
-         "Use only your mirrors and turn the steering wheel rapidly.",
-         "Look over your right shoulder and use gradual steering adjustments.",
-         "Accelerate quickly and use a GPS camera."
-      ],
-      "answer_index":2,
-      "explanation_en":"When reversing in a straight line, look over your right shoulder and steer gently.",
-      "explanation_uk":"Рухаючись назад по прямій, потрібно дивитися через праве плече та кермувати поступово.",
-      "image":"17.png/jpg"
-   },
-   {
-      "question_number":18,
-      "question":"When an emergency vehicle is being used in response to an emergency, what must the driver do to be able to go against the usual traffic control requirements?",
-      "question_uk":"Коли аварійний автомобіль реагує на надзвичайну ситуацію, що повинен зробити водій, щоб мати змогу не дотримуватись звичайних правил дорожнього руху?",
-      "options":[
-         "Activate emergency lights and siren.",
-         "Drive cautiously and signal intentions.",
-         "Obey the speed limit at all times.",
-         "Ignore traffic rules completely."
-      ],
-      "answer_index":0,
-      "explanation_en":"Emergency vehicle drivers must activate emergency lights and sirens to proceed through traffic signals.",
-      "explanation_uk":"Водії аварійних автомобілів повинні вмикати проблискові маячки та сирену, щоб проїхати крізь регульовані ділянки дороги.",
-      "image":"18.png/jpg"
-   },
-   {
-      "question_number":19,
-      "question":"When letting students on or off the school bus, the driver should do all of the following EXCEPT:",
-      "question_uk":"Під час посадки або висадки учнів зі шкільного автобуса водій повинен робити все з переліченого, КРІМ:",
-      "options":[
-         "Turn off the engine while students are boarding.",
-         "Ensure the bus is stopped and lights are flashing.",
-         "Move the bus slowly while students are near.",
-         "Check that all children are safely away before moving."
-      ],
-      "answer_index":2,
-      "explanation_en":"It is unsafe to move the bus while students are near it.",
-      "explanation_uk":"Небезпечно рухати автобус, коли учні знаходяться поруч.",
-      "image":"19.png/jpg"
-   },
-   {
-      "question_number":20,
-      "question":"A driver must develop the following key elements of driving to prepare themselves for the responsibility and risk of driving:",
-      "question_uk":"Водій повинен розвивати такі ключові елементи керування, щоб підготувати себе до відповідальності та ризику водіння:",
-      "options":[
-         "Attitude, awareness, knowledge, skills.",
-         "Confidence, speed, experience, daring.",
-         "Aggression, reaction, strength, instinct.",
-         "Control, avoidance, direction, spontaneity."
-      ],
-      "answer_index":0,
-      "explanation_en":"A safe driver must develop attitude, awareness, knowledge, and driving skills.",
-      "explanation_uk":"Безпечний водій повинен розвивати ставлення, уважність, знання та навички водіння.",
-      "image":"20.png/jpg"
-   },
-   {
-      "question_number":21,
-      "question":"What is true about minimum following distance for passenger vehicle?",
-      "question_uk":"Що є правильним щодо мінімальної дистанції під час руху за легковим автомобілем?",
-      "options":[
-         "A driver must follow four-second rule.",
-         "Driver must follow two-second rule.",
-         "A six-second rule is applicable for passenger vehicle.",
-         "A driver must use good judgement as to how much time may require applying brake."
-      ],
-      "answer_index":1,
-      "explanation_en":"The minimum safe following distance under ideal conditions is the two-second rule.",
-      "explanation_uk":"Мінімальна безпечна дистанція за нормальних умов — це правило двох секунд.",
-      "image":"21.png"
-   },
-   {
-      "question_number":22,
-      "question":"This sign indicates:",
-      "question_uk":"Цей знак означає:",
-      "options":[
-         "Off-road facilities ahead",
-         "Uneven pavement",
-         "Slippery when wet",
-         "Detour ahead"
-      ],
-      "answer_index":1,
-      "explanation_en":"This sign warns of uneven pavement ahead.",
-      "explanation_uk":"Цей знак попереджає про нерівне дорожнє покриття попереду.",
-      "image":"22.png"
-   },
-   {
-      "question_number":23,
-      "question":"The recommended braking procedure to bring a vehicle to a normal, smooth stop is:",
-      "question_uk":"Рекомендована процедура гальмування для плавної зупинки транспортного засобу:",
-      "options":[
-         "Apply brake pressure, ease off slightly just before the vehicle stops, then re-apply sufficient pressure to stop.",
-         "Continually increase brake pressure until the wheels lock.",
-         "Shift the vehicle into neutral and apply steady pressure to the brake pedal until the vehicle comes to a stop.",
-         "Pump the brake pedal smoothly until the vehicle stops."
-      ],
-      "answer_index":0,
-      "explanation_en":"The best technique is controlled braking: ease off and reapply for a smooth stop.",
-      "explanation_uk":"Найкраща техніка — це контрольоване гальмування: послабити та повторно натиснути для плавної зупинки.",
-      "image":"23.png"
-   },
-   {
-      "question_number":24,
-      "question":"Drivers of a taxi may refuse to transport passengers when:",
-      "question_uk":"Водії таксі можуть відмовити у перевезенні пасажирів, коли:",
-      "options":[
-         "The vehicle is already carrying the maximum allowed number of passengers.",
-         "A passenger is offensive or dangerous to you or others.",
-         "Both A and B.",
-         "Drivers of taxis should not refuse passengers."
-      ],
-      "answer_index":2,
-      "explanation_en":"Taxi drivers may refuse service when the vehicle is full or the passenger poses a threat.",
-      "explanation_uk":"Водії таксі можуть відмовити, якщо автомобіль повний або пасажир несе загрозу.",
-      "image":"24.png"
-   },
-   {
-      "question_number":25,
-      "question":"At an intersection, a driver must stop:",
-      "question_uk":"На перехресті водій повинен зупинитися:",
-      "options":[
-         "If the light is flashing red.",
-         "If the traffic light has just turned yellow.",
-         "If the traffic light is showing green arrow to turn left.",
-         "If they are passing another vehicle."
-      ],
-      "answer_index":0,
-      "explanation_en":"A flashing red light means stop completely before proceeding when safe.",
-      "explanation_uk":"Миготливе червоне світло означає повну зупинку перед тим, як безпечно продовжити рух.",
-      "image":"25.png"
-   },
-   {
-      "question_number":26,
-      "question":"What should a driver do with passengers when a bus breaks down in a dangerous location (i.e. in the middle of a highway)?",
-      "question_uk":"Що повинен зробити водій з пасажирами, якщо автобус зламався у небезпечному місці (наприклад, посеред шосе)?",
-      "options":[
-         "Ensure students exit through the rear or front door.",
-         "Check that all traffic has stopped before unloading the bus.",
-         "Check for traffic before you let them cross in front of the bus.",
-         "Operate alternating amber and red flashing lights."
-      ],
-      "answer_index":1,
-      "explanation_en":"Safety requires confirming all traffic has stopped before unloading.",
-      "explanation_uk":"Для безпеки необхідно переконатися, що весь рух зупинено перед висадкою.",
-      "image":"26.png"
-   },
-   {
-      "question_number":27,
-      "question":"When your vehicle is being passed on two lane highway where traffic flows in different directions, it is good practice to _____",
-      "question_uk":"Коли ваше авто обганяють на двосмуговому шосе з зустрічним рухом, рекомендовано:",
-      "options":[
-         "Increase your speed.",
-         "Always shoulder check if a vehicle wants to overtake your vehicle.",
-         "Decrease your speed.",
-         "Move to the right side of your lane to give the other driver a better view of the road ahead, if safe."
-      ],
-      "answer_index":3,
-      "explanation_en":"Moving to the right helps the passing driver see ahead safely.",
-      "explanation_uk":"Зміщення вправо допомагає обганяючому водієві краще бачити дорогу попереду.",
-      "image":"27.png"
-   },
-   {
-      "question_number":28,
-      "question":"A school bus driver should activate a strobe lamp __________",
-      "question_uk":"Водій шкільного автобуса повинен активувати проблисковий маячок __________",
-      "options":[
-         "at the first indication of a mechanical fault on route with students on board.",
-         "when it is about to stop on a highway.",
-         "during emergency situations on the bus.",
-         "during adverse atmospheric and visibility conditions."
-      ],
-      "answer_index":3,
-      "explanation_en":"Strobe lamps are used in poor visibility to increase bus visibility.",
-      "explanation_uk":"Проблискові маячки використовують при поганій видимості для кращої помітності автобуса.",
-      "image":"28.png"
-   },
-   {
-      "question_number":29,
-      "question":"A _________ must follow the two second rule when following a passenger vehicle under ideal conditions?",
-      "question_uk":"_________ повинен дотримуватися правила двох секунд при русі за легковим автомобілем в ідеальних умовах?",
-      "options":[
-         "Ambulance",
-         "A school bus",
-         "Passenger vehicle",
-         "Police vehicle"
-      ],
-      "answer_index":2,
-      "explanation_en":"Passenger vehicles must follow the two-second rule for safety.",
-      "explanation_uk":"Легкові автомобілі повинні дотримуватись правила двох секунд задля безпеки.",
-      "image":"29.png"
-   },
-   {
-      "question_number":30,
-      "question":"What should a taxi driver do before starting a trip if a passenger is offensive?",
-      "question_uk":"Що повинен зробити водій таксі перед поїздкою, якщо пасажир поводиться образливо?",
-      "options":[
-         "Call the employer and report the issue.",
-         "Refuse to carry the passenger.",
-         "Stay calm and respectfully resolve any concern.",
-         "Call law-enforcement as soon as possible."
-      ],
-      "answer_index":1,
-      "explanation_en":"If a passenger is offensive, the taxi driver can refuse the trip.",
-      "explanation_uk":"Якщо пасажир поводиться образливо, водій таксі може відмовитися від поїздки.",
-      "image":"30.png"
-   },
-   {
-      "question_number":31,
-      "question":"When driving at night or when you cannot see 150 meters in front of you, you must turn on your",
-      "question_uk":"Під час водіння вночі або коли ви не бачите 150 метрів попереду, ви повинні ввімкнути",
-      "options":[
-         "Hazard lights",
-         "Hazard lights and headlights",
-         "Head lights",
-         "Tail lights"
-      ],
-      "answer_index":2,
-      "explanation_en":"Headlights are required when visibility is less than 150 meters or at night.",
-      "explanation_uk":"Фари повинні бути увімкнені вночі або коли видимість менше 150 метрів.",
-      "image":"31.png"
-   },
-   {
-      "question_number":32,
-      "question":"To minimise risks associated with students getting on and off the bus, a school bus driver may do the following EXCEPT:",
-      "question_uk":"Щоб мінімізувати ризики, пов’язані з посадкою та висадкою учнів, водій шкільного автобуса може зробити все наступне, КРІМ:",
-      "options":[
-         "Ensure students exit through the rear or front door.",
-         "Check that all traffic has stopped before unloading the bus.",
-         "Check for traffic before you let them cross in front of the bus.",
-         "Operate alternating amber and red flashing lights."
-      ],
-      "answer_index":0,
-      "explanation_en":"Students should exit through the front door only for safety.",
-      "explanation_uk":"Для безпеки учні повинні виходити лише через передні двері.",
-      "image":"32.png"
-   },
-   {
-      "question_number":33,
-      "question":"When attempting to merge with traffic on a highway, a driver should:",
-      "question_uk":"Коли водій намагається злитися з потоком на шосе, він повинен:",
-      "options":[
-         "Stop at the end of the merge lane until the traffic on the highway is clear.",
-         "Choose an entry space and adjust their speed to merge smoothly.",
-         "Stop at the beginning of the merge lane until the traffic on the highway is clear.",
-         "Maintain speed since merging traffic has the right of way"
-      ],
-      "answer_index":1,
-      "explanation_en":"Drivers must adjust speed to merge safely without stopping.",
-      "explanation_uk":"Водій повинен коригувати швидкість для безпечного злиття без зупинки.",
-      "image":"33.png"
-   },
-   {
-      "question_number":34,
-      "question":"When should a siren in an emergency vehicle be operated?",
-      "question_uk":"Коли слід вмикати сирену в аварійному транспортному засобі?",
-      "options":[
-         "When the vehicle is being used in response to an emergency.",
-         "When the driver anticipates traffic delays.",
-         "When the vehicle has low fuel.",
-         "When transit time is higher than usual."
-      ],
-      "answer_index":0,
-      "explanation_en":"Sirens are used only in response to emergencies.",
-      "explanation_uk":"Сирену використовують лише у випадках реагування на надзвичайні ситуації.",
-      "image":"34.png"
-   },
-   {
-      "question_number":35,
-      "question":"The holder of a Class 4 driver’s licence may operate a bus with a maximum seating capacity of:",
-      "question_uk":"Власник водійських прав класу 4 може керувати автобусом з максимальною кількістю місць для сидіння:",
-      "options":[
-         "12 passengers, excluding the driver.",
-         "15 passengers, excluding the driver.",
-         "24 passengers, excluding the driver.",
-         "36 passengers, excluding the driver."
-      ],
-      "answer_index":2,
-      "explanation_en":"Class 4 licence allows operation of buses up to 24 passengers (not including driver).",
-      "explanation_uk":"Права класу 4 дозволяють керувати автобусом до 24 пасажирів (без урахування водія).",
-      "image":"35.png"
-   },
-   {
-      "question_number":36,
-      "question":"In a vehicle that does not have anti-lock brakes, what does threshold braking refer to?",
-      "question_uk":"У транспортному засобі без антиблокувальної системи гальмування, що означає гальмування на межі зчеплення?",
-      "options":[
-         "Pumping the brake pedal repeatedly until the vehicle comes to a stop.",
-         "Pressing firmly on the brake pedal to the point just before the wheels lock.",
-         "Applying enough force to the brake pedal to lock the wheels and keep them locked.",
-         "Releasing pressure on the brake pedal, then reapplying pressure until the wheels lock."
-      ],
-      "answer_index":1,
-      "explanation_en":"Threshold braking is applying firm pressure just before wheel lock.",
-      "explanation_uk":"Гальмування на межі означає сильне натискання гальма майже до блокування коліс.",
-      "image":"36.png"
-   },
-   {
-      "question_number":37,
-      "question":"Which of the following can impair your judgment and ability to safely operate a vehicle.",
-      "question_uk":"Що з наведеного може погіршити вашу здатність безпечно керувати транспортним засобом?",
-      "options":[
-         "Over the counter medications",
-         "Prescription drugs",
-         "Alcohol",
-         "All of the above"
-      ],
-      "answer_index":3,
-      "explanation_en":"All listed substances can impair driving ability.",
-      "explanation_uk":"Усі перелічені речовини можуть погіршити здатність керування.",
-      "image":"37.png"
-   },
-   {
-      "question_number":38,
-      "question":"This sign indicates:",
-      "question_uk":"Цей знак означає:",
-      "options":[
-         "Divided highway ends",
-         "Divided highway begins",
-         "Two-way traffic",
-         "Obstruction - pass on the left"
-      ],
-      "answer_index":1,
-      "explanation_en":"This is the symbol for the beginning of a divided highway.",
-      "explanation_uk":"Цей знак означає початок розділеного шосе.",
-      "image":"38.png"
-   },
-   {
-      "question_number":39,
-      "question":"A school bus parked on a hill must be left in:",
-      "question_uk":"Шкільний автобус, припаркований на пагорбі, повинен залишатися у:",
-      "options":[
-         "Low gear or reverse for a manual transmission.",
-         "Neutral gear for an automatic transmission.",
-         "Engaged park brake for manual or automatic transmission.",
-         "All of the above."
-      ],
-      "answer_index":3,
-      "explanation_en":"All listed safety steps must be followed when parking a school bus on a hill.",
-      "explanation_uk":"При паркуванні автобуса на пагорбі потрібно виконати всі перелічені дії.",
-      "image":"39.png"
-   },
-   {
-      "question_number":40,
-      "question":"In an emergency, you should park your vehicle:",
-      "question_uk":"У надзвичайній ситуації ви повинні припаркувати транспортний засіб:",
-      "options":[
-         "On the shoulder/emergency stopping lane.",
-         "In the right-side lane.",
-         "In the nearest deceleration lane.",
-         "Any place, as long as your have your four-way flashers on."
-      ],
-      "answer_index":0,
-      "explanation_en":"The emergency stopping lane is the safest place to stop.",
-      "explanation_uk":"Смуга для зупинки в екстреній ситуації — найбезпечніше місце.",
-      "image":"40.png"
-   },
-
-
-   // 41-49 (inserted)
-
-   {
-      "question_number": 41,
-      "question": "Which of the following activity is not allowed under the distracted driving law?",
-      "question_uk": "Яка з наведених дій заборонена згідно із законом про відволікання уваги під час водіння?",
-      "options": [
-         "Smoking cigarettes.",
-         "Eating a snack.",
-         "Reading printed material in the vehicle.",
-         "Using a citizen's band radio to contact one's employer."
-      ],
-      "answer_index": 2,
-      "explanation_en": "Reading printed material while driving is prohibited under distracted driving law.",
-      "image": "41.png"
-   },
-   {
-      "question_number": 42,
-      "question": "Driver fitness assessment should be conducted by _____________",
-      "question_uk": "Оцінка фізичної форми водія повинна проводитися _____________",
-      "options": [
-         "The licensing authority every 5 years to age 45, then every 2 years until the age of 65, and annually thereafter.",
-         "The driver before each trip.",
-         "The driver's family doctor annually.",
-         "The driver's employer every 12 weeks."
-      ],
-      "answer_index": 1,
-      "explanation_en": "Drivers must assess their own fitness before each trip to ensure safety.",
-      "image": "42.png"
-   },
-   {
-      "question_number": 43,
-      "question": "What is a general rule for driving a person with disabilities?",
-      "question_uk": "Яке загальне правило перевезення людей з інвалідністю?",
-      "options": [
-         "Take the time to learn their needs and preferred method of communicating.",
-         "Always communicate directly with the attendant of the person with the disability.",
-         "Review the transportation process with the client when meeting them for the first time.",
-         "Both A and C."
-      ],
-      "answer_index": 3,
-      "explanation_en": "Understanding and reviewing with the client are both important for safety and respect.",
-      "image": "43.png"
-   },
-   {
-      "question_number": 44,
-      "question": "When your vehicle is being passed on two lane highway where traffic flows in different directions, it is good practice to ____________",
-      "question_uk": "Коли ваш автомобіль обганяють на двосмуговій дорозі з зустрічним рухом, хорошою практикою є ____________",
-      "options": [
-         "Increase your speed.",
-         "Decrease your speed.",
-         "Move to the right side of your lane to give the other driver a better view of the road ahead, if safe.",
-         "Always shoulder check if a vehicle wants to overtake your vehicle."
-      ],
-      "answer_index": 3,
-      "explanation_en": "Shoulder checking improves awareness and safety during overtaking.",
-      "image": "44.png"
-   },
-   {
-      "question_number": 45,
-      "question": "A driver attempting to turn left at a steady green traffic light:",
-      "question_uk": "Водій, що намагається повернути ліворуч на постійне зелене світло:",
-      "options": [
-         "Must not cross the path of an approaching vehicle unless it is safe.",
-         "Must stop before the pedestrian crosswalk line, then proceed.",
-         "Has the right-of-way over oncoming traffic.",
-         "Has the right-of-way over pedestrians."
-      ],
-      "answer_index": 0,
-      "explanation_en": "Turning left requires yielding to oncoming traffic unless it's safe.",
-      "image": "45.png"
-   },
-   {
-      "question_number": 46,
-      "question": "In case of vehicle fire, what is the best approach to evacuate passenger from a school bus?",
-      "question_uk": "У разі загоряння транспортного засобу, який найкращий спосіб евакуації пасажирів зі шкільного автобуса?",
-      "options": [
-         "Only through front door.",
-         "Depending on emergency and using combination of emergency and front doors.",
-         "Through windows and doors.",
-         "Only through rear emergency door."
-      ],
-      "answer_index": 1,
-      "explanation_en": "Evacuation depends on emergency type; use both emergency and front doors if needed.",
-      "image": "46.png"
-   },
-   {
-      "question_number": 47,
-      "question": "An emergency medical vehicle operator responding to a scene of a Collision should:",
-      "question_uk": "Водій аварійного медичного транспорту, який прибуває на місце аварії, повинен:",
-      "options": [
-         "Keep the flashing lights activated and turn on the headlights so that the vehicle is clearly visible to other drivers.",
-         "Turn off siren and flashing lights once parked at the scene of Collision.",
-         "Keep the siren activated to go through traffic lights/intersections without stopping.",
-         "Park the vehicle a distance away from the collision, injured person and attendant."
-      ],
-      "answer_index": 0,
-      "explanation_en": "Keeping lights on ensures visibility and safety at the scene.",
-      "image": "47.png"
-   },
-   {
-      "question_number": 48,
-      "question": "When assisting passengers who are hearing impaired to get their attention, what should you do?",
-      "question_uk": "Допомагаючи пасажирам з порушенням слуху привернути їхню увагу, що слід зробити?",
-      "options": [
-         "Be very audible to get their attention.",
-         "Ask their attendant to communicate on your behalf.",
-         "Use official sign language.",
-         "Gesture with your hand or touch their arm lightly to get their attention."
-      ],
-      "answer_index": 3,
-      "explanation_en": "Gentle gestures or touch are appropriate ways to gain attention of hearing-impaired individuals.",
-      "image": "48.png"
-   },
-   {
-      "question_number": 49,
-      "question": "When does a driver have to take 24 consecutive hours of off-duty time, regardless of cycle?",
-      "question_uk": "Коли водій повинен взяти 24 години підряд позаробочого часу, незалежно від циклу?",
-      "options": [
-         "Before reaching 50 hours in 7 days.",
-         "Before reaching 90 hours in 14 days.",
-         "Once a month when the unit goes to the shop for its regular maintenance.",
-         "Before reaching 70 hours in 7 days."
-      ],
-      "answer_index": 3,
-      "explanation_en": "Drivers must take 24 hours off before reaching 70 hours on duty in 7 days.",
-      "image": "49.png"
-   },
-
-
-   {
-      "question_number":50,
-      "question":"When can a school bus driver leave the bus without turning off the engine?",
-      "question_uk":"Коли водій шкільного автобуса може вийти з автобуса, не вимикаючи двигун?",
-      "options":[
-         "When the brakes are engaged.",
-         "When there are no students on board.",
-         "When the transmission is in its lowest gear (manual) or park (automatic) position.",
-         "Never, a driver is not permitted to leave the bus without turning off the engine."
-      ],
-      "answer_index":3,
-      "explanation_en":"A driver must always turn off the engine before leaving the bus.",
-      "image":"50.png"
-   },
-   {
-      "question_number":51,
-      "question":"The law requires that headlights be turned on when driving at night or when the driver cannot see clearly for a minimum distance of:",
-      "question_uk":"Згідно з законом, фари мають бути увімкнені вночі або коли водій не бачить чітко на відстань мінімум:",
-      "options":[
-         "500 metres.",
-         "250 metres.",
-         "150 metres.",
-         "1,000 metres."
-      ],
-      "answer_index":2,
-      "explanation_en":"Headlights must be used when visibility is less than 150 metres.",
-      "image":"51.png"
-   },
-   {
-      "question_number":52,
-      "question":"What should an emergency vehicle driver do after arriving at the scene of the emergency?",
-      "question_uk":"Що повинен зробити водій аварійного транспортного засобу після прибуття на місце події?",
-      "options":[
-         "Place reflective devices around the scene.",
-         "Turn off the vehicle and lights to minimise psychological trauma.",
-         "Keep the overhead lights and headlights turned on.",
-         "Keep the siren activated."
-      ],
-      "answer_index":2,
-      "explanation_en":"Overhead lights and headlights must remain on for visibility at the emergency scene.",
-      "image":"52.png"
-   },
-   {
-      "question_number":53,
-      "question":"What must a driver of an emergency vehicle do in order to drive past the speed limit?",
-      "question_uk":"Що повинен зробити водій аварійного автомобіля, щоб перевищити обмеження швидкості?",
-      "options":[
-         "Flash the headlights.",
-         "Nothing, drivers of emergency vehicles are always exempt from following speed limits.",
-         "Use the siren.",
-         "Use the horn."
-      ],
-      "answer_index":2,
-      "explanation_en":"Emergency drivers must activate the siren to legally exceed the speed limit.",
-      "image":"53.png"
-   },
-   {
-      "question_number":54,
-      "question":"How often should a Class 4 license driver submit a medical examination report?",
-      "question_uk":"Як часто водій із ліцензією класу 4 повинен подавати медичну довідку?",
-      "options":[
-         "Every 5 years until the age of 65 and every 2 years after age 65.",
-         "A medical examination report is not required for Class 4 drivers.",
-         "Every 4 years until age 45, every 5 years between age 45-65 and every 2 years after age 65.",
-         "Every 5 years until age 45, every 2 years between age 45-65 and annually after age 65."
-      ],
-      "answer_index":3,
-      "explanation_en":"Class 4 drivers must submit exams more frequently as they age.",
-      "image":"54.png"
-   },
-   {
-      "question_number":55,
-      "question":"A driver attempting to turn left at a steady green traffic light:",
-      "question_uk":"Водій, який намагається повернути ліворуч на постійне зелене світло:",
-      "options":[
-         "Has the right-of-way over pedestrians.",
-         "Must not cross the path of an approaching vehicle unless it is safe.",
-         "Must stop before the pedestrian crosswalk line, then proceed.",
-         "Has the right-of-way over oncoming traffic."
-      ],
-      "answer_index":1,
-      "explanation_en":"The driver must yield to oncoming traffic and turn only when safe.",
-      "image":"55.png"
-   },
-   {
-      "question_number":56,
-      "question":"What is the best way to decide your route for your passenger?",
-      "question_uk":"Який найкращий спосіб обрати маршрут для пасажира?",
-      "options":[
-         "Take a convenient route that driver prefers.",
-         "Take the most direct route unless otherwise discussed with passenger.",
-         "Take the most direct route unless otherwise discussed with passenger.",
-         "Take a scenic or pleasurable route for passenger."
-      ],
-      "answer_index":1,
-      "explanation_en":"The most direct route is preferred unless agreed otherwise.",
-      "image":"56.png"
-   },
-   {
-      "question_number":57,
-      "question":"An 'uncontrolled intersection':",
-      "question_uk":"Нерегульоване перехрестя:",
-      "options":[
-         "Has yield signs but no stop signs.",
-         "Has traffic signs but no traffic control signal lights.",
-         "Has a flashing yellow light for one direction of traffic and a flashing red light for the other direction of traffic.",
-         "Has no traffic control signal lights or traffic signs."
-      ],
-      "answer_index":3,
-      "explanation_en":"An uncontrolled intersection has no lights or signs.",
-      "image":"57.png"
-   },
-   {
-      "question_number":58,
-      "question":"This sign indicates:",
-      "question_uk":"Цей знак означає:",
-      "options":[
-         "Two-way traffic.",
-         "Right turns only.",
-         "U-turns permitted",
-         "Left-turn lane control"
-      ],
-      "answer_index":3,
-      "explanation_en":"The sign indicates a dedicated left-turn lane.",
-      "image":"58.png"
-   },
-   {
-      "question_number":59,
-      "question":"Fatigue can be made worse by:",
-      "question_uk":"Що може посилити втому?",
-      "options":[
-         "Overeating.",
-         "A cold vehicle.",
-         "Smoking",
-         "Both A and C."
-      ],
-      "answer_index":0,
-      "explanation_en":"Overeating can contribute to fatigue while driving.",
-      "image":"59.png"
-   },
-   {
-       "question_number": 60,
-       "question": "When encountering a funeral procession that is crossing an intersection:",
-       "question_uk": "Коли ви зустрічаєте похоронну процесію, яка перетинає перехрестя:",
-       "options": [
-       "Sound the horn before proceeding.",
-       "Proceed through the funeral procession only when there is sufficient space between vehicles.",
-       "Yield the right-of-way and do not break through the procession.",
-       "Flash the high beam headlights before proceeding."
+    {
+        "question_number": 1,
+        "question": "Is an operator permitted to turn left from a one-way road onto a one-way road at a steady red traffic control light?",
+        "question_uk": "Чи дозволено водієві повернути ліворуч з дороги з одностороннім рухом на іншу дорогу з одностороннім рухом при сталому червоному сигналі світлофора?",
+        "options": [
+            "No, only right turns are permitted on a red light.",
+            "Yes, after reducing speed and yielding to any traffic or pedestrians.",
+            "Only when there is a sign permitting the turn at a red light.",
+            "Yes, after stopping, when it is safe, unless prohibited by a sign."
         ],
-       "answer_index": 2,
-       "explanation_en": "Drivers must yield the right-of-way and avoid interrupting a funeral procession.",
-       "image": "60.png"
-   },
-   {
-      "question_number":61,
-      "question":"Which of the following statements about speed is NOT true?",
-      "question_uk":"Яке з наступних тверджень про швидкість є НЕправильним?",
-      "options":[
-         "Increases stopping distance.",
-         "Reduces braking distance.",
-         "Impacts the ability of a driver to react to actions or detect hazards.",
-         "Impacts the ability of a driver to safely negotiate curves, lane changes, or maneuver."
-      ],
-      "answer_index":1,
-      "explanation_en":"Higher speed increases braking distance, not reduces it.",
-      "image":"61.png"
-   },
-   {
-      "question_number":62,
-      "question":"A passing lane is used ____________",
-      "question_uk":"Смуга для обгону використовується ____________",
-      "options":[
-         "By cars moving straight at an intersection.",
-         "By slower vehicles.",
-         "When overtaking a vehicle.",
-         "By faster vehicles."
-      ],
-      "answer_index":3,
-      "explanation_en":"Passing lanes are intended for faster vehicles to pass slower ones.",
-      "image":"62.png"
-   },
-   {
-      "question_number":63,
-      "question":"__________ allows you to anticipate hazards and maintain a constant speed.",
-      "question_uk":"__________ дозволяє передбачати небезпеки та підтримувати постійну швидкість.",
-      "options":[
-         "Defensive driving",
-         "Driver complacency",
-         "Driver complacency",
-         "Momentum"
-      ],
-      "answer_index":0,
-      "explanation_en":"Defensive driving helps anticipate dangers on the road.",
-      "image":"63.png"
-   },
-   {
-      "question_number":64,
-      "question":"Which of the following vehicles requires a daily trip inspection report to be completed?",
-      "question_uk":"Для якого з наступних транспортних засобів потрібно заповнити щоденний звіт про огляд поїздки?",
-      "options":[
-         "Bus for 10 passengers.",
-         "Limousine for 10 passengers.",
-         "Bus for 15 passengers.",
-         "Taxi for 8 passengers."
-      ],
-      "answer_index":2,
-      "explanation_en":"A bus carrying more than 10 passengers typically requires a daily inspection.",
-      "image":"64.png"
-   },
-   {
-      "question_number":65,
-      "question":"When operating an emergency vehicle with sirens on, which of the following is a condition you must consider before exceeding speed limits or driving through stop signs and traffic signal lights?",
-      "question_uk":"Керуючи аварійним транспортом із включеними сиренами, що слід враховувати перед перевищенням швидкості або проїздом через знаки «Стоп» і світлофори?",
-      "options":[
-         "Vehicle conditions",
-         "Seriousness of the emergency",
-         "Safety of road users",
-         "Travel time"
-      ],
-      "answer_index":2,
-      "explanation_en":"The safety of other road users must always come first.",
-      "image":"65.png"
-   },
-   {
-      "question_number":66,
-      "question":"Drivers can have a limit of ____________ milligrams of alcohol in 100 millilitres of blood when operating a commercial vehicle in a commercial capacity.",
-      "question_uk":"Водії можуть мати ліміт у ____________ міліграмів алкоголю в 100 мілілітрах крові при керуванні комерційним транспортом.",
-      "options":[
-         "100",
-         "0",
-         "80",
-         "50"
-      ],
-      "answer_index":1,
-      "explanation_en":"Commercial vehicle drivers must have 0 mg of alcohol in their blood.",
-      "image":"66.png"
-   },
-   {
-      "question_number":67,
-      "question":"As a taxi driver, you may refuse to transport customers if:",
-      "question_uk":"Як водій таксі, ви можете відмовити в перевезенні пасажирів, якщо:",
-      "options":[
-         "The passenger is accompanied by two service animals.",
-         "A passenger is below the age of 18.",
-         "A passenger is below the age of 16.",
-         "It is unsafe to transport the passengers."
-      ],
-      "answer_index":3,
-      "explanation_en":"Passenger safety is the primary reason to refuse transport.",
-      "image":"67.png"
-   },
-   {
-      "question_number":68,
-      "question":"Which of the following can impair your judgment and ability to safely operate a vehicle?",
-      "question_uk":"Що з наведеного може погіршити вашу здатність безпечно керувати транспортом?",
-      "options":[
-         "Over the counter medications",
-         "Prescription drugs",
-         "Alcohol",
-         "All of the above"
-      ],
-      "answer_index":3,
-      "explanation_en":"All listed substances can impair your driving ability.",
-      "image":"68.png"
-   },
-   {
-      "question_number":69,
-      "question":"At an intersections where stop signs are located at all corners, a driver should:",
-      "question_uk":"На перехресті, де знаки Стоп є на всіх кутах, водій повинен:",
-      "options":[
-         "Stop, allow the vehicle that arrived first to proceed first.",
-         "Stop, proceed when it is safe.",
-         "Stop, allow the vehicle on the right to proceed first.",
-         "Stop, allow vehicles on the left to proceed first."
-      ],
-      "answer_index":0,
-      "explanation_en":"The first vehicle to arrive at the intersection has the right of way.",
-      "image":"69.png"
-   },
-   {
-      "question_number":70,
-      "question":"What is the best approach when assisting a visually impaired passenger?",
-      "question_uk":"Який найкращий підхід при наданні допомоги пасажиру з вадами зору?",
-      "options":[
-         "Do not offer to help till they ask.",
-         "Offer to help and take their right arm for better body balance/support.",
-         "Offer to help and wait for them to accept before you assist.",
-         "Verbally and audibly inform them on how they should proceed."
-      ],
-      "answer_index":2,
-      "explanation_en":"Always ask first and wait for acceptance before offering physical assistance.",
-      "image":"70.png"
-   },
-   {
-      "question_number": 71,
-      "question": "What is the best approach when assisting a visually impaired passenger?",
-      "question_uk": "Який найкращий підхід при наданні допомоги пасажиру з вадами зору?",
-      "options": [
-        "Do not offer to help till they ask.",
-        "Offer to help and take their right arm for better body balance/support.",
-        "Offer to help and wait for them to accept before you assist.",
-        "Verbally and audibly inform them on how they should proceed."
-      ],
-      "answer_index": 2,
-      "explanation_en": "You should always ask and wait for permission before offering assistance to a visually impaired person.",
-      "image": "71.png"
-   },
-   {
-      "question_number": 72,
-      "question": "General rules for transporting persons with disabilities include:",
-      "question_uk": "Загальні правила перевезення осіб з інвалідністю включають:",
-      "options": [
-        "Make sure passengers are properly secured in the vehicle (both seated passengers and passengers with wheelchair).",
-        "Drive smoothly, avoiding sudden stops, starts and swerves that may cause passengers to shift or lose their balance.",
-        "Keep the noise level in the vehicle, including music or radio, to a level comfortable for your clients.",
-        "All of the above"
-      ],
-      "answer_index": 3,
-      "explanation_en": "All of the listed measures contribute to a safe and respectful experience for passengers with disabilities.",
-      "image": "72.png"
-   },
-   {
-      "question_number": 73,
-      "question": "How should a driver of a school bus deal with a badly behaved student?",
-      "question_uk": "Як водій шкільного автобуса повинен діяти з учнем, який поводиться неналежно?",
-      "options": [
-        "Remove the student from the bus at any place to avoid driving distractions.",
-        "Remove the student at the nearest safe location and contact the school administrator.",
-        "Drop the student off at their normal destination and report student's behaviour to the school administrator.",
-        "Prohibit the student from riding the school bus subsequently."
-      ],
-      "answer_index": 2,
-      "explanation_en": "Drivers should not take action themselves, but should follow protocol and report the issue appropriately.",
-      "image": "73.png"
-   },
-   {
-      "question_number": 74,
-      "question": "What vehicles are exempt from the distracted driving law?",
-      "question_uk": "Які транспортні засоби звільняються від закону про відволікання під час водіння?",
-      "options": [
-        "No vehicles are exempt from distracted driving.",
-        "Cars, motorcycles, motor homes, trucks, farm vehicles, and bicycles.",
-        "Emergency vehicles are exempt at all times.",
-        "Emergency vehicles when responding to a call."
-      ],
-      "answer_index": 3,
-      "explanation_en": "Emergency vehicles are only exempt while actively responding to a call.",
-      "image": "74.png"
-   },
-   {
-      "question_number": 75,
-      "question": "What may passengers NOT do while a school bus is in motion?",
-      "question_uk": "Що пасажирам ЗАБОРОНЕНО робити, коли шкільний автобус рухається?",
-      "options": [
-        "Sing",
-        "Electronic devices.",
-        "Stand",
-        "Talk"
-      ],
-      "answer_index": 2,
-      "explanation_en": "Standing while the bus is in motion is unsafe and not allowed.",
-      "image": "75.png"
-   },
-   {
-      "question_number": 76,
-      "question": "When is a driver of a taxi exempt from wearing a seatbelt?",
-      "question_uk": "Коли водій таксі звільняється від обов’язку носити ремінь безпеки?",
-      "options": [
-        "When there are no passengers in the vehicle.",
-        "When the taxi commission has provided an exemption letter.",
-        "A driver is never required to wear a seat belt.",
-        "When transporting a passenger for compensation or hire."
-      ],
-      "answer_index": 3,
-      "explanation_en": "In Alberta, taxi drivers transporting paying passengers are exempt from seatbelt use.",
-      "image": "76.png"
-   },
-   {
-      "question_number": 77,
-      "question": "When approaching an intersection with cross traffic, what is a good practice for emergency vehicle drivers who are responding to an emergency?",
-      "question_uk": "Що повинен зробити водій спецтранспорту, наближаючись до перехрестя з поперечним рухом під час реагування на виклик?",
-      "options": [
-        "Slow down to confirm other road users are yielding.",
-        "Deactivate and activate the headlights to draw more attention.",
-        "Speed up to clear the intersection.",
-        "Sound the horn to alert pedestrians."
-      ],
-      "answer_index": 0,
-      "explanation_en": "Even with lights and sirens, emergency vehicle drivers must proceed with caution.",
-      "image": "77.png"
-   },
-   {
-      "question_number": 78,
-      "question": "When transporting a passenger accompanied by a service animal, a driver should",
-      "question_uk": "Коли пасажир подорожує зі службовою твариною, водій повинен:",
-      "options": [
-        "Never carry an accompanying service animal as it may pose allergy or health risk to the driver or other passengers.",
-        "Never refuse to carry an accompanying service animal per the Traffic Safety Act.",
-        "Only carry a service animal provided it is safe per the Traffic Safety Act.",
-        "Only carry a service animal if the passenger will be able to restrain the animal during the trip"
-      ],
-      "answer_index": 2,
-      "explanation_en": "Service animals must be accepted unless they pose a clear safety risk.",
-      "image": "78.png"
-   },
-   {
-      "question_number": 79,
-      "question": "What is a general rule for judging distance in front of you when pushing a person with a wheelchair?",
-      "question_uk": "Яке загальне правило визначення відстані спереду, коли ви штовхаєте інвалідний візок?",
-      "options": [
-        "Judge distance by the passenger’s knees.",
-        "Judge distance by the front of the seat.",
-        "Judge distance by the front of the foot rests.",
-        "Judge distance by where you are standing."
-      ],
-      "answer_index": 2,
-      "explanation_en": "The footrests extend furthest, so they should be used to judge space to obstacles.",
-      "image": "79.png"
-   },
-   {
-      "question_number": 80,
-      "question": "When are dual turns permitted at an intersection?",
-      "question_uk": "Коли дозволені подвійні повороти на перехресті?",
-      "options": [
-        "Any time there are at least 2 lanes on the road being entered.",
-        "Only when turning from a one-way road onto a one-way road.",
-        "Only when the road has 6 or more lanes.",
-        "Only when indicated by pavement markings or traffic control signs."
-      ],
-      "answer_index": 3,
-      "explanation_en": "Dual turns are only permitted where clearly marked by signage or pavement markings.",
-      "image": "80.png"
-   },
-   {
-      "question_number": 81,
-      "question": "The Traffic Safety Act does not restrict emergency vehicle drivers from using ________ while driving.",
-      "question_uk": "Закон про безпеку дорожнього руху не забороняє водіям аварійних транспортних засобів використовувати ________ під час руху.",
-      "options": [
-        "Entering information on the GPS en route",
-        "Cell phone if used in an emergency management situation",
-        "Cameras",
-        "Hand-held communication devices when acting within the scope of their employment"
-      ],
-      "answer_index": 1,
-      "explanation_en": "Emergency vehicle drivers may use cell phones during emergency management situations.",
-      "image": "81.png"
-   },
-   {
-      "question_number": 82,
-      "question": "Which of the following activity is not allowed under the distracted driving law?",
-      "question_uk": "Яка з наступних дій не дозволена відповідно до закону про відволікання уваги під час водіння?",
-      "options": [
-        "Reading printed material in the vehicle.",
-        "Using a citizen’s band radio to contact one's employer.",
-        "Eating a snack.",
-        "Smoking cigarettes."
-      ],
-      "answer_index": 0,
-      "explanation_en": "Reading printed material is considered a distraction and is prohibited by law.",
-      "image": "82.png"
-   },
-   {
-      "question_number": 83,
-      "question": "This sign indicates:",
-      "question_uk": "Цей знак вказує на:",
-      "options": [
-        "Route reserved for buses.",
-        "Route for vehicles over 4500 kg.",
-        "Route for dangerous goods.",
-        "Route for slow-moving vehicles."
-      ],
-      "answer_index": 2,
-      "explanation_en": "The green circle with a black diamond indicates a designated route for dangerous goods.",
-      "image": "83.png"
-   },
-   {
-      "question_number": 84,
-      "question": "What should a driver do when unloading a passenger?",
-      "question_uk": "Що повинен зробити водій при висадці пасажира?",
-      "options": [
-        "Use the mirrors to ensure no pedestrian, car or passenger is unsafely close to the doors before closing or opening.",
-        "Practice defensive and proactive driving tactics.",
-        "Thank and ask the passenger to provide feedback on your driving skill.",
-        "Assist the passengers by removing their seatbelt."
-      ],
-      "answer_index": 0,
-      "explanation_en": "Always check surroundings for safety before opening or closing vehicle doors.",
-      "image": "84.png"
-   },
-   {
-      "question_number": 85,
-      "question": "When approaching a stopped emergency vehicle that has flashing lights turned on, what should a driver do?",
-      "question_uk": "Під’їжджаючи до зупиненого аварійного транспортного засобу з увімкненими проблисковими маячками, що повинен зробити водій?",
-      "options": [
-        "Maintain approved speed limit, and prepare to stop if necessary.",
-        "Maintain speed limit at 60 km/h or lower, and prepare to stop if necessary.",
-        "Maintain speed limit at 70km/h or lower, and prepare to stop if necessary.",
-        "None of the above."
-      ],
-      "answer_index": 1,
-      "explanation_en": "The correct approach is to slow down to 60 km/h or less and be ready to stop.",
-      "image": "85.png"
-   },
-   {
-      "question_number": 86,
-      "question": "When exiting a two-lane traffic circle, the operator of a vehicle in the inside lane must:",
-      "question_uk": "При виїзді з кільця з двома смугами, водій з внутрішньої смуги повинен:",
-      "options": [
-        "Signal left and use caution when exiting the circle.",
-        "Signal right, and use caution when exiting the circle.",
-        "Stop and yield to any traffic on their right before exiting.",
-        "Enter the right-hand lane of the road being entered."
-      ],
-      "answer_index": 1,
-      "explanation_en": "The correct maneuver is to signal right and proceed with caution.",
-      "image": "86.png"
-   },
-   {
-      "question_number": 87,
-      "question": "What steps must the driver take before refueling a school bus?",
-      "question_uk": "Які дії повинен виконати водій перед заправкою шкільного автобуса?",
-      "options": [
-        "Check the air in the tires and wash the windshield.",
-        "Ensure that they have the only passwords",
-        "Ensure that they have the passwords and cards to operate the automatic fuel pump.",
-        "Ensure that they only have the card"
-      ],
-      "answer_index": 2,
-      "explanation_en": "The driver must have both passwords and the access card for the fuel pump system.",
-      "image": "87.png"
-   },
-   {
-      "question_number": 88,
-      "question": "Punishment for impaired driving under the Criminal Code includes ____________.",
-      "question_uk": "Покарання за водіння в нетверезому стані згідно з Кримінальним кодексом включає ____________.",
-      "options": [
-        "A combination of prison term, fine and driving ban.",
-        "Prison term and $1000 fine.",
-        "Prison term and $3000 fine.",
-        "Prison term and $500 fine."
-      ],
-      "answer_index": 0,
-      "explanation_en": "The punishment typically includes prison time, a fine, and a driving ban.",
-      "image": "88.png"
-   },
-   {
-      "question_number": 89,
-      "question": "As the driver of a passenger with disability, what should you do when meeting a client with a wheelchair for the first time?",
-      "question_uk": "Як водій пасажира з інвалідністю, що слід зробити при першій зустрічі з клієнтом у візку?",
-      "options": [
-        "Introduce yourself to the client, review the transportation process, and take the time to learn their needs.",
-        "Discuss the client’s needs with their attendant.",
-        "Ask the client to get into the vehicle and assist them to load their wheelchair into the vehicle if they have one.",
-        "Help the client into the vehicle safely and ensure a safe seating arrangement."
-      ],
-      "answer_index": 0,
-      "explanation_en": "Communication and understanding the passenger’s needs are crucial for safe transport.",
-      "image": "89.png"
-   },
-   {
-      "question_number": 90,
-      "question": "What should you do if you have a passenger on board, and a police vehicle stops behind your vehicle?",
-      "question_uk": "Що ви повинні зробити, якщо у вас є пасажир у салоні, і поліцейський автомобіль зупиняється позаду вашого транспортного засобу?",
-      "options": [
-        "Be quick as you interact with the police officer to save the passenger's time.",
-        "Stay calm and be prepared to provide your car documents when requested by the police officer.",
-        "Stay calm and step out of your vehicle to avoid distracting the passenger as you interact with the police.",
-        "Stop, offer to help the passenger arrange another taxi if to avoid delays."
-      ],
-      "answer_index": 1,
-      "explanation_en": "Remaining calm and providing documents is the most appropriate action during a police stop.",
-      "image": "90.png"
-   }
-,
-{
-  "question_number": 91,
-  "question": "How should passengers board and exit the school bus?",
-  "answers": {
-    "A": "Only after receiving permission from the driver, and the vehicle has come to a complete stop.",
-    "B": "By either the front or rear doors.",
-    "C": "Only through the front door.",
-    "D": "Only through the exit door located on the right side of the bus."
-  },
-  "correct_answer": "C"
-},
-{
-  "question_number": 92,
-  "question": "Vehicles are not allowed to drive in the bicycle lanes, except ______________",
-  "answers": {
-    "A": "When it is safe to do so and there are no bicycles on the lane.",
-    "B": "When overtaking another vehicle.",
-    "C": "When needing to turn or enter/exit a parking spot.",
-    "D": "When it is designated as a shared lane with cars."
-  },
-  "correct_answer": "C"
-},
-{
-  "question_number": 93,
-  "question": "U-turns in urban areas are not permitted at:",
-  "answers": {
-    "A": "Roads with a landscaped median.",
-    "B": "An intersection controlled by Stop signs.",
-    "C": "An intersection controlled by a traffic control signal.",
-    "D": "An intersection with marked traffic lanes."
-  },
-  "correct_answer": "C"
-},
-{
-  "question_number": 94,
-  "question": "At an intersection with no signs or signals, the vehicle",
-  "answers": {
-    "A": "that arrives first has the right of way.",
-    "B": "moving straight has the right of way.",
-    "C": "on the left of the driver has the right of way.",
-    "D": "to the right of the driver has the right of way."
-  },
-  "correct_answer": "D"
-},
-{
-  "question_number": 95,
-  "question": "A driver of persons with disabilities should be aware of the _________ needs",
-  "answers": {
-    "A": "Cognitive",
-    "B": "Developmental",
-    "C": "Mobility",
-    "D": "All of the above."
-  },
-  "correct_answer": "D"
-},
-{
-  "question_number": 96,
-  "question": "When attempting to merge with traffic on a highway, a driver should:",
-  "answers": {
-    "A": "Stop at the end of the merge lane until the traffic on the highway is clear.",
-    "B": "Choose an entry space and adjust their speed to merge smoothly.",
-    "C": "Stop at the beginning of the merge lane until the traffic on the highway is clear.",
-    "D": "Maintain speed since merging traffic has the right of way."
-  },
-  "correct_answer": "B"
-},
-{
-  "question_number": 97,
-  "question": "How often should a Class 4 license driver submit a medical examination report?",
-  "answers": {
-    "A": "Every 5 years until the age of 65 and every 2 years after age 65.",
-    "B": "A medical examination report is not required for Class 4 drivers.",
-    "C": "Every 4 years until age 45, every 5 years between age 45-65 and every 2 years after age 65.",
-    "D": "Every 5 years until age 45, every 2 years between age 45-65 and annually after age 65."
-  },
-  "correct_answer": "D"
-},
-{
-  "question_number": 98,
-  "question": "U-turns in urban areas are not permitted at:",
-  "answers": {
-    "A": "Roads with a landscaped median.",
-    "B": "An intersection controlled by Stop signs.",
-    "C": "An intersection controlled by a traffic control signal.",
-    "D": "An intersection with marked traffic lanes."
-  },
-  "correct_answer": "C"
-},
-{
-  "question_number": 99,
-  "question": "The holder of a Class 4 driver’s licence may operate a bus with a maximum seating capacity of:",
-  "answers": {
-    "A": "12 passengers, excluding the driver.",
-    "B": "24 passengers, excluding the driver.",
-    "C": "36 passengers, excluding the driver.",
-    "D": "15 passengers, excluding the driver."
-  },
-  "correct_answer": "B"
-},
-{
-  "question_number": 100,
-  "question": "What is true about use of navigation/GPS equipment?",
-  "answers": {
-    "A": "Driver may hold it on hand and enter information while driving.",
-    "B": "Driver may hold the device while driving if it is voice enabled.",
-    "C": "Driver must enter information before starting driving and device must be fixed on vehicle.",
-    "D": "Driver may enter information while driving but may not hold the device."
-  },
-  "correct_answer": "C"
-}
+        "options_uk": [
+            "Ні, на червоне світло дозволено лише поворот праворуч.",
+            "Так, після зниження швидкості та надання переваги транспорту або пішоходам.",
+            "Лише коли є знак, який дозволяє поворот на червоне світло.",
+            "Так, після зупинки, коли це безпечно, якщо немає забороняючого знака."
+        ],
+        "answer_index": 2,
+        "explanation_en": "A left turn on red from a one-way to another one-way road is permitted only when a sign allows it.",
+        "explanation_uk": "Поворот ліворуч на червоне світло з дороги з одностороннім рухом на іншу дозволено лише за наявності відповідного знака.",
+        "image": "1.png/jpg"
+    },
+    {
+        "question_number": 2,
+        "question": "What does a flashing yellow traffic control signal mean?",
+        "question_uk": "Що означає миготливий жовтий світлофор?",
+        "options": [
+            "Stop and wait for green light.",
+            "Proceed with caution and be prepared to stop.",
+            "Traffic signal is out of order.",
+            "Speed up to clear the intersection quickly."
+        ],
+        "options_uk": [
+            "Зупиніться і чекайте зеленого світла.",
+            "Рухайтеся обережно та будьте готові зупинитися.",
+            "Світлофор не працює.",
+            "Прискортеся, щоб швидко звільнити перехрестя."
+        ],
+        "answer_index": 1,
+        "explanation_en": "A flashing yellow light means proceed with caution and be prepared to stop if necessary.",
+        "explanation_uk": "Миготливий жовтий світлофор означає рухатися обережно і бути готовим зупинитися за потреби.",
+        "image": "2.png/jpg"
+    },
+    {
+        "question_number": 3,
+        "question": "What should you do when approaching a STOP sign?",
+        "question_uk": "Що слід робити, наближаючись до знака «STOP»?",
+        "options": [
+            "Slow down and proceed if clear.",
+            "Stop only if there is other traffic.",
+            "Come to a complete stop and proceed when safe.",
+            "Yield to pedestrians only."
+        ],
+        "options_uk": [
+            "Знизьте швидкість і продовжуйте рух, якщо шлях вільний.",
+            "Зупиняйтесь лише за наявності іншого транспорту.",
+            "Повністю зупиніться і рушайте, коли це безпечно.",
+            "Уступіть лише пішоходам."
+        ],
+        "answer_index": 2,
+        "explanation_en": "You must come to a complete stop at the stop sign and proceed only when it is safe.",
+        "explanation_uk": "Потрібно повністю зупинитися перед знаком і рушати лише коли це безпечно.",
+        "image": "3.png/jpg"
+    },
+    {
+        "question_number": 4,
+        "question": "When must you use your headlights in Alberta?",
+        "question_uk": "Коли потрібно вмикати фари в Альберті?",
+        "options": [
+            "Only at night.",
+            "When visibility is less than 150 meters.",
+            "Only during bad weather.",
+            "At all times during winter months."
+        ],
+        "options_uk": [
+            "Тільки вночі.",
+            "Коли видимість менше 150 метрів.",
+            "Тільки під час поганої погоди.",
+            "Постійно в зимові місяці."
+        ],
+        "answer_index": 1,
+        "explanation_en": "Headlights must be used when visibility is less than 150 meters, regardless of time of day.",
+        "explanation_uk": "Фари слід вмикати, коли видимість менша за 150 метрів, незалежно від часу доби.",
+        "image": "4.png/jpg"
+    },
+    {
+        "question_number": 5,
+        "question": "What is the two-second rule related to driving?",
+        "question_uk": "Що таке правило двох секунд у керуванні?",
+        "options": [
+            "Minimum time to signal before turning.",
+            "Minimum following distance in seconds behind another vehicle.",
+            "Time to wait at a stop sign.",
+            "Time to check mirrors before lane change."
+        ],
+        "options_uk": [
+            "Мінімальний час для подачі сигналу перед поворотом.",
+            "Мінімальна дистанція в секундах позаду іншого транспортного засобу.",
+            "Час очікування біля знака «СТОП».",
+            "Час для перевірки дзеркал перед зміною смуги."
+        ],
+        "answer_index": 1,
+        "explanation_en": "The two-second rule helps maintain a safe following distance by keeping at least two seconds behind the vehicle ahead.",
+        "explanation_uk": "Правило двох секунд допомагає підтримувати безпечну дистанцію, тримаючись не менше двох секунд позаду іншого транспортного засобу.",
+        "image": "5.png/jpg"
+    },
+    {
+        "question_number": 6,
+        "question": "At a four-way stop, who has the right-of-way?",
+        "question_uk": "Хто має перевагу на перехресті з чотирма знаками STOP?",
+        "options": [
+            "The vehicle that arrives first.",
+            "The vehicle on the left.",
+            "The vehicle on the right.",
+            "The largest vehicle."
+        ],
+        "options_uk": [
+            "Транспортний засіб, що прибув першим.",
+            "Транспортний засіб зліва.",
+            "Транспортний засіб справа.",
+            "Найбільший транспортний засіб."
+        ],
+        "answer_index": 0,
+        "explanation_en": "At a four-way stop, the vehicle that arrives first has the right-of-way.",
+        "explanation_uk": "На перехресті з чотирма знаками STOP перевагу має транспортний засіб, що прибув першим.",
+        "image": "stop_sign.png"
+    },
+    {
+        "question_number": 7,
+        "question": "What does total stopping distance include?",
+        "question_uk": "З яких частин складається загальна відстань зупинки?",
+        "options": [
+            "Perception distance only.",
+            "Reaction distance only.",
+            "Braking distance only.",
+            "Perception, reaction, and braking distances."
+        ],
+        "options_uk": [
+            "Тільки відстань сприйняття.",
+            "Тільки відстань реакції.",
+            "Тільки гальмівний шлях.",
+            "Відстань сприйняття, реакції та гальмування."
+        ],
+        "answer_index": 3,
+        "explanation_en": "Total stopping distance includes perception distance, reaction distance, and braking distance.",
+        "explanation_uk": "Загальна відстань зупинки включає відстань сприйняття, реакції та гальмування.",
+        "image": "7.png/jpg"
+    },
+    {
+        "question_number": 8,
+        "question": "What is a space cushion when driving?",
+        "question_uk": "Що таке «простір безпеки» (space cushion) під час керування?",
+        "options": [
+            "The space needed to park a vehicle.",
+            "The gap maintained around your vehicle to allow for safe maneuvering.",
+            "The distance between your vehicle and the curb.",
+            "The space occupied by your vehicle in a lane."
+        ],
+        "options_uk": [
+            "Простір, необхідний для паркування транспортного засобу.",
+            "Відстань, яку підтримуєте навколо авто для безпечного маневрування.",
+            "Відстань між вашим авто та бордюром.",
+            "Простір, зайнятий вашим авто в смузі."
+        ],
+        "answer_index": 1,
+        "explanation_en": "A space cushion is the gap you maintain around your vehicle to allow for safe maneuvering and reaction.",
+        "explanation_uk": "Простір безпеки — це відстань, яку ви підтримуєте навколо свого автомобіля для безпечного маневрування та реакції.",
+        "image": "8.png/jpg"
+    },
+    {
+        "question_number": 9,
+        "question": "What are the seat belt requirements in Alberta?",
+        "question_uk": "Які вимоги щодо ременів безпеки в Альберті?",
+        "options": [
+            "Only drivers must wear seat belts.",
+            "Seat belts are optional for passengers in the back seat.",
+            "All vehicle occupants must wear seat belts.",
+            "Seat belts are required only on highways."
+        ],
+        "options_uk": [
+            "Лише водії повинні користуватися ременями безпеки.",
+            "Ремені безпеки не є обов’язковими для пасажирів на задньому сидінні.",
+            "Всі пасажири транспортного засобу повинні користуватися ременями безпеки.",
+            "Ремені безпеки обов’язкові лише на автомагістралях."
+        ],
+        "answer_index": 2,
+        "explanation_en": "In Alberta, all vehicle occupants are required by law to wear seat belts.",
+        "explanation_uk": "В Альберті всі пасажири транспортного засобу зобов’язані користуватися ременями безпеки.",
+        "image": "9.png/jpg"
+    },
+    {
+        "question_number": 10,
+        "question": "Where should you stop at a stop sign if there is no stop line?",
+        "question_uk": "Де слід зупинитись на знак «STOP», якщо немає стоп-лінії?",
+        "options": [
+            "At the edge of the sidewalk or crosswalk.",
+            "Anywhere before the intersection.",
+            "At least 3 meters before the intersection.",
+            "Only if other vehicles are present."
+        ],
+        "options_uk": [
+            "На краю тротуару або пішохідного переходу.",
+            "У будь-якому місці перед перехрестям.",
+            "Щонайменше за 3 метри до перехрестя.",
+            "Лише якщо присутні інші транспортні засоби."
+        ],
+        "answer_index": 0,
+        "explanation_en": "If there is no stop line, you must stop at the edge of the sidewalk or crosswalk before entering the intersection.",
+        "explanation_uk": "Якщо немає стоп-лінії, потрібно зупинитися на краю тротуару або пішохідного переходу перед в’їздом на перехрестя.",
+        "image": "stop_sign.png"
+    },
+    {
+        "question_number": 11,
+        "question": "This sign indicates:",
+        "question_uk": "Цей знак означає:",
+        "options": [
+            "Added lane (free flow)",
+            "T intersection",
+            "Traffic merging from the left",
+            "Road narrows left ahead"
+        ],
+        "answer_index": 1,
+        "explanation_en": "This sign warns of a T-intersection where the road you are on does not continue straight ahead.",
+        "explanation_uk": "Цей знак попереджає про Т-подібне перехрестя, де дорога попереду закінчується.",
+        "image": "11.png/jpg"
+    },
+    {
+        "question_number": 12,
+        "question": "When exiting or entering a roadway at a weave zone, you should ____________",
+        "question_uk": "Коли виїжджаєте або в'їжджаєте на дорогу в зоні переплетення, слід ____________",
+        "options": [
+            "Slow to exit the highway or increase speed to enter the highway.",
+            "Increase speed to exit the highway or slow to enter the highway.",
+            "Exercise caution and cooperation.",
+            "Both A & C."
+        ],
+        "answer_index": 3,
+        "explanation_en": "In a weave zone, drivers should slow to exit or speed up to enter, and always exercise caution and cooperation.",
+        "explanation_uk": "У зоні переплетення слід зменшувати швидкість для з'їзду або збільшувати — для в’їзду, а також виявляти обережність і співпрацю.",
+        "image": "12.png/jpg"
+    },
+    {
+        "question_number": 13,
+        "question": "When are dual turns permitted at an intersection?",
+        "question_uk": "Коли дозволено подвійні повороти на перехресті?",
+        "options": [
+            "Any time there are at least 2 lanes on the road being entered.",
+            "Only when turning from a one-way road onto a one-way road.",
+            "Only when the road has 6 or more lanes.",
+            "Only when indicated by pavement markings or traffic control signs."
+        ],
+        "answer_index": 3,
+        "explanation_en": "Dual turns are only allowed when permitted by markings or traffic signs.",
+        "explanation_uk": "Подвійні повороти дозволені лише тоді, коли це дозволено дорожньою розміткою або знаками.",
+        "image": "13.png/jpg"
+    },
+    {
+        "question_number": 14,
+        "question": "When transporting frail or weak seniors and those with reduced mobility, a driver should be aware of their increased risk of:",
+        "question_uk": "Перевозячи слабких або малорухомих людей похилого віку, водій повинен враховувати підвищений ризик:",
+        "options": [
+            "Drowsiness.",
+            "Impairment.",
+            "Injury.",
+            "Aggression."
+        ],
+        "answer_index": 2,
+        "explanation_en": "Frail and weak seniors have increased risk of injury when being transported.",
+        "explanation_uk": "Слабкі та малорухомі літні люди мають підвищений ризик травмування під час перевезення.",
+        "image": "14.png/jpg"
+    },
+    {
+        "question_number": 15,
+        "question": "What should a driver do if feeling unfit to drive?",
+        "question_uk": "Що повинен зробити водій, якщо відчуває, що не здатен керувати транспортом?",
+        "options": [
+            "Take medication.",
+            "Sleep in the vehicle.",
+            "Call a taxi or alternate transportation.",
+            "Drive carefully."
+        ],
+        "answer_index": 2,
+        "explanation_en": "If unfit to drive, the driver must not operate the vehicle and should arrange alternate transportation.",
+        "explanation_uk": "Якщо водій не здатен керувати, він не повинен сідати за кермо і має знайти альтернативний спосіб пересування.",
+        "image": "15.png/jpg"
+    },
+    {
+        "question_number": 16,
+        "question": "One of the following is NOT a general rule when transporting a person in a wheelchair:",
+        "question_uk": "Один із варіантів НЕ є загальним правилом під час перевезення людини в інвалідному візку:",
+        "options": [
+            "The wheelchair must be secured.",
+            "The brakes must be unlocked.",
+            "The occupant must be secured with a seatbelt.",
+            "The wheelchair must face forward."
+        ],
+        "answer_index": 1,
+        "explanation_en": "The brakes of a wheelchair must be locked during transport. Leaving them unlocked is unsafe.",
+        "explanation_uk": "Гальма інвалідного візка повинні бути зафіксовані під час перевезення. Незаблоковані гальма — це небезпечно.",
+        "image": "16.png/jpg"
+    },
+    {
+        "question_number": 17,
+        "question": "Which statement describes the steps required to reverse a passenger vehicle in a straight line?",
+        "question_uk": "Яке твердження описує кроки, необхідні для руху пасажирського автомобіля назад по прямій лінії?",
+        "options": [
+            "Look over your left shoulder and steer left.",
+            "Use only your mirrors and turn the steering wheel rapidly.",
+            "Look over your right shoulder and use gradual steering adjustments.",
+            "Accelerate quickly and use a GPS camera."
+        ],
+        "answer_index": 2,
+        "explanation_en": "When reversing in a straight line, look over your right shoulder and steer gently.",
+        "explanation_uk": "Рухаючись назад по прямій, потрібно дивитися через праве плече та кермувати поступово.",
+        "image": "17.png/jpg"
+    },
+    {
+        "question_number": 18,
+        "question": "When an emergency vehicle is being used in response to an emergency, what must the driver do to be able to go against the usual traffic control requirements?",
+        "question_uk": "Коли аварійний автомобіль реагує на надзвичайну ситуацію, що повинен зробити водій, щоб мати змогу не дотримуватись звичайних правил дорожнього руху?",
+        "options": [
+            "Activate emergency lights and siren.",
+            "Drive cautiously and signal intentions.",
+            "Obey the speed limit at all times.",
+            "Ignore traffic rules completely."
+        ],
+        "answer_index": 0,
+        "explanation_en": "Emergency vehicle drivers must activate emergency lights and sirens to proceed through traffic signals.",
+        "explanation_uk": "Водії аварійних автомобілів повинні вмикати проблискові маячки та сирену, щоб проїхати крізь регульовані ділянки дороги.",
+        "image": "18.png/jpg"
+    },
+    {
+        "question_number": 19,
+        "question": "When letting students on or off the school bus, the driver should do all of the following EXCEPT:",
+        "question_uk": "Під час посадки або висадки учнів зі шкільного автобуса водій повинен робити все з переліченого, КРІМ:",
+        "options": [
+            "Turn off the engine while students are boarding.",
+            "Ensure the bus is stopped and lights are flashing.",
+            "Move the bus slowly while students are near.",
+            "Check that all children are safely away before moving."
+        ],
+        "answer_index": 2,
+        "explanation_en": "It is unsafe to move the bus while students are near it.",
+        "explanation_uk": "Небезпечно рухати автобус, коли учні знаходяться поруч.",
+        "image": "19.png/jpg"
+    },
+    {
+        "question_number": 20,
+        "question": "A driver must develop the following key elements of driving to prepare themselves for the responsibility and risk of driving:",
+        "question_uk": "Водій повинен розвивати такі ключові елементи керування, щоб підготувати себе до відповідальності та ризику водіння:",
+        "options": [
+            "Attitude, awareness, knowledge, skills.",
+            "Confidence, speed, experience, daring.",
+            "Aggression, reaction, strength, instinct.",
+            "Control, avoidance, direction, spontaneity."
+        ],
+        "answer_index": 0,
+        "explanation_en": "A safe driver must develop attitude, awareness, knowledge, and driving skills.",
+        "explanation_uk": "Безпечний водій повинен розвивати ставлення, уважність, знання та навички водіння.",
+        "image": "20.png/jpg"
+    },
+    {
+        "question_number": 21,
+        "question": "What is true about minimum following distance for passenger vehicle?",
+        "question_uk": "Що є правильним щодо мінімальної дистанції під час руху за легковим автомобілем?",
+        "options": [
+            "A driver must follow four-second rule.",
+            "Driver must follow two-second rule.",
+            "A six-second rule is applicable for passenger vehicle.",
+            "A driver must use good judgement as to how much time may require applying brake."
+        ],
+        "answer_index": 1,
+        "explanation_en": "The minimum safe following distance under ideal conditions is the two-second rule.",
+        "explanation_uk": "Мінімальна безпечна дистанція за нормальних умов — це правило двох секунд.",
+        "image": "21.png"
+    },
+    {
+        "question_number": 22,
+        "question": "This sign indicates:",
+        "question_uk": "Цей знак означає:",
+        "options": [
+            "Off-road facilities ahead",
+            "Uneven pavement",
+            "Slippery when wet",
+            "Detour ahead"
+        ],
+        "answer_index": 1,
+        "explanation_en": "This sign warns of uneven pavement ahead.",
+        "explanation_uk": "Цей знак попереджає про нерівне дорожнє покриття попереду.",
+        "image": "22.png"
+    },
+    {
+        "question_number": 23,
+        "question": "The recommended braking procedure to bring a vehicle to a normal, smooth stop is:",
+        "question_uk": "Рекомендована процедура гальмування для плавної зупинки транспортного засобу:",
+        "options": [
+            "Apply brake pressure, ease off slightly just before the vehicle stops, then re-apply sufficient pressure to stop.",
+            "Continually increase brake pressure until the wheels lock.",
+            "Shift the vehicle into neutral and apply steady pressure to the brake pedal until the vehicle comes to a stop.",
+            "Pump the brake pedal smoothly until the vehicle stops."
+        ],
+        "answer_index": 0,
+        "explanation_en": "The best technique is controlled braking: ease off and reapply for a smooth stop.",
+        "explanation_uk": "Найкраща техніка — це контрольоване гальмування: послабити та повторно натиснути для плавної зупинки.",
+        "image": "23.png"
+    },
+    {
+        "question_number": 24,
+        "question": "Drivers of a taxi may refuse to transport passengers when:",
+        "question_uk": "Водії таксі можуть відмовити у перевезенні пасажирів, коли:",
+        "options": [
+            "The vehicle is already carrying the maximum allowed number of passengers.",
+            "A passenger is offensive or dangerous to you or others.",
+            "Both A and B.",
+            "Drivers of taxis should not refuse passengers."
+        ],
+        "answer_index": 2,
+        "explanation_en": "Taxi drivers may refuse service when the vehicle is full or the passenger poses a threat.",
+        "explanation_uk": "Водії таксі можуть відмовити, якщо автомобіль повний або пасажир несе загрозу.",
+        "image": "24.png"
+    },
+    {
+        "question_number": 25,
+        "question": "At an intersection, a driver must stop:",
+        "question_uk": "На перехресті водій повинен зупинитися:",
+        "options": [
+            "If the light is flashing red.",
+            "If the traffic light has just turned yellow.",
+            "If the traffic light is showing green arrow to turn left.",
+            "If they are passing another vehicle."
+        ],
+        "answer_index": 0,
+        "explanation_en": "A flashing red light means stop completely before proceeding when safe.",
+        "explanation_uk": "Миготливе червоне світло означає повну зупинку перед тим, як безпечно продовжити рух.",
+        "image": "25.png"
+    },
+    {
+        "question_number": 26,
+        "question": "What should a driver do with passengers when a bus breaks down in a dangerous location (i.e. in the middle of a highway)?",
+        "question_uk": "Що повинен зробити водій з пасажирами, якщо автобус зламався у небезпечному місці (наприклад, посеред шосе)?",
+        "options": [
+            "Ensure students exit through the rear or front door.",
+            "Check that all traffic has stopped before unloading the bus.",
+            "Check for traffic before you let them cross in front of the bus.",
+            "Operate alternating amber and red flashing lights."
+        ],
+        "answer_index": 1,
+        "explanation_en": "Safety requires confirming all traffic has stopped before unloading.",
+        "explanation_uk": "Для безпеки необхідно переконатися, що весь рух зупинено перед висадкою.",
+        "image": "26.png"
+    },
+    {
+        "question_number": 27,
+        "question": "When your vehicle is being passed on two lane highway where traffic flows in different directions, it is good practice to _____",
+        "question_uk": "Коли ваше авто обганяють на двосмуговому шосе з зустрічним рухом, рекомендовано:",
+        "options": [
+            "Increase your speed.",
+            "Always shoulder check if a vehicle wants to overtake your vehicle.",
+            "Decrease your speed.",
+            "Move to the right side of your lane to give the other driver a better view of the road ahead, if safe."
+        ],
+        "answer_index": 3,
+        "explanation_en": "Moving to the right helps the passing driver see ahead safely.",
+        "explanation_uk": "Зміщення вправо допомагає обганяючому водієві краще бачити дорогу попереду.",
+        "image": "27.png"
+    },
+    {
+        "question_number": 28,
+        "question": "A school bus driver should activate a strobe lamp __________",
+        "question_uk": "Водій шкільного автобуса повинен активувати проблисковий маячок __________",
+        "options": [
+            "at the first indication of a mechanical fault on route with students on board.",
+            "when it is about to stop on a highway.",
+            "during emergency situations on the bus.",
+            "during adverse atmospheric and visibility conditions."
+        ],
+        "answer_index": 3,
+        "explanation_en": "Strobe lamps are used in poor visibility to increase bus visibility.",
+        "explanation_uk": "Проблискові маячки використовують при поганій видимості для кращої помітності автобуса.",
+        "image": "28.png"
+    },
+    {
+        "question_number": 29,
+        "question": "A _________ must follow the two second rule when following a passenger vehicle under ideal conditions?",
+        "question_uk": "_________ повинен дотримуватися правила двох секунд при русі за легковим автомобілем в ідеальних умовах?",
+        "options": [
+            "Ambulance",
+            "A school bus",
+            "Passenger vehicle",
+            "Police vehicle"
+        ],
+        "answer_index": 2,
+        "explanation_en": "Passenger vehicles must follow the two-second rule for safety.",
+        "explanation_uk": "Легкові автомобілі повинні дотримуватись правила двох секунд задля безпеки.",
+        "image": "29.png"
+    },
+    {
+        "question_number": 30,
+        "question": "What should a taxi driver do before starting a trip if a passenger is offensive?",
+        "question_uk": "Що повинен зробити водій таксі перед поїздкою, якщо пасажир поводиться образливо?",
+        "options": [
+            "Call the employer and report the issue.",
+            "Refuse to carry the passenger.",
+            "Stay calm and respectfully resolve any concern.",
+            "Call law-enforcement as soon as possible."
+        ],
+        "answer_index": 1,
+        "explanation_en": "If a passenger is offensive, the taxi driver can refuse the trip.",
+        "explanation_uk": "Якщо пасажир поводиться образливо, водій таксі може відмовитися від поїздки.",
+        "image": "30.png"
+    },
+    {
+        "question_number": 31,
+        "question": "When driving at night or when you cannot see 150 meters in front of you, you must turn on your",
+        "question_uk": "Під час водіння вночі або коли ви не бачите 150 метрів попереду, ви повинні ввімкнути",
+        "options": [
+            "Hazard lights",
+            "Hazard lights and headlights",
+            "Head lights",
+            "Tail lights"
+        ],
+        "answer_index": 2,
+        "explanation_en": "Headlights are required when visibility is less than 150 meters or at night.",
+        "explanation_uk": "Фари повинні бути увімкнені вночі або коли видимість менше 150 метрів.",
+        "image": "31.png"
+    },
+    {
+        "question_number": 32,
+        "question": "To minimise risks associated with students getting on and off the bus, a school bus driver may do the following EXCEPT:",
+        "question_uk": "Щоб мінімізувати ризики, пов’язані з посадкою та висадкою учнів, водій шкільного автобуса може зробити все наступне, КРІМ:",
+        "options": [
+            "Ensure students exit through the rear or front door.",
+            "Check that all traffic has stopped before unloading the bus.",
+            "Check for traffic before you let them cross in front of the bus.",
+            "Operate alternating amber and red flashing lights."
+        ],
+        "answer_index": 0,
+        "explanation_en": "Students should exit through the front door only for safety.",
+        "explanation_uk": "Для безпеки учні повинні виходити лише через передні двері.",
+        "image": "32.png"
+    },
+    {
+        "question_number": 33,
+        "question": "When attempting to merge with traffic on a highway, a driver should:",
+        "question_uk": "Коли водій намагається злитися з потоком на шосе, він повинен:",
+        "options": [
+            "Stop at the end of the merge lane until the traffic on the highway is clear.",
+            "Choose an entry space and adjust their speed to merge smoothly.",
+            "Stop at the beginning of the merge lane until the traffic on the highway is clear.",
+            "Maintain speed since merging traffic has the right of way"
+        ],
+        "answer_index": 1,
+        "explanation_en": "Drivers must adjust speed to merge safely without stopping.",
+        "explanation_uk": "Водій повинен коригувати швидкість для безпечного злиття без зупинки.",
+        "image": "33.png"
+    },
+    {
+        "question_number": 34,
+        "question": "When should a siren in an emergency vehicle be operated?",
+        "question_uk": "Коли слід вмикати сирену в аварійному транспортному засобі?",
+        "options": [
+            "When the vehicle is being used in response to an emergency.",
+            "When the driver anticipates traffic delays.",
+            "When the vehicle has low fuel.",
+            "When transit time is higher than usual."
+        ],
+        "answer_index": 0,
+        "explanation_en": "Sirens are used only in response to emergencies.",
+        "explanation_uk": "Сирену використовують лише у випадках реагування на надзвичайні ситуації.",
+        "image": "34.png"
+    },
+    {
+        "question_number": 35,
+        "question": "The holder of a Class 4 driver’s licence may operate a bus with a maximum seating capacity of:",
+        "question_uk": "Власник водійських прав класу 4 може керувати автобусом з максимальною кількістю місць для сидіння:",
+        "options": [
+            "12 passengers, excluding the driver.",
+            "15 passengers, excluding the driver.",
+            "24 passengers, excluding the driver.",
+            "36 passengers, excluding the driver."
+        ],
+        "options_uk": [
+            "12 пасажирів, не враховуючи водія.",
+            "15 пасажирів, не враховуючи водія.",
+            "24 пасажири, не враховуючи водія.",
+            "36 пасажирів, не враховуючи водія."
+        ],
+        "answer_index": 2,
+        "explanation_en": "Class 4 licence allows operation of buses up to 24 passengers (not including driver).",
+        "explanation_uk": "Права класу 4 дозволяють керувати автобусом до 24 пасажирів (без урахування водія).",
+        "image": "35.png"
+    },
+    {
+        "question_number": 36,
+        "question": "In a vehicle that does not have anti-lock brakes, what does threshold braking refer to?",
+        "question_uk": "У транспортному засобі без антиблокувальної системи гальмування, що означає гальмування на межі зчеплення?",
+        "options": [
+            "Pumping the brake pedal repeatedly until the vehicle comes to a stop.",
+            "Pressing firmly on the brake pedal to the point just before the wheels lock.",
+            "Applying enough force to the brake pedal to lock the wheels and keep them locked.",
+            "Releasing pressure on the brake pedal, then reapplying pressure until the wheels lock."
+        ],
+        "options_uk": [
+            "Багаторазово натискати на педаль гальма, доки автомобіль не зупиниться.",
+            "Сильно натискати на педаль гальма до моменту, коли колеса майже заблокуються.",
+            "Натискати на педаль гальма з такою силою, щоб заблокувати колеса і тримати їх заблокованими.",
+            "Відпускати педаль гальма, а потім знову натискати, доки колеса не заблокуються."
+        ],
+        "answer_index": 1,
+        "explanation_en": "Threshold braking is applying firm pressure just before wheel lock.",
+        "explanation_uk": "Гальмування на межі означає сильне натискання гальма майже до блокування коліс.",
+        "image": "36.png"
+    },
+    {
+        "question_number": 37,
+        "question": "Which of the following can impair your judgment and ability to safely operate a vehicle.",
+        "question_uk": "Що з наведеного може погіршити вашу здатність безпечно керувати транспортним засобом?",
+        "options": [
+            "Over the counter medications",
+            "Prescription drugs",
+            "Alcohol",
+            "All of the above"
+        ],
+        "options_uk": [
+            "Безрецептурні ліки",
+            "Рецептурні препарати",
+            "Алкоголь",
+            "Усе перелічене вище"
+        ],
+        "answer_index": 3,
+        "explanation_en": "All listed substances can impair driving ability.",
+        "explanation_uk": "Усі перелічені речовини можуть погіршити здатність керування.",
+        "image": "37.png"
+    },
+    {
+        "question_number": 38,
+        "question": "This sign indicates:",
+        "question_uk": "Цей знак означає:",
+        "options": [
+            "Divided highway ends",
+            "Divided highway begins",
+            "Two-way traffic",
+            "Obstruction - pass on the left"
+        ],
+        "options_uk": [
+            "Кінець розділеного шосе",
+            "Початок розділеного шосе",
+            "Двосторонній рух",
+            "Перешкода – об’їзд зліва"
+        ],
+        "answer_index": 1,
+        "explanation_en": "This is the symbol for the beginning of a divided highway.",
+        "explanation_uk": "Цей знак означає початок розділеного шосе.",
+        "image": ""
+    },
+    {
+        "question_number": 39,
+        "question": "A school bus parked on a hill must be left in:",
+        "question_uk": "Шкільний автобус, припаркований на пагорбі, повинен залишатися у:",
+        "options": [
+            "Low gear or reverse for a manual transmission.",
+            "Neutral gear for an automatic transmission.",
+            "Engaged park brake for manual or automatic transmission.",
+            "All of the above."
+        ],
+        "options_uk": [
+            "Низька передача або задній хід для механічної коробки передач.",
+            "Нейтральна передача для автоматичної коробки передач.",
+            "Увімкнений стоянковий гальмо для механічної чи автоматичної коробки передач.",
+            "Усі перелічені вище."
+        ],
+        "answer_index": 3,
+        "explanation_en": "All listed safety steps must be followed when parking a school bus on a hill.",
+        "explanation_uk": "При паркуванні автобуса на пагорбі потрібно виконати всі перелічені дії.",
+        "image": "39.png"
+    },
+    {
+        "question_number": 40,
+        "question": "In an emergency, you should park your vehicle:",
+        "question_uk": "У надзвичайній ситуації ви повинні припаркувати транспортний засіб:",
+        "options": [
+            "On the shoulder/emergency stopping lane.",
+            "In the right-side lane.",
+            "In the nearest deceleration lane.",
+            "Any place, as long as your have your four-way flashers on."
+        ],
+        "options_uk": [
+            "На узбіччі/смузі для екстреної зупинки.",
+            "У правій смузі.",
+            "У найближчій смузі гальмування.",
+            "У будь-якому місці, якщо увімкнені аварійні сигнали."
+        ],
+        "answer_index": 0,
+        "explanation_en": "The emergency stopping lane is the safest place to stop.",
+        "explanation_uk": "Смуга для зупинки в екстреній ситуації — найбезпечніше місце.",
+        "image": "40.png"
+    },
+    {
+        "question_number": 41,
+        "question": "Which of the following activity is not allowed under the distracted driving law?",
+        "question_uk": "Яка з наведених дій заборонена згідно із законом про відволікання уваги під час водіння?",
+        "options": [
+            "Smoking cigarettes.",
+            "Eating a snack.",
+            "Reading printed material in the vehicle.",
+            "Using a citizen's band radio to contact one's employer."
+        ],
+        "options_uk": [
+            "Куріння сигарет.",
+            "Вживання перекусу.",
+            "Читання друкованих матеріалів у транспортному засобі.",
+            "Використання радіостанції громадянського діапазону для зв’язку з роботодавцем."
+        ],
+        "answer_index": 2,
+        "explanation_en": "Reading printed material while driving is prohibited under distracted driving law.",
+        "explanation_uk": "Читання друкованих матеріалів під час водіння заборонено законом про відволікання уваги.",
+        "image": "41.png"
+    },
+    {
+        "question_number": 42,
+        "question": "Driver fitness assessment should be conducted by _____________",
+        "question_uk": "Оцінка фізичної форми водія повинна проводитися _____________",
+        "options": [
+            "The licensing authority every 5 years to age 45, then every 2 years until the age of 65, and annually thereafter.",
+            "The driver before each trip.",
+            "The driver's family doctor annually.",
+            "The driver's employer every 12 weeks."
+        ],
+        "options_uk": [
+            "Органом ліцензування кожні 5 років до 45 років, потім кожні 2 роки до 65 років і щорічно після цього.",
+            "Водієм перед кожною поїздкою.",
+            "Сімейним лікарем водія щорічно.",
+            "Роботодавцем водія кожні 12 тижнів."
+        ],
+        "answer_index": 1,
+        "explanation_en": "Drivers must assess their own fitness before each trip to ensure safety.",
+        "explanation_uk": "Водії повинні оцінювати свою фізичну форму перед кожною поїздкою для забезпечення безпеки.",
+        "image": "42.png"
+    },
+    {
+        "question_number": 43,
+        "question": "What is a general rule for driving a person with disabilities?",
+        "question_uk": "Яке загальне правило перевезення людей з інвалідністю?",
+        "options": [
+            "Take the time to learn their needs and preferred method of communicating.",
+            "Always communicate directly with the attendant of the person with the disability.",
+            "Review the transportation process with the client when meeting them for the first time.",
+            "Both A and C."
+        ],
+        "options_uk": [
+            "Виділіть час, щоб дізнатися їхні потреби та бажаний спосіб спілкування.",
+            "Завжди спілкуйтеся безпосередньо з супроводжуючим особи з інвалідністю.",
+            "Обговоріть процес перевезення з клієнтом під час першої зустрічі.",
+            "Відповіді А і В."
+        ],
+        "answer_index": 3,
+        "explanation_en": "Understanding and reviewing with the client are both important for safety and respect.",
+        "explanation_uk": "Важливо як дізнатися потреби пасажира, так і обговорити процес перевезення з ним для безпеки та поваги.",
+        "image": "43.png"
+    },
+    {
+        "question_number": 44,
+        "question": "When your vehicle is being passed on two lane highway where traffic flows in different directions, it is good practice to ____________",
+        "question_uk": "Коли ваш автомобіль обганяють на двосмуговій дорозі з зустрічним рухом, хорошою практикою є ____________",
+        "options": [
+            "Increase your speed.",
+            "Decrease your speed.",
+            "Move to the right side of your lane to give the other driver a better view of the road ahead, if safe.",
+            "Always shoulder check if a vehicle wants to overtake your vehicle."
+        ],
+        "options_uk": [
+            "Збільшити швидкість.",
+            "Зменшити швидкість.",
+            "Зміститися до правого краю смуги, щоб дати водієві, який обганяє, кращий огляд дороги попереду, якщо це безпечно.",
+            "Завжди оглядатися через плече, якщо хтось хоче вас обігнати."
+        ],
+        "answer_index": 3,
+        "explanation_en": "Shoulder checking improves awareness and safety during overtaking.",
+        "explanation_uk": "Оглядання через плече підвищує обізнаність і безпеку під час обгону.",
+        "image": "44.png"
+    },
+    {
+        "question_number": 45,
+        "question": "A driver attempting to turn left at a steady green traffic light:",
+        "question_uk": "Водій, що намагається повернути ліворуч на постійне зелене світло:",
+        "options": [
+            "Must not cross the path of an approaching vehicle unless it is safe.",
+            "Must stop before the pedestrian crosswalk line, then proceed.",
+            "Has the right-of-way over oncoming traffic.",
+            "Has the right-of-way over pedestrians."
+        ],
+        "options_uk": [
+            "Не повинен перетинати шлях зустрічного транспорту, якщо це небезпечно.",
+            "Повинен зупинитися перед пішохідним переходом, а потім продовжити рух.",
+            "Має перевагу перед зустрічним транспортом.",
+            "Має перевагу перед пішоходами."
+        ],
+        "answer_index": 0,
+        "explanation_en": "Turning left requires yielding to oncoming traffic unless it's safe.",
+        "explanation_uk": "Повертаючи ліворуч, необхідно поступитися дорогою зустрічному транспорту, якщо це небезпечно.",
+        "image": "45.png"
+    },
+    {
+        "question_number": 46,
+        "question": "In case of vehicle fire, what is the best approach to evacuate passenger from a school bus?",
+        "question_uk": "У разі загоряння транспортного засобу, який найкращий спосіб евакуації пасажирів зі шкільного автобуса?",
+        "options": [
+            "Only through front door.",
+            "Depending on emergency and using combination of emergency and front doors.",
+            "Through windows and doors.",
+            "Only through rear emergency door."
+        ],
+        "options_uk": [
+            "Тільки через передні двері.",
+            "Залежно від надзвичайної ситуації — використовуючи комбінацію аварійних і передніх дверей.",
+            "Через вікна та двері.",
+            "Тільки через задні аварійні двері."
+        ],
+        "answer_index": 1,
+        "explanation_en": "Evacuation depends on emergency type; use both emergency and front doors if needed.",
+        "explanation_uk": "Евакуація залежить від типу надзвичайної ситуації: використовуйте і аварійні, і передні двері за потреби.",
+        "image": "46.png"
+    },
+    {
+        "question_number": 47,
+        "question": "An emergency medical vehicle operator responding to a scene of a Collision should:",
+        "question_uk": "Водій аварійного медичного транспорту, який прибуває на місце аварії, повинен:",
+        "options": [
+            "Keep the flashing lights activated and turn on the headlights so that the vehicle is clearly visible to other drivers.",
+            "Turn off siren and flashing lights once parked at the scene of Collision.",
+            "Keep the siren activated to go through traffic lights/intersections without stopping.",
+            "Park the vehicle a distance away from the collision, injured person and attendant."
+        ],
+        "options_uk": [
+            "Залишати проблискові маячки увімкненими та включити фари, щоб транспортний засіб був добре видимий для інших водіїв.",
+            "Вимкнути сирену та проблискові маячки після зупинки на місці аварії.",
+            "Тримати сирену увімкненою для проїзду через світлофори/перехрестя без зупинки.",
+            "Припаркувати транспортний засіб на відстані від місця аварії, потерпілого та супроводжуючого."
+        ],
+        "answer_index": 0,
+        "explanation_en": "Keeping lights on ensures visibility and safety at the scene.",
+        "explanation_uk": "Увімкнені проблискові маячки та фари забезпечують видимість і безпеку на місці події.",
+        "image": "47.png"
+    },
+    {
+        "question_number": 48,
+        "question": "When assisting passengers who are hearing impaired to get their attention, what should you do?",
+        "question_uk": "Допомагаючи пасажирам з порушенням слуху привернути їхню увагу, що слід зробити?",
+        "options": [
+            "Be very audible to get their attention.",
+            "Ask their attendant to communicate on your behalf.",
+            "Use official sign language.",
+            "Gesture with your hand or touch their arm lightly to get their attention."
+        ],
+        "options_uk": [
+            "Говоріть дуже голосно, щоб привернути їхню увагу.",
+            "Попросіть супроводжуючого поспілкуватися від вашого імені.",
+            "Використовуйте офіційну жестову мову.",
+            "Помахайте рукою або легко торкніться їхньої руки, щоб привернути увагу."
+        ],
+        "answer_index": 3,
+        "explanation_en": "Gentle gestures or touch are appropriate ways to gain attention of hearing-impaired individuals.",
+        "explanation_uk": "Легкий дотик або жест рукою — доречний спосіб привернути увагу людей з порушенням слуху.",
+        "image": "48.png"
+    },
+    {
+        "question_number": 49,
+        "question": "When does a driver have to take 24 consecutive hours of off-duty time, regardless of cycle?",
+        "question_uk": "Коли водій повинен взяти 24 години підряд позаробочого часу, незалежно від циклу?",
+        "options": [
+            "Before reaching 50 hours in 7 days.",
+            "Before reaching 90 hours in 14 days.",
+            "Once a month when the unit goes to the shop for its regular maintenance.",
+            "Before reaching 70 hours in 7 days."
+        ],
+        "options_uk": [
+            "До досягнення 50 годин за 7 днів.",
+            "До досягнення 90 годин за 14 днів.",
+            "Раз на місяць, коли транспортний засіб проходить планове обслуговування.",
+            "До досягнення 70 годин за 7 днів."
+        ],
+        "answer_index": 3,
+        "explanation_en": "Drivers must take 24 hours off before reaching 70 hours on duty in 7 days.",
+        "explanation_uk": "Водій повинен взяти 24 години відпочинку до досягнення 70 годин роботи за 7 днів.",
+        "image": "49.png"
+    },
+    {
+        "question_number": 50,
+        "question": "When can a school bus driver leave the bus without turning off the engine?",
+        "question_uk": "Коли водій шкільного автобуса може вийти з автобуса, не вимикаючи двигун?",
+        "options": [
+            "When the brakes are engaged.",
+            "When there are no students on board.",
+            "When the transmission is in its lowest gear (manual) or park (automatic) position.",
+            "Never, a driver is not permitted to leave the bus without turning off the engine."
+        ],
+        "options_uk": [
+            "Коли гальма зафіксовані.",
+            "Коли в автобусі немає учнів.",
+            "Коли коробка передач у найнижчій передачі (механіка) або в положенні паркінг (автомат).",
+            "Ніколи, водієві не дозволяється залишати автобус, не вимкнувши двигун."
+        ],
+        "answer_index": 3,
+        "explanation_en": "A driver must always turn off the engine before leaving the bus.",
+        "explanation_uk": "Водій завжди повинен вимикати двигун перед тим, як залишити автобус.",
+        "image": "50.png"
+    },
+    {
+        "question_number": 51,
+        "question": "The law requires that headlights be turned on when driving at night or when the driver cannot see clearly for a minimum distance of:",
+        "question_uk": "Згідно з законом, фари мають бути увімкнені вночі або коли водій не бачить чітко на відстань мінімум:",
+        "options": [
+            "500 metres.",
+            "250 metres.",
+            "150 metres.",
+            "1,000 metres."
+        ],
+        "options_uk": [
+            "500 метрів.",
+            "250 метрів.",
+            "150 метрів.",
+            "1 000 метрів."
+        ],
+        "answer_index": 2,
+        "explanation_en": "Headlights must be used when visibility is less than 150 metres.",
+        "explanation_uk": "Фари повинні бути увімкнені, якщо видимість менше ніж 150 метрів.",
+        "image": "51.png"
+    },
+    {
+        "question_number": 52,
+        "question": "What should an emergency vehicle driver do after arriving at the scene of the emergency?",
+        "question_uk": "Що повинен зробити водій аварійного транспортного засобу після прибуття на місце події?",
+        "options": [
+            "Place reflective devices around the scene.",
+            "Turn off the vehicle and lights to minimise psychological trauma.",
+            "Keep the overhead lights and headlights turned on.",
+            "Keep the siren activated."
+        ],
+        "options_uk": [
+            "Розмістити світловідбивні пристрої навколо місця події.",
+            "Вимкнути транспортний засіб і світло для зменшення психологічної травми.",
+            "Залишити проблискові маячки та фари увімкненими.",
+            "Залишити сирену увімкненою."
+        ],
+        "answer_index": 2,
+        "explanation_en": "Overhead lights and headlights must remain on for visibility at the emergency scene.",
+        "explanation_uk": "Проблискові маячки та фари повинні залишатися увімкненими для видимості на місці події.",
+        "image": "52.png"
+    },
+    {
+        "question_number": 53,
+        "question": "What must a driver of an emergency vehicle do in order to drive past the speed limit?",
+        "question_uk": "Що повинен зробити водій аварійного автомобіля, щоб перевищити обмеження швидкості?",
+        "options": [
+            "Flash the headlights.",
+            "Nothing, drivers of emergency vehicles are always exempt from following speed limits.",
+            "Use the siren.",
+            "Use the horn."
+        ],
+        "options_uk": [
+            "Моргнути фарами.",
+            "Нічого, водії аварійних автомобілів завжди звільнені від дотримання обмежень швидкості.",
+            "Увімкнути сирену.",
+            "Увімкнути гудок."
+        ],
+        "answer_index": 2,
+        "explanation_en": "Emergency drivers must activate the siren to legally exceed the speed limit.",
+        "explanation_uk": "Водії аварійних автомобілів повинні вмикати сирену, щоб мати право перевищити обмеження швидкості.",
+        "image": "53.png"
+    },
+    {
+        "question_number": 54,
+        "question": "How often should a Class 4 license driver submit a medical examination report?",
+        "question_uk": "Як часто водій із ліцензією класу 4 повинен подавати медичну довідку?",
+        "options": [
+            "Every 5 years until the age of 65 and every 2 years after age 65.",
+            "A medical examination report is not required for Class 4 drivers.",
+            "Every 4 years until age 45, every 5 years between age 45-65 and every 2 years after age 65.",
+            "Every 5 years until age 45, every 2 years between age 45-65 and annually after age 65."
+        ],
+        "options_uk": [
+            "Кожні 5 років до 65 років і кожні 2 роки після 65 років.",
+            "Медична довідка не потрібна для водіїв класу 4.",
+            "Кожні 4 роки до 45 років, кожні 5 років між 45–65 роками і кожні 2 роки після 65 років.",
+            "Кожні 5 років до 45 років, кожні 2 роки між 45–65 роками і щороку після 65 років."
+        ],
+        "answer_index": 3,
+        "explanation_en": "Class 4 drivers must submit exams more frequently as they age.",
+        "explanation_uk": "Водії класу 4 повинні частіше подавати медичні довідки з віком.",
+        "image": "54.png"
+    },
+    {
+        "question_number": 55,
+        "question": "A driver attempting to turn left at a steady green traffic light:",
+        "question_uk": "Водій, який намагається повернути ліворуч на постійне зелене світло:",
+        "options": [
+            "Has the right-of-way over pedestrians.",
+            "Must not cross the path of an approaching vehicle unless it is safe.",
+            "Must stop before the pedestrian crosswalk line, then proceed.",
+            "Has the right-of-way over oncoming traffic."
+        ],
+        "options_uk": [
+            "Має перевагу перед пішоходами.",
+            "Не повинен перетинати шлях зустрічного транспорту, якщо це небезпечно.",
+            "Повинен зупинитися перед лінією пішохідного переходу, потім продовжити рух.",
+            "Має перевагу перед зустрічним транспортом."
+        ],
+        "answer_index": 1,
+        "explanation_en": "The driver must yield to oncoming traffic and turn only when safe.",
+        "explanation_uk": "Водій повинен поступитися дорогою зустрічному транспорту та повертати лише коли це безпечно.",
+        "image": "55.png"
+    },
+    {
+        "question_number": 56,
+        "question": "What is the best way to decide your route for your passenger?",
+        "question_uk": "Який найкращий спосіб обрати маршрут для пасажира?",
+        "options": [
+            "Take a convenient route that driver prefers.",
+            "Take the most direct route unless otherwise discussed with passenger.",
+            "Take the most direct route unless otherwise discussed with passenger.",
+            "Take a scenic or pleasurable route for passenger."
+        ],
+        "options_uk": [
+            "Обрати зручний маршрут, який подобається водієві.",
+            "Обрати найкоротший маршрут, якщо з пасажиром не обговорено інше.",
+            "Обрати найкоротший маршрут, якщо з пасажиром не обговорено інше.",
+            "Обрати мальовничий або приємний маршрут для пасажира."
+        ],
+        "answer_index": 1,
+        "explanation_en": "The most direct route is preferred unless agreed otherwise.",
+        "explanation_uk": "Найкраще обрати найкоротший маршрут, якщо з пасажиром не обговорено інше.",
+        "image": "56.png"
+    },
+    {
+        "question_number": 57,
+        "question": "An 'uncontrolled intersection':",
+        "question_uk": "Нерегульоване перехрестя:",
+        "options": [
+            "Has yield signs but no stop signs.",
+            "Has traffic signs but no traffic control signal lights.",
+            "Has a flashing yellow light for one direction of traffic and a flashing red light for the other direction of traffic.",
+            "Has no traffic control signal lights or traffic signs."
+        ],
+        "options_uk": [
+            "Має знаки «Дати дорогу», але немає знаків «Стоп».",
+            "Має дорожні знаки, але немає світлофорів.",
+            "Має миготливе жовте світло для одного напрямку руху та миготливе червоне для іншого.",
+            "Не має світлофорів або дорожніх знаків."
+        ],
+        "answer_index": 3,
+        "explanation_en": "An uncontrolled intersection has no lights or signs.",
+        "explanation_uk": "Нерегульоване перехрестя не має ані світлофорів, ані дорожніх знаків.",
+        "image": ""
+    },
+    {
+        "question_number": 58,
+        "question": "This sign indicates:",
+        "question_uk": "Цей знак означає:",
+        "options": [
+            "Two-way traffic.",
+            "Right turns only.",
+            "U-turns permitted",
+            "Left-turn lane control"
+        ],
+        "options_uk": [
+            "Двосторонній рух.",
+            "Тільки повороти праворуч.",
+            "Дозволені розвороти.",
+            "Смуга для повороту ліворуч."
+        ],
+        "answer_index": 3,
+        "explanation_en": "The sign indicates a dedicated left-turn lane.",
+        "explanation_uk": "Знак вказує на смугу для повороту ліворуч.",
+        "image": ""
+    },
+    {
+        "question_number": 59,
+        "question": "Fatigue can be made worse by:",
+        "question_uk": "Що може посилити втому?",
+        "options": [
+            "Overeating.",
+            "A cold vehicle.",
+            "Smoking",
+            "Both A and C."
+        ],
+        "options_uk": [
+            "Переїдання.",
+            "Холод у транспортному засобі.",
+            "Куріння.",
+            "Відповіді А і В."
+        ],
+        "answer_index": 0,
+        "explanation_en": "Overeating can contribute to fatigue while driving.",
+        "explanation_uk": "Переїдання може посилити втому під час водіння.",
+        "image": "59.png"
+    },
+    {
+        "question_number": 60,
+        "question": "When encountering a funeral procession that is crossing an intersection:",
+        "question_uk": "Коли ви зустрічаєте похоронну процесію, яка перетинає перехрестя:",
+        "options": [
+            "Sound the horn before proceeding.",
+            "Proceed through the funeral procession only when there is sufficient space between vehicles.",
+            "Yield the right-of-way and do not break through the procession.",
+            "Flash the high beam headlights before proceeding."
+        ],
+        "options_uk": [
+            "Просигналити перед проїздом.",
+            "Проїхати через процесію лише якщо між автомобілями достатньо місця.",
+            "Надати перевагу та не переривати процесію.",
+            "Моргнути дальнім світлом перед проїздом."
+        ],
+        "answer_index": 2,
+        "explanation_en": "Drivers must yield the right-of-way and avoid interrupting a funeral procession.",
+        "explanation_uk": "Водії повинні поступитися дорогою та не переривати похоронну процесію.",
+        "image": "60.png"
+    },
+    {
+        "question_number": 61,
+        "question": "Which of the following statements about speed is NOT true?",
+        "question_uk": "Яке з наступних тверджень про швидкість є НЕправильним?",
+        "options": [
+            "Increases stopping distance.",
+            "Reduces braking distance.",
+            "Impacts the ability of a driver to react to actions or detect hazards.",
+            "Impacts the ability of a driver to safely negotiate curves, lane changes, or maneuver."
+        ],
+        "options_uk": [
+            "Збільшує гальмівний шлях.",
+            "Зменшує гальмівний шлях.",
+            "Впливає на здатність водія реагувати на дії або виявляти небезпеки.",
+            "Впливає на здатність водія безпечно проходити повороти, змінювати смугу чи маневрувати."
+        ],
+        "answer_index": 1,
+        "explanation_en": "Higher speed increases braking distance, not reduces it.",
+        "explanation_uk": "Вища швидкість збільшує гальмівний шлях, а не зменшує його.",
+        "image": "61.png"
+    },
+    {
+        "question_number": 62,
+        "question": "A passing lane is used ____________",
+        "question_uk": "Смуга для обгону використовується ____________",
+        "options": [
+            "By cars moving straight at an intersection.",
+            "By slower vehicles.",
+            "When overtaking a vehicle.",
+            "By faster vehicles."
+        ],
+        "options_uk": [
+            "Автомобілями, що рухаються прямо на перехресті.",
+            "Повільнішими транспортними засобами.",
+            "Під час обгону іншого транспортного засобу.",
+            "Швидшими транспортними засобами."
+        ],
+        "answer_index": 3,
+        "explanation_en": "Passing lanes are intended for faster vehicles to pass slower ones.",
+        "explanation_uk": "Смуги для обгону призначені для того, щоб швидші транспортні засоби могли обігнати повільніші.",
+        "image": "62.png"
+    },
+    {
+        "question_number": 63,
+        "question": "__________ allows you to anticipate hazards and maintain a constant speed.",
+        "question_uk": "__________ дозволяє передбачати небезпеки та підтримувати постійну швидкість.",
+        "options": [
+            "Defensive driving",
+            "Driver complacency",
+            "Driver complacency",
+            "Momentum"
+        ],
+        "options_uk": [
+            "Оборонне водіння",
+            "Самозаспокоєність водія",
+            "Самозаспокоєність водія",
+            "Інерція"
+        ],
+        "answer_index": 0,
+        "explanation_en": "Defensive driving helps anticipate dangers on the road.",
+        "explanation_uk": "Оборонне водіння допомагає передбачати небезпеки на дорозі.",
+        "image": "63.png"
+    },
+    {
+        "question_number": 64,
+        "question": "Which of the following vehicles requires a daily trip inspection report to be completed?",
+        "question_uk": "Для якого з наступних транспортних засобів потрібно заповнити щоденний звіт про огляд поїздки?",
+        "options": [
+            "Bus for 10 passengers.",
+            "Limousine for 10 passengers.",
+            "Bus for 15 passengers.",
+            "Taxi for 8 passengers."
+        ],
+        "options_uk": [
+            "Автобус на 10 пасажирів.",
+            "Лімузин на 10 пасажирів.",
+            "Автобус на 15 пасажирів.",
+            "Таксі на 8 пасажирів."
+        ],
+        "answer_index": 2,
+        "explanation_en": "A bus carrying more than 10 passengers typically requires a daily inspection.",
+        "explanation_uk": "Автобус, що перевозить понад 10 пасажирів, зазвичай потребує щоденного огляду.",
+        "image": "64.png"
+    },
+    {
+        "question_number": 65,
+        "question": "When operating an emergency vehicle with sirens on, which of the following is a condition you must consider before exceeding speed limits or driving through stop signs and traffic signal lights?",
+        "question_uk": "Керуючи аварійним транспортом із включеними сиренами, що слід враховувати перед перевищенням швидкості або проїздом через знаки «Стоп» і світлофори?",
+        "options": [
+            "Vehicle conditions",
+            "Seriousness of the emergency",
+            "Safety of road users",
+            "Travel time"
+        ],
+        "options_uk": [
+            "Стан транспортного засобу",
+            "Серйозність надзвичайної ситуації",
+            "Безпека учасників дорожнього руху",
+            "Час у дорозі"
+        ],
+        "answer_index": 2,
+        "explanation_en": "The safety of other road users must always come first.",
+        "explanation_uk": "Безпека інших учасників дорожнього руху завжди має бути на першому місці.",
+        "image": "65.png"
+    },
+    {
+        "question_number": 66,
+        "question": "Drivers can have a limit of ____________ milligrams of alcohol in 100 millilitres of blood when operating a commercial vehicle in a commercial capacity.",
+        "question_uk": "Водії можуть мати ліміт у ____________ міліграмів алкоголю в 100 мілілітрах крові при керуванні комерційним транспортом.",
+        "options": [
+            "100",
+            "0",
+            "80",
+            "50"
+        ],
+        "options_uk": [
+            "100",
+            "0",
+            "80",
+            "50"
+        ],
+        "answer_index": 1,
+        "explanation_en": "Commercial vehicle drivers must have 0 mg of alcohol in their blood.",
+        "explanation_uk": "Водії комерційних транспортних засобів повинні мати 0 мг алкоголю в крові.",
+        "image": "66.png"
+    },
+    {
+        "question_number": 67,
+        "question": "As a taxi driver, you may refuse to transport customers if:",
+        "question_uk": "Як водій таксі, ви можете відмовити в перевезенні пасажирів, якщо:",
+        "options": [
+            "The passenger is accompanied by two service animals.",
+            "A passenger is below the age of 18.",
+            "A passenger is below the age of 16.",
+            "It is unsafe to transport the passengers."
+        ],
+        "options_uk": [
+            "Пасажира супроводжують дві службові тварини.",
+            "Пасажиру менше 18 років.",
+            "Пасажиру менше 16 років.",
+            "Перевезення пасажирів є небезпечним."
+        ],
+        "answer_index": 3,
+        "explanation_en": "Passenger safety is the primary reason to refuse transport.",
+        "explanation_uk": "Безпека пасажира є основною причиною для відмови у перевезенні.",
+        "image": "67.png"
+    },
+    {
+        "question_number": 68,
+        "question": "Which of the following can impair your judgment and ability to safely operate a vehicle?",
+        "question_uk": "Що з наведеного може погіршити вашу здатність безпечно керувати транспортом?",
+        "options": [
+            "Over the counter medications",
+            "Prescription drugs",
+            "Alcohol",
+            "All of the above"
+        ],
+        "options_uk": [
+            "Безрецептурні ліки",
+            "Рецептурні препарати",
+            "Алкоголь",
+            "Усе перелічене вище"
+        ],
+        "answer_index": 3,
+        "explanation_en": "All listed substances can impair your driving ability.",
+        "explanation_uk": "Усі перелічені речовини можуть погіршити вашу здатність до безпечного керування.",
+        "image": "68.png"
+    },
+    {
+        "question_number": 69,
+        "question": "At an intersections where stop signs are located at all corners, a driver should:",
+        "question_uk": "На перехресті, де знаки Стоп є на всіх кутах, водій повинен:",
+        "options": [
+            "Stop, allow the vehicle that arrived first to proceed first.",
+            "Stop, proceed when it is safe.",
+            "Stop, allow the vehicle on the right to proceed first.",
+            "Stop, allow vehicles on the left to proceed first."
+        ],
+        "options_uk": [
+            "Зупинитися, дати проїхати транспортному засобу, який під’їхав першим.",
+            "Зупинитися, їхати, коли це безпечно.",
+            "Зупинитися, дати проїхати транспортному засобу праворуч.",
+            "Зупинитися, дати проїхати транспортним засобам ліворуч."
+        ],
+        "answer_index": 0,
+        "explanation_en": "The first vehicle to arrive at the intersection has the right of way.",
+        "explanation_uk": "Перший транспортний засіб, що під'їхав до перехрестя, має перевагу в русі.",
+        "image": "https://www.alberta.ca/content/dam/alberta/ab/transportation/sign-catalogue/ra-2.gif"
+    },
+    {
+        "question_number": 70,
+        "question": "What is the best approach when assisting a visually impaired passenger?",
+        "question_uk": "Який найкращий підхід при наданні допомоги пасажиру з вадами зору?",
+        "options": [
+            "Do not offer to help till they ask.",
+            "Offer to help and take their right arm for better body balance/support.",
+            "Offer to help and wait for them to accept before you assist.",
+            "Verbally and audibly inform them on how they should proceed."
+        ],
+        "options_uk": [
+            "Не пропонуйте допомогу, поки вас не попросять.",
+            "Запропонуйте допомогу та візьміть їх за праву руку для кращої підтримки.",
+            "Запропонуйте допомогу і дочекайтеся, поки пасажир погодиться, перш ніж допомагати.",
+            "Словесно та голосно поясніть, як діяти далі."
+        ],
+        "answer_index": 2,
+        "explanation_en": "Always ask first and wait for acceptance before offering physical assistance.",
+        "explanation_uk": "Завжди спочатку запитайте і дочекайтеся згоди перед тим, як запропонувати фізичну допомогу.",
+        "image": "70.png"
+    },
+    {
+        "question_number": 71,
+        "question": "What is the best approach when assisting a visually impaired passenger?",
+        "question_uk": "Який найкращий підхід при наданні допомоги пасажиру з вадами зору?",
+        "options": [
+            "Do not offer to help till they ask.",
+            "Offer to help and take their right arm for better body balance/support.",
+            "Offer to help and wait for them to accept before you assist.",
+            "Verbally and audibly inform them on how they should proceed."
+        ],
+        "options_uk": [
+            "Не пропонуйте допомогу, поки вас не попросять.",
+            "Запропонуйте допомогу та візьміть їх за праву руку для кращої підтримки.",
+            "Запропонуйте допомогу і дочекайтеся, поки пасажир погодиться, перш ніж допомагати.",
+            "Словесно та голосно поясніть, як діяти далі."
+        ],
+        "answer_index": 2,
+        "explanation_en": "You should always ask and wait for permission before offering assistance to a visually impaired person.",
+        "explanation_uk": "Ви завжди повинні запитати і дочекатися дозволу, перш ніж допомагати людині з вадами зору.",
+        "image": "71.png"
+    },
+    {
+        "question_number": 72,
+        "question": "General rules for transporting persons with disabilities include:",
+        "question_uk": "Загальні правила перевезення осіб з інвалідністю включають:",
+        "options": [
+            "Make sure passengers are properly secured in the vehicle (both seated passengers and passengers with wheelchair).",
+            "Drive smoothly, avoiding sudden stops, starts and swerves that may cause passengers to shift or lose their balance.",
+            "Keep the noise level in the vehicle, including music or radio, to a level comfortable for your clients.",
+            "All of the above"
+        ],
+        "options_uk": [
+            "Переконайтеся, що пасажири надійно закріплені у транспортному засобі (як ті, що сидять, так і пасажири у візку).",
+            "Їдьте плавно, уникайте різких зупинок, стартів і маневрів, які можуть спричинити зміщення або втрату рівноваги пасажирами.",
+            "Підтримуйте рівень шуму в транспортному засобі, включаючи музику чи радіо, на комфортному для клієнтів рівні.",
+            "Усе перелічене вище"
+        ],
+        "answer_index": 3,
+        "explanation_en": "All of the listed measures contribute to a safe and respectful experience for passengers with disabilities.",
+        "explanation_uk": "Усі перелічені заходи сприяють безпечному та шанобливому перевезенню пасажирів з інвалідністю.",
+        "image": "72.png"
+    },
+    {
+        "question_number": 73,
+        "question": "How should a driver of a school bus deal with a badly behaved student?",
+        "question_uk": "Як водій шкільного автобуса повинен діяти з учнем, який поводиться неналежно?",
+        "options": [
+            "Remove the student from the bus at any place to avoid driving distractions.",
+            "Remove the student at the nearest safe location and contact the school administrator.",
+            "Drop the student off at their normal destination and report student's behaviour to the school administrator.",
+            "Prohibit the student from riding the school bus subsequently."
+        ],
+        "options_uk": [
+            "Висадити учня з автобуса в будь-якому місці, щоб уникнути відволікання під час руху.",
+            "Висадити учня на найближчій безпечній зупинці та повідомити адміністрацію школи.",
+            "Висадити учня на звичайній зупинці та повідомити адміністрацію школи про його поведінку.",
+            "Заборонити учню надалі користуватися шкільним автобусом."
+        ],
+        "answer_index": 2,
+        "explanation_en": "Drivers should not take action themselves, but should follow protocol and report the issue appropriately.",
+        "explanation_uk": "Водії не повинні діяти самостійно, а мають дотримуватися протоколу та повідомляти про проблему належним чином.",
+        "image": "73.png"
+    },
+    {
+        "question_number": 74,
+        "question": "What vehicles are exempt from the distracted driving law?",
+        "question_uk": "Які транспортні засоби звільняються від закону про відволікання під час водіння?",
+        "options": [
+            "No vehicles are exempt from distracted driving.",
+            "Cars, motorcycles, motor homes, trucks, farm vehicles, and bicycles.",
+            "Emergency vehicles are exempt at all times.",
+            "Emergency vehicles when responding to a call."
+        ],
+        "options_uk": [
+            "Жоден транспортний засіб не звільняється від закону про відволікання уваги.",
+            "Легкові автомобілі, мотоцикли, автодоми, вантажівки, сільськогосподарські транспортні засоби та велосипеди.",
+            "Спеціальні транспортні засоби звільняються завжди.",
+            "Спеціальні транспортні засоби під час реагування на виклик."
+        ],
+        "answer_index": 3,
+        "explanation_en": "Emergency vehicles are only exempt while actively responding to a call.",
+        "explanation_uk": "Спеціальні транспортні засоби звільняються лише під час реагування на виклик.",
+        "image": "74.png"
+    },
+    {
+        "question_number": 75,
+        "question": "What may passengers NOT do while a school bus is in motion?",
+        "question_uk": "Що пасажирам ЗАБОРОНЕНО робити, коли шкільний автобус рухається?",
+        "options": [
+            "Sing",
+            "Electronic devices.",
+            "Stand",
+            "Talk"
+        ],
+        "options_uk": [
+            "Співати",
+            "Користуватися електронними пристроями.",
+            "Стояти",
+            "Розмовляти"
+        ],
+        "answer_index": 2,
+        "explanation_en": "Standing while the bus is in motion is unsafe and not allowed.",
+        "explanation_uk": "Стояти під час руху автобуса небезпечно і заборонено.",
+        "image": "75.png"
+    },
+    {
+        "question_number": 76,
+        "question": "When is a driver of a taxi exempt from wearing a seatbelt?",
+        "question_uk": "Коли водій таксі звільняється від обов’язку носити ремінь безпеки?",
+        "options": [
+            "When there are no passengers in the vehicle.",
+            "When the taxi commission has provided an exemption letter.",
+            "A driver is never required to wear a seat belt.",
+            "When transporting a passenger for compensation or hire."
+        ],
+        "options_uk": [
+            "Коли в транспортному засобі немає пасажирів.",
+            "Коли комісія з таксі видала лист про звільнення.",
+            "Водій ніколи не зобов’язаний користуватися ременем безпеки.",
+            "Під час перевезення пасажира за оплату чи наймом."
+        ],
+        "answer_index": 3,
+        "explanation_en": "In Alberta, taxi drivers transporting paying passengers are exempt from seatbelt use.",
+        "explanation_uk": "В Альберті водії таксі, які перевозять пасажирів за оплату, звільняються від обов’язку користування ременем безпеки.",
+        "image": "76.png"
+    },
+    {
+        "question_number": 77,
+        "question": "When approaching an intersection with cross traffic, what is a good practice for emergency vehicle drivers who are responding to an emergency?",
+        "question_uk": "Що повинен зробити водій спецтранспорту, наближаючись до перехрестя з поперечним рухом під час реагування на виклик?",
+        "options": [
+            "Slow down to confirm other road users are yielding.",
+            "Deactivate and activate the headlights to draw more attention.",
+            "Speed up to clear the intersection.",
+            "Sound the horn to alert pedestrians."
+        ],
+        "options_uk": [
+            "Знизити швидкість, щоб переконатися, що інші учасники дорожнього руху поступаються.",
+            "Вимкнути та ввімкнути фари, щоб привернути більше уваги.",
+            "Збільшити швидкість, щоб швидше проїхати перехрестя.",
+            "Просигналити, щоб попередити пішоходів."
+        ],
+        "answer_index": 0,
+        "explanation_en": "Even with lights and sirens, emergency vehicle drivers must proceed with caution.",
+        "explanation_uk": "Навіть із проблисковими маячками та сиреною водії спецтранспорту повинні діяти обережно.",
+        "image": "77.png"
+    },
+    {
+        "question_number": 78,
+        "question": "When transporting a passenger accompanied by a service animal, a driver should",
+        "question_uk": "Коли пасажир подорожує зі службовою твариною, водій повинен:",
+        "options": [
+            "Never carry an accompanying service animal as it may pose allergy or health risk to the driver or other passengers.",
+            "Never refuse to carry an accompanying service animal per the Traffic Safety Act.",
+            "Only carry a service animal provided it is safe per the Traffic Safety Act.",
+            "Only carry a service animal if the passenger will be able to restrain the animal during the trip"
+        ],
+        "options_uk": [
+            "Ніколи не перевозити службову тварину, оскільки це може становити ризик алергії чи здоров'я для водія або інших пасажирів.",
+            "Ніколи не відмовляти у перевезенні службової тварини згідно із Законом про безпеку дорожнього руху.",
+            "Перевозити службову тварину лише якщо це безпечно згідно із Законом про безпеку дорожнього руху.",
+            "Перевозити службову тварину лише якщо пасажир зможе утримувати її під час поїздки."
+        ],
+        "answer_index": 2,
+        "explanation_en": "Service animals must be accepted unless they pose a clear safety risk.",
+        "explanation_uk": "Службові тварини повинні перевозитися, якщо це не створює явної загрози безпеці.",
+        "image": "78.png"
+    },
+    {
+        "question_number": 79,
+        "question": "What is a general rule for judging distance in front of you when pushing a person with a wheelchair?",
+        "question_uk": "Яке загальне правило визначення відстані спереду, коли ви штовхаєте інвалідний візок?",
+        "options": [
+            "Judge distance by the passenger’s knees.",
+            "Judge distance by the front of the seat.",
+            "Judge distance by the front of the foot rests.",
+            "Judge distance by where you are standing."
+        ],
+        "options_uk": [
+            "Визначати відстань за колінами пасажира.",
+            "Визначати відстань за передньою частиною сидіння.",
+            "Визначати відстань за передньою частиною підніжок.",
+            "Визначати відстань за місцем, де ви стоїте."
+        ],
+        "answer_index": 2,
+        "explanation_en": "The footrests extend furthest, so they should be used to judge space to obstacles.",
+        "explanation_uk": "Підніжки виступають найдалі, тому саме за ними слід визначати відстань до перешкод.",
+        "image": "79.png"
+    },
+    {
+        "question_number": 80,
+        "question": "When are dual turns permitted at an intersection?",
+        "question_uk": "Коли дозволені подвійні повороти на перехресті?",
+        "options": [
+            "Any time there are at least 2 lanes on the road being entered.",
+            "Only when turning from a one-way road onto a one-way road.",
+            "Only when the road has 6 or more lanes.",
+            "Only when indicated by pavement markings or traffic control signs."
+        ],
+        "options_uk": [
+            "У будь-який час, якщо на дорозі, на яку ви в’їжджаєте, є щонайменше 2 смуги.",
+            "Лише під час повороту з односторонньої дороги на односторонню.",
+            "Лише якщо дорога має 6 або більше смуг.",
+            "Лише якщо це вказано дорожньою розміткою або знаками."
+        ],
+        "answer_index": 3,
+        "explanation_en": "Dual turns are only permitted where clearly marked by signage or pavement markings.",
+        "explanation_uk": "Подвійні повороти дозволені лише там, де це чітко позначено знаками або розміткою.",
+        "image": "80.png"
+    },
+    {
+        "question_number": 81,
+        "question": "The Traffic Safety Act does not restrict emergency vehicle drivers from using ________ while driving.",
+        "question_uk": "Закон про безпеку дорожнього руху не забороняє водіям аварійних транспортних засобів використовувати ________ під час руху.",
+        "options": [
+            "Entering information on the GPS en route",
+            "Cell phone if used in an emergency management situation",
+            "Cameras",
+            "Hand-held communication devices when acting within the scope of their employment"
+        ],
+        "answer_index": 1,
+        "explanation_en": "Emergency vehicle drivers may use cell phones during emergency management situations.",
+        "explanation_uk": "Водії аварійних транспортних засобів можуть користуватися мобільним телефоном у надзвичайних ситуаціях.",
+        "image": "81.png"
+    },
+    {
+        "question_number": 82,
+        "question": "Which of the following activity is not allowed under the distracted driving law?",
+        "question_uk": "Яка з наступних дій не дозволена відповідно до закону про відволікання уваги під час водіння?",
+        "options": [
+            "Reading printed material in the vehicle.",
+            "Using a citizen’s band radio to contact one's employer.",
+            "Eating a snack.",
+            "Smoking cigarettes."
+        ],
+        "answer_index": 0,
+        "explanation_en": "Reading printed material is considered a distraction and is prohibited by law.",
+        "explanation_uk": "Читання друкованих матеріалів під час водіння вважається відволіканням уваги і заборонено законом.",
+        "image": "82.png"
+    },
+    {
+        "question_number": 83,
+        "question": "This sign indicates:",
+        "question_uk": "Цей знак вказує на:",
+        "options": [
+            "Route reserved for buses.",
+            "Route for vehicles over 4500 kg.",
+            "Route for dangerous goods.",
+            "Route for slow-moving vehicles."
+        ],
+        "answer_index": 2,
+        "explanation_en": "The green circle with a black diamond indicates a designated route for dangerous goods.",
+        "explanation_uk": "Зелений круг із чорним ромбом позначає маршрут для перевезення небезпечних вантажів.",
+        "image": "83.png"
+    },
+    {
+        "question_number": 84,
+        "question": "What should a driver do when unloading a passenger?",
+        "question_uk": "Що повинен зробити водій при висадці пасажира?",
+        "options": [
+            "Use the mirrors to ensure no pedestrian, car or passenger is unsafely close to the doors before closing or opening.",
+            "Practice defensive and proactive driving tactics.",
+            "Thank and ask the passenger to provide feedback on your driving skill.",
+            "Assist the passengers by removing their seatbelt."
+        ],
+        "answer_index": 0,
+        "explanation_en": "Always check surroundings for safety before opening or closing vehicle doors.",
+        "explanation_uk": "Завжди перевіряйте оточення для безпеки перед відкриванням або закриванням дверей транспортного засобу.",
+        "image": "84.png"
+    },
+    {
+        "question_number": 85,
+        "question": "When approaching a stopped emergency vehicle that has flashing lights turned on, what should a driver do?",
+        "question_uk": "Під’їжджаючи до зупиненого аварійного транспортного засобу з увімкненими проблисковими маячками, що повинен зробити водій?",
+        "options": [
+            "Maintain approved speed limit, and prepare to stop if necessary.",
+            "Maintain speed limit at 60 km/h or lower, and prepare to stop if necessary.",
+            "Maintain speed limit at 70km/h or lower, and prepare to stop if necessary.",
+            "None of the above."
+        ],
+        "answer_index": 1,
+        "explanation_en": "The correct approach is to slow down to 60 km/h or less and be ready to stop.",
+        "explanation_uk": "Правильний підхід — знизити швидкість до 60 км/год або менше і бути готовим зупинитися.",
+        "image": "85.png"
+    },
+    {
+        "question_number": 86,
+        "question": "When exiting a two-lane traffic circle, the operator of a vehicle in the inside lane must:",
+        "question_uk": "При виїзді з кільця з двома смугами, водій з внутрішньої смуги повинен:",
+        "options": [
+            "Signal left and use caution when exiting the circle.",
+            "Signal right, and use caution when exiting the circle.",
+            "Stop and yield to any traffic on their right before exiting.",
+            "Enter the right-hand lane of the road being entered."
+        ],
+        "answer_index": 1,
+        "explanation_en": "The correct maneuver is to signal right and proceed with caution.",
+        "explanation_uk": "Правильний маневр — подати сигнал праворуч і виїжджати з обережністю.",
+        "image": "86.png"
+    },
+    {
+        "question_number": 87,
+        "question": "What steps must the driver take before refueling a school bus?",
+        "question_uk": "Які дії повинен виконати водій перед заправкою шкільного автобуса?",
+        "options": [
+            "Check the air in the tires and wash the windshield.",
+            "Ensure that they have the only passwords",
+            "Ensure that they have the passwords and cards to operate the automatic fuel pump.",
+            "Ensure that they only have the card"
+        ],
+        "answer_index": 2,
+        "explanation_en": "The driver must have both passwords and the access card for the fuel pump system.",
+        "explanation_uk": "Водій повинен мати і паролі, і картку доступу до системи паливного насоса.",
+        "image": "87.png"
+    },
+    {
+        "question_number": 88,
+        "question": "Punishment for impaired driving under the Criminal Code includes ____________.",
+        "question_uk": "Покарання за водіння в нетверезому стані згідно з Кримінальним кодексом включає ____________.",
+        "options": [
+            "A combination of prison term, fine and driving ban.",
+            "Prison term and $1000 fine.",
+            "Prison term and $3000 fine.",
+            "Prison term and $500 fine."
+        ],
+        "answer_index": 0,
+        "explanation_en": "The punishment typically includes prison time, a fine, and a driving ban.",
+        "explanation_uk": "Покарання зазвичай включає позбавлення волі, штраф і заборону на керування транспортом.",
+        "image": "88.png"
+    },
+    {
+        "question_number": 89,
+        "question": "As the driver of a passenger with disability, what should you do when meeting a client with a wheelchair for the first time?",
+        "question_uk": "Як водій пасажира з інвалідністю, що слід зробити при першій зустрічі з клієнтом у візку?",
+        "options": [
+            "Introduce yourself to the client, review the transportation process, and take the time to learn their needs.",
+            "Discuss the client’s needs with their attendant.",
+            "Ask the client to get into the vehicle and assist them to load their wheelchair into the vehicle if they have one.",
+            "Help the client into the vehicle safely and ensure a safe seating arrangement."
+        ],
+        "answer_index": 0,
+        "explanation_en": "Communication and understanding the passenger’s needs are crucial for safe transport.",
+        "explanation_uk": "Спілкування та розуміння потреб пасажира є ключовими для безпечного перевезення.",
+        "image": "89.png"
+    },
+    {
+        "question_number": 90,
+        "question": "What should you do if you have a passenger on board, and a police vehicle stops behind your vehicle?",
+        "question_uk": "Що ви повинні зробити, якщо у вас є пасажир у салоні, і поліцейський автомобіль зупиняється позаду вашого транспортного засобу?",
+        "options": [
+            "Be quick as you interact with the police officer to save the passenger's time.",
+            "Stay calm and be prepared to provide your car documents when requested by the police officer.",
+            "Stay calm and step out of your vehicle to avoid distracting the passenger as you interact with the police.",
+            "Stop, offer to help the passenger arrange another taxi if to avoid delays."
+        ],
+        "answer_index": 1,
+        "explanation_en": "Remaining calm and providing documents is the most appropriate action during a police stop.",
+        "explanation_uk": "Зберігати спокій і надати документи — найкраща дія під час зупинки поліцією.",
+        "image": "90.png"
+    },
+    {
+        "question_number": 91,
+        "question": "How should passengers board and exit the school bus?",
+        "question_uk": "Як пасажирам слід заходити та виходити зі шкільного автобуса?",
+        "options": [
+            "Only after receiving permission from the driver, and the vehicle has come to a complete stop.",
+            "By either the front or rear doors.",
+            "Only through the front door.",
+            "Only through the exit door located on the right side of the bus."
+        ],
+        "options_uk": [
+            "Тільки після дозволу водія та повної зупинки транспортного засобу.",
+            "Через передні або задні двері.",
+            "Тільки через передні двері.",
+            "Тільки через двері для виходу, розташовані з правого боку автобуса."
+        ],
+        "answer_index": 2,
+        "explanation_en": "Passengers must use the front door to board and exit for safety and supervision.",
+        "explanation_uk": "Пасажири повинні заходити та виходити лише через передні двері для безпеки та під наглядом водія.",
+        "image": ""
+    },
+    {
+        "question_number": 92,
+        "question": "Vehicles are not allowed to drive in the bicycle lanes, except ______________",
+        "question_uk": "Транспортним засобам заборонено рухатися по велосипедних доріжках, крім випадків ______________",
+        "options": [
+            "When it is safe to do so and there are no bicycles on the lane.",
+            "When overtaking another vehicle.",
+            "When needing to turn or enter/exit a parking spot.",
+            "When it is designated as a shared lane with cars."
+        ],
+        "options_uk": [
+            "Коли це безпечно і на доріжці немає велосипедистів.",
+            "Під час обгону іншого транспортного засобу.",
+            "Під час повороту або заїзду/виїзду з паркувального місця.",
+            "Коли вона позначена як спільна смуга з автомобілями."
+        ],
+        "answer_index": 2,
+        "explanation_en": "Vehicles may enter bicycle lanes only when turning or entering/exiting a parking spot.",
+        "explanation_uk": "В’їзд на велосипедну доріжку дозволений лише під час повороту або заїзду/виїзду з паркувального місця.",
+        "image": ""
+    },
+    {
+        "question_number": 93,
+        "question": "U-turns in urban areas are not permitted at:",
+        "question_uk": "Розвороти в межах міста заборонені на:",
+        "options": [
+            "Roads with a landscaped median.",
+            "An intersection controlled by Stop signs.",
+            "An intersection controlled by a traffic control signal.",
+            "An intersection with marked traffic lanes."
+        ],
+        "options_uk": [
+            "Дорогах з озелененою роздільною смугою.",
+            "Перехрестях, регульованих знаками «Стоп».",
+            "Перехрестях, регульованих світлофором.",
+            "Перехрестях з розміченими смугами руху."
+        ],
+        "answer_index": 2,
+        "explanation_en": "U-turns are not allowed at intersections controlled by traffic signals for safety reasons.",
+        "explanation_uk": "Розвороти заборонені на перехрестях зі світлофором з міркувань безпеки.",
+        "image": ""
+    },
+    {
+        "question_number": 94,
+        "question": "At an intersection with no signs or signals, the vehicle",
+        "question_uk": "На перехресті без знаків або світлофорів транспортний засіб",
+        "options": [
+            "that arrives first has the right of way.",
+            "moving straight has the right of way.",
+            "on the left of the driver has the right of way.",
+            "to the right of the driver has the right of way."
+        ],
+        "options_uk": [
+            "який прибув першим, має перевагу.",
+            "що рухається прямо, має перевагу.",
+            "що знаходиться ліворуч від водія, має перевагу.",
+            "що знаходиться праворуч від водія, має перевагу."
+        ],
+        "answer_index": 3,
+        "explanation_en": "When two vehicles arrive at the same time, the vehicle to the right has the right of way.",
+        "explanation_uk": "Якщо два транспортні засоби під’їхали одночасно, перевагу має той, що праворуч.",
+        "image": ""
+    },
+    {
+        "question_number": 95,
+        "question": "A driver of persons with disabilities should be aware of the _________ needs",
+        "question_uk": "Водій осіб з інвалідністю повинен враховувати _________ потреби",
+        "options": [
+            "Cognitive",
+            "Developmental",
+            "Mobility",
+            "All of the above."
+        ],
+        "options_uk": [
+            "Когнітивні",
+            "Розвиткові",
+            "Мобільність",
+            "Усі перелічені вище."
+        ],
+        "answer_index": 3,
+        "explanation_en": "Drivers must consider all types of needs—cognitive, developmental, and mobility.",
+        "explanation_uk": "Водій має враховувати всі типи потреб: когнітивні, розвиткові та мобільність.",
+        "image": ""
+    },
+    {
+        "question_number": 96,
+        "question": "When attempting to merge with traffic on a highway, a driver should:",
+        "question_uk": "Коли водій намагається злитися з потоком на шосе, він повинен:",
+        "options": [
+            "Stop at the end of the merge lane until the traffic on the highway is clear.",
+            "Choose an entry space and adjust their speed to merge smoothly.",
+            "Stop at the beginning of the merge lane until the traffic on the highway is clear.",
+            "Maintain speed since merging traffic has the right of way."
+        ],
+        "options_uk": [
+            "Зупинитися в кінці смуги злиття, поки рух на шосе не стане вільним.",
+            "Вибрати місце для в’їзду та відкоригувати швидкість для плавного злиття.",
+            "Зупинитися на початку смуги злиття, поки рух на шосе не стане вільним.",
+            "Підтримувати швидкість, оскільки зливаючий потік має перевагу."
+        ],
+        "answer_index": 1,
+        "explanation_en": "Adjusting speed to merge smoothly ensures a safe entry onto the highway.",
+        "explanation_uk": "Коригування швидкості для плавного злиття забезпечує безпечний в’їзд на шосе.",
+        "image": ""
+    },
+    {
+        "question_number": 97,
+        "question": "How often should a Class 4 license driver submit a medical examination report?",
+        "question_uk": "Як часто водій із ліцензією класу 4 повинен подавати медичну довідку?",
+        "options": [
+            "Every 5 years until the age of 65 and every 2 years after age 65.",
+            "A medical examination report is not required for Class 4 drivers.",
+            "Every 4 years until age 45, every 5 years between age 45-65 and every 2 years after age 65.",
+            "Every 5 years until age 45, every 2 years between age 45-65 and annually after age 65."
+        ],
+        "options_uk": [
+            "Кожні 5 років до 65 років і кожні 2 роки після 65 років.",
+            "Медична довідка не потрібна для водіїв класу 4.",
+            "Кожні 4 роки до 45 років, кожні 5 років між 45–65 роками і кожні 2 роки після 65 років.",
+            "Кожні 5 років до 45 років, кожні 2 роки між 45–65 роками і щороку після 65 років."
+        ],
+        "answer_index": 3,
+        "explanation_en": "Class 4 drivers must submit medical reports more frequently as they get older.",
+        "explanation_uk": "Водії класу 4 повинні частіше подавати медичні довідки з віком.",
+        "image": ""
+    },
+    {
+        "question_number": 98,
+        "question": "U-turns in urban areas are not permitted at:",
+        "question_uk": "Розвороти в межах міста заборонені на:",
+        "options": [
+            "Roads with a landscaped median.",
+            "An intersection controlled by Stop signs.",
+            "An intersection controlled by a traffic control signal.",
+            "An intersection with marked traffic lanes."
+        ],
+        "options_uk": [
+            "Дорогах з озелененою роздільною смугою.",
+            "Перехрестях, регульованих знаками «Стоп».",
+            "Перехрестях, регульованих світлофором.",
+            "Перехрестях з розміченими смугами руху."
+        ],
+        "answer_index": 2,
+        "explanation_en": "For safety, U-turns are not permitted at intersections with traffic signals.",
+        "explanation_uk": "З міркувань безпеки розвороти заборонені на перехрестях зі світлофорами.",
+        "image": ""
+    },
+    {
+        "question_number": 99,
+        "question": "The holder of a Class 4 driver’s licence may operate a bus with a maximum seating capacity of:",
+        "question_uk": "Власник водійських прав класу 4 може керувати автобусом з максимальною кількістю місць для сидіння:",
+        "options": [
+            "12 passengers, excluding the driver.",
+            "24 passengers, excluding the driver.",
+            "36 passengers, excluding the driver.",
+            "15 passengers, excluding the driver."
+        ],
+        "options_uk": [
+            "12 пасажирів, не враховуючи водія.",
+            "24 пасажири, не враховуючи водія.",
+            "36 пасажирів, не враховуючи водія.",
+            "15 пасажирів, не враховуючи водія."
+        ],
+        "answer_index": 1,
+        "explanation_en": "Class 4 licence holders may operate buses with up to 24 passenger seats.",
+        "explanation_uk": "Водії з правами класу 4 можуть керувати автобусами до 24 пасажирських місць.",
+        "image": ""
+    },
+    {
+        "question_number": 100,
+        "question": "What is true about use of navigation/GPS equipment?",
+        "question_uk": "Що є правильним щодо використання навігаційного/ GPS-обладнання?",
+        "options": [
+            "Driver may hold it on hand and enter information while driving.",
+            "Driver may hold the device while driving if it is voice enabled.",
+            "Driver must enter information before starting driving and device must be fixed on vehicle.",
+            "Driver may enter information while driving but may not hold the device."
+        ],
+        "options_uk": [
+            "Водій може тримати пристрій у руці та вводити інформацію під час руху.",
+            "Водій може тримати пристрій у руці під час руху, якщо він підтримує голосове керування.",
+            "Водій має ввести інформацію перед початком руху, а пристрій має бути закріплений у транспортному засобі.",
+            "Водій може вводити інформацію під час руху, але не повинен тримати пристрій у руці."
+        ],
+        "answer_index": 2,
+        "explanation_en": "Drivers must program navigation devices before driving and ensure the device is securely mounted.",
+        "explanation_uk": "Водій повинен ввести інформацію в навігатор до початку руху, а пристрій має бути надійно закріплений.",
+        "image": ""
+    },
+    {
+        "question_number": 101,
+        "question": "Who is responsible to ensure a passenger with disability is safely secured in the vehicle?",
+        "question_uk": "Хто несе відповідальність за безпечне закріплення пасажира з інвалідністю у транспортному засобі?",
+        "options": [
+            "The driver.",
+            "The disabled passenger attendant.",
+            "The passenger.",
+            "All of the above."
+        ],
+        "options_uk": [
+            "Водій.",
+            "Супроводжувач пасажира з інвалідністю.",
+            "Пасажир.",
+            "Усі перелічені вище."
+        ],
+        "answer_index": 0,
+        "explanation_en": "The driver is legally responsible for ensuring that all passengers, including those with disabilities, are properly secured.",
+        "explanation_uk": "Водій несе юридичну відповідальність за належне закріплення всіх пасажирів, у тому числі з інвалідністю.",
+        "image": ""
+    },
+    {
+        "question_number": 102,
+        "question": "Which statement is true about school bus alternating flashing light?",
+        "question_uk": "Яке твердження є правильним щодо чергуючих проблискових маячків шкільного автобуса?",
+        "options": [
+            "Can be activated at all times to unload and load students as it is exempt from all bylaw restrictions.",
+            "Can not be used to load and unload students if a bylaw prohibits its use.",
+            "Can be used en route by the driver if an emergency occurs on the school bus.",
+            "Both B & C."
+        ],
+        "options_uk": [
+            "Може вмикатися завжди для посадки та висадки учнів, оскільки не підпадає під жодні обмеження.",
+            "Не може використовуватись для посадки та висадки учнів, якщо це заборонено місцевими правилами.",
+            "Може використовуватись водієм під час руху у разі надзвичайної ситуації на автобусі.",
+            "Відповіді B і C."
+        ],
+        "answer_index": 1,
+        "explanation_en": "Bylaws may prohibit the use of alternating flashing lights for loading or unloading students.",
+        "explanation_uk": "Місцеві правила можуть забороняти використання чергуючих проблискових маячків для посадки чи висадки учнів.",
+        "image": ""
+    },
+    {
+        "question_number": 103,
+        "question": "When can a driver of a school bus carry passengers above the seating capacity?",
+        "question_uk": "Коли водій шкільного автобуса може перевозити пасажирів понад встановлену місткість?",
+        "options": [
+            "If the driver deems it safe to do so considering the circumstance.",
+            "If the driver receives an approval from school administrator.",
+            "If the seating/standing capacity accommodates more passengers safely.",
+            "Never, the school bus driver is not allowed to carry above the legal seating capacity."
+        ],
+        "options_uk": [
+            "Якщо водій вважає це безпечним з огляду на обставини.",
+            "Якщо водій отримав дозвіл від адміністратора школи.",
+            "Якщо сидяча/стояча місткість дозволяє безпечно перевезти більше пасажирів.",
+            "Ніколи, водієві шкільного автобуса не дозволено перевозити більше пасажирів, ніж дозволено законом."
+        ],
+        "answer_index": 3,
+        "explanation_en": "Carrying more passengers than allowed is illegal regardless of the situation.",
+        "explanation_uk": "Перевезення більшої кількості пасажирів, ніж дозволено, є незаконним незалежно від обставин.",
+        "image": ""
+    },
+    {
+        "question_number": 104,
+        "question": "If found guilty of impaired driving as a first time offender under the Traffic Safety Act, a driver shall be disqualified from driving for a period of ________.",
+        "question_uk": "Якщо водія вперше визнають винним у керуванні у нетверезому стані згідно із Законом про безпеку дорожнього руху, його буде позбавлено права керування на період ________.",
+        "options": [
+            "6 months.",
+            "18 months.",
+            "1 year.",
+            "1 year or option of $1,000 fine."
+        ],
+        "options_uk": [
+            "6 місяців.",
+            "18 місяців.",
+            "1 рік.",
+            "1 рік або штраф у розмірі $1,000."
+        ],
+        "answer_index": 2,
+        "explanation_en": "The mandatory disqualification period for a first-time impaired driving offense is 1 year.",
+        "explanation_uk": "Обов’язковий термін позбавлення права керування за перше порушення у нетверезому стані — 1 рік.",
+        "image": ""
+    },
+    {
+        "question_number": 105,
+        "question": "To anticipate possible hazards and take action to reduce danger before it can occur, a driver carrying passengers should practice:",
+        "question_uk": "Щоб передбачити можливі небезпеки та вжити заходів для зменшення ризику до його виникнення, водій з пасажирами повинен практикувати:",
+        "options": [
+            "Aggressive driving.",
+            "Proactive driving.",
+            "Careless driving.",
+            "Cautious driving."
+        ],
+        "options_uk": [
+            "Агресивне водіння.",
+            "Проактивне водіння.",
+            "Недбале водіння.",
+            "Обачне водіння."
+        ],
+        "answer_index": 1,
+        "explanation_en": "Proactive driving means anticipating risks and responding early to avoid danger.",
+        "explanation_uk": "Проактивне водіння означає передбачення ризиків і завчасне реагування для уникнення небезпеки.",
+        "image": ""
+    },
+    {
+        "question_number": 106,
+        "question": "What should you do if your vehicle starts to skid?",
+        "question_uk": "Що слід робити, якщо ваш транспортний засіб почав ковзати (занос)?",
+        "options": [
+            "What should you do if your vehicle starts to skid?",
+            "Keep your foot off the brake pedal and steer in the direction you want the vehicle to go.",
+            "Pump the brake pedal to regain control of the vehicle.",
+            "Press the brake pedal firmly without locking the wheels."
+        ],
+        "options_uk": [
+            "Що слід робити, якщо ваш транспортний засіб почав ковзати?",
+            "Зняти ногу з гальма і керувати у напрямку, в якому хочете їхати.",
+            "Прокачати педаль гальма, щоб відновити контроль над автомобілем.",
+            "Натиснути на гальмо сильно, не блокуючи колеса."
+        ],
+        "answer_index": 1,
+        "explanation_en": "The correct response to a skid is to steer in the direction you want to go and not brake.",
+        "explanation_uk": "Правильна дія при заносі — керувати у потрібному напрямку і не гальмувати.",
+        "image": ""
+    },
+    {
+        "question_number": 107,
+        "question": "When assisting a passenger with a scooter, a driver should:",
+        "question_uk": "Допомагаючи пасажиру на скутері, водій повинен:",
+        "options": [
+            "Depending on the type of vehicle, decide what is most appropriate.",
+            "Depending on the type of vehicle, ask the passenger what they choose.",
+            "Always transfer the passenger from the scooter to the vehicle seat to minimize safety risks as required by law.",
+            "Always transfer the scooter to the vehicle without moving the passenger to the vehicle seat as required by law."
+        ],
+        "options_uk": [
+            "Залежно від типу транспортного засобу, приймати найбільш доречне рішення.",
+            "Залежно від типу транспортного засобу, запитати у пасажира, що він обирає.",
+            "Завжди пересаджувати пасажира зі скутера на сидіння автомобіля для мінімізації ризиків, як вимагає закон.",
+            "Завжди переносити скутер до автомобіля, не пересаджуючи пасажира на сидіння, як вимагає закон."
+        ],
+        "answer_index": 1,
+        "explanation_en": "Respecting the passenger’s preference ensures dignity and safety.",
+        "explanation_uk": "Дотримання побажань пасажира забезпечує його гідність і безпеку.",
+        "image": ""
+    },
+    {
+        "question_number": 108,
+        "question": "Vehicles must be parked what minimum distance from a marked crosswalk?",
+        "question_uk": "На якій мінімальній відстані від позначеного пішохідного переходу можна паркувати транспортний засіб?",
+        "options": [
+            "5 metres from the near side of the crosswalk.",
+            "4 metres from the near side of the crosswalk.",
+            "1.5 metres from the near side of the crosswalk.",
+            "3 metres from the near side of the crosswalk."
+        ],
+        "options_uk": [
+            "5 метрів від ближнього краю пішохідного переходу.",
+            "4 метри від ближнього краю пішохідного переходу.",
+            "1,5 метра від ближнього краю пішохідного переходу.",
+            "3 метри від ближнього краю пішохідного переходу."
+        ],
+        "answer_index": 0,
+        "explanation_en": "A 5-metre distance improves visibility and safety for pedestrians.",
+        "explanation_uk": "Відстань у 5 метрів підвищує оглядовість і безпеку для пішоходів.",
+        "image": ""
+    },
+    {
+        "question_number": 109,
+        "question": "When encountering a funeral procession that is crossing an intersection:",
+        "question_uk": "Коли ви зустрічаєте похоронну процесію, яка перетинає перехрестя:",
+        "options": [
+            "Sound the horn before proceeding.",
+            "Proceed through the funeral procession only when there is sufficient space between vehicles.",
+            "Yield the right-of-way and do not break through the procession.",
+            "Flash the high beam headlights before proceeding."
+        ],
+        "options_uk": [
+            "Просигналити перед проїздом.",
+            "Проїхати через процесію лише якщо між автомобілями достатньо місця.",
+            "Надати перевагу та не переривати процесію.",
+            "Моргнути дальнім світлом перед проїздом."
+        ],
+        "answer_index": 2,
+        "explanation_en": "Respecting the procession ensures safety and honors the deceased.",
+        "explanation_uk": "Повага до процесії забезпечує безпеку та вшанування померлого.",
+        "image": ""
+    },
+    {
+        "question_number": 110,
+        "question": "Which of the following statements about speed is NOT true?",
+        "question_uk": "Яке з наступних тверджень про швидкість є НЕправильним?",
+        "options": [
+            "Increases stopping distance.",
+            "Reduces braking distance.",
+            "Impacts the ability of a driver to react to actions or detect hazards.",
+            "Impacts the ability of a driver to safely negotiate curves, lane changes, or maneuver."
+        ],
+        "options_uk": [
+            "Збільшує гальмівний шлях.",
+            "Зменшує гальмівний шлях.",
+            "Впливає на здатність водія реагувати на дії чи виявляти небезпеки.",
+            "Впливає на здатність водія безпечно проходити повороти, змінювати смуги чи маневрувати."
+        ],
+        "answer_index": 1,
+        "explanation_en": "Speed increases braking distance, it does not reduce it.",
+        "explanation_uk": "Швидкість збільшує гальмівний шлях, а не зменшує його.",
+        "image": ""
+    },
+    {
+        "question_number": 111,
+        "question": "When the overhead lights and siren are activated, what is the recommended lane in which to drive an emergency vehicle on a four-lane highway?",
+        "question_uk": "Коли ввімкнені проблискові маячки та сирена, якою смугою рекомендується рухатися аварійному транспортному засобу на чотирисмуговій автомагістралі?",
+        "options": [
+            "The right lane in the same direction as traffic.",
+            "The left lane in the same direction as traffic.",
+            "The left lane in the opposite direction as traffic.",
+            "The right lane in the opposite direction as traffic."
+        ],
+        "options_uk": [
+            "Права смуга у напрямку руху транспорту.",
+            "Ліва смуга у напрямку руху транспорту.",
+            "Ліва смуга у протилежному напрямку руху.",
+            "Права смуга у протилежному напрямку руху."
+        ],
+        "answer_index": 1,
+        "explanation_en": "Emergency vehicles should use the left lane to pass traffic safely when lights and siren are on.",
+        "explanation_uk": "Аварійні транспортні засоби повинні використовувати ліву смугу для безпечного обгону з увімкненими проблисковими маячками та сиреною.",
+        "image": ""
+    },
+    {
+        "question_number": 112,
+        "question": "__________ is driving with the aim to anticipate possible hazards and take action to reduce danger before it can occur.",
+        "question_uk": "__________ — це стиль водіння, спрямований на передбачення можливих небезпек і вжиття заходів для зменшення ризику ще до його виникнення.",
+        "options": [
+            "Visual lead time",
+            "Cautionary driving",
+            "Careless driving",
+            "Proactive driving"
+        ],
+        "options_uk": [
+            "Візуальний запас часу",
+            "Обережне водіння",
+            "Недбале водіння",
+            "Проактивне водіння"
+        ],
+        "answer_index": 3,
+        "explanation_en": "Proactive driving means anticipating hazards and acting early to prevent them.",
+        "explanation_uk": "Проактивне водіння означає передбачати небезпеки та діяти завчасно, щоб їх уникнути.",
+        "image": ""
+    },
+    {
+        "question_number": 113,
+        "question": "Which of these is a defensive driving tactic?",
+        "question_uk": "Яка з наведених дій є тактикою оборонного водіння?",
+        "options": [
+            "Anticipating and preventing another driver from changing lanes.",
+            "Making up time by changing to a faster lane.",
+            "Being aware of your own physical and mental condition.",
+            "Making eye contact with other drivers."
+        ],
+        "options_uk": [
+            "Передбачати та не дозволяти іншому водієві змінювати смугу.",
+            "Надолужувати час, переходячи на швидшу смугу.",
+            "Усвідомлювати свій фізичний і психічний стан.",
+            "Встановлювати зоровий контакт з іншими водіями."
+        ],
+        "answer_index": 2,
+        "explanation_en": "Being aware of your own condition helps you drive defensively and safely.",
+        "explanation_uk": "Усвідомлення свого фізичного та психічного стану допомагає керувати захисно й безпечно.",
+        "image": ""
+    },
+    {
+        "question_number": 114,
+        "question": "What is a general rule for judging distance in front of you when pushing a person with a wheelchair?",
+        "question_uk": "Яке загальне правило визначення відстані спереду, коли ви штовхаєте людину в інвалідному візку?",
+        "options": [
+            "Judge distance by where you are standing.",
+            "Judge distance by the front of the foot rests.",
+            "Judge distance by the front of the seat.",
+            "Judge distance by the passenger’s knees."
+        ],
+        "options_uk": [
+            "Визначати відстань за місцем, де ви стоїте.",
+            "Визначати відстань за передньою частиною підніжок.",
+            "Визначати відстань за передньою частиною сидіння.",
+            "Визначати відстань за колінами пасажира."
+        ],
+        "answer_index": 1,
+        "explanation_en": "Use the footrests to judge distance since they extend furthest forward.",
+        "explanation_uk": "Визначайте відстань спереду за підніжками, оскільки вони виступають найдалі.",
+        "image": ""
+    },
+    {
+        "question_number": 115,
+        "question": "__________ can impair your judgment and ability to safely operate a vehicle.",
+        "question_uk": "__________ може погіршити вашу здатність адекватно оцінювати ситуацію та безпечно керувати транспортним засобом.",
+        "options": [
+            "Stress",
+            "Mental fatigue",
+            "Physical fatigue",
+            "All of the above."
+        ],
+        "options_uk": [
+            "Стрес",
+            "Психічна втома",
+            "Фізична втома",
+            "Усі перелічені вище."
+        ],
+        "answer_index": 3,
+        "explanation_en": "Stress and both types of fatigue can make driving unsafe.",
+        "explanation_uk": "Стрес і втома (психічна та фізична) можуть погіршити здатність безпечно керувати.",
+        "image": ""
+    },
+    {
+        "question_number": 116,
+        "question": "Vehicles must be parked what minimum distance from a marked crosswalk?",
+        "question_uk": "На якій мінімальній відстані від позначеного пішохідного переходу дозволено паркувати транспортний засіб?",
+        "options": [
+            "5 metres from the near side of the crosswalk.",
+            "4 metres from the near side of the crosswalk.",
+            "1.5 metres from the near side of the crosswalk.",
+            "3 metres from the near side of the crosswalk."
+        ],
+        "options_uk": [
+            "5 метрів від ближнього краю пішохідного переходу.",
+            "4 метри від ближнього краю пішохідного переходу.",
+            "1,5 метра від ближнього краю пішохідного переходу.",
+            "3 метри від ближнього краю пішохідного переходу."
+        ],
+        "answer_index": 0,
+        "explanation_en": "Parking at least 5 metres away improves safety and visibility for pedestrians.",
+        "explanation_uk": "Паркуйтеся не ближче ніж за 5 метрів від пішохідного переходу для кращої безпеки та видимості.",
+        "image": ""
+    },
+    {
+        "question_number": 117,
+        "question": "If a bus breaks down in a safe location, what should the driver typically do?",
+        "question_uk": "Якщо автобус зламався у безпечному місці, що зазвичай повинен зробити водій?",
+        "options": [
+            "Evacuate the bus and arrange replacement transportation.",
+            "Instruct passengers to remain on the bus and take a break.",
+            "Evacuate the bus to the side of the road and wait for a replacement bus.",
+            "Instruct passengers to remain on the bus and watch the situation."
+        ],
+        "options_uk": [
+            "Евакуювати пасажирів з автобуса та організувати заміну транспорту.",
+            "Дати вказівку пасажирам залишатися в автобусі та зробити перерву.",
+            "Евакуювати автобус на узбіччя та чекати на заміну.",
+            "Дати вказівку пасажирам залишатися в автобусі та спостерігати за ситуацією."
+        ],
+        "answer_index": 3,
+        "explanation_en": "If safe, passengers should remain on the bus until help arrives.",
+        "explanation_uk": "Якщо автобус зламався у безпечному місці, пасажири повинні залишатися в автобусі до прибуття допомоги.",
+        "image": ""
+    },
+    {
+        "question_number": 118,
+        "question": "To avoid collision, a school bus driver could reverse a school bus next to a school ground if:",
+        "question_uk": "Щоб уникнути зіткнення, водій шкільного автобуса може здавати назад біля шкільного подвір’я лише якщо:",
+        "options": [
+            "They physically check the area for any obstructions and clearances.",
+            "The school ground is empty.",
+            "The school bus is unloaded.",
+            "It is against the law to reverse a school bus next to a school ground."
+        ],
+        "options_uk": [
+            "Водій фізично перевірив територію на наявність перешкод і достатнього простору.",
+            "Шкільний двір порожній.",
+            "Шкільний автобус порожній.",
+            "Здавати назад біля шкільного подвір’я заборонено законом."
+        ],
+        "answer_index": 0,
+        "explanation_en": "Physically checking for obstacles ensures the area is safe before reversing.",
+        "explanation_uk": "Щоб уникнути зіткнення, водій шкільного автобуса може здавати назад біля шкільного подвір’я лише після фізичної перевірки відсутності перешкод і достатнього простору.",
+        "image": ""
+    },
+    {
+        "question_number": 119,
+        "question": "Fatigue can be caused by:",
+        "question_uk": "Втома може бути викликана:",
+        "options": [
+            "Keeping the vehicle at a comfortable temperature",
+            "Eye strain",
+            "Using sunglasses",
+            "Prescription glasses"
+        ],
+        "options_uk": [
+            "Підтримання комфортної температури в автомобілі",
+            "Перенапруження очей",
+            "Використання сонцезахисних окулярів",
+            "Окуляри за призначенням лікаря"
+        ],
+        "answer_index": 1,
+        "explanation_en": "Eye strain can lead to fatigue and reduce driver alertness.",
+        "explanation_uk": "Втома може виникати через перенапруження очей, що знижує уважність водія.",
+        "image": ""
+    },
+    {
+        "question_number": 120,
+        "question": "What should you do if you have a passenger on board, and a police vehicle stops behind your vehicle?",
+        "question_uk": "Що слід зробити, якщо у вас є пасажир у салоні, а поліцейський автомобіль зупиняється позаду вашого транспортного засобу?",
+        "options": [
+            "Be quick as you interact with the police officer to save the passenger's time.",
+            "Stay calm and be prepared to provide your car documents when requested by the police officer.",
+            "Stay calm and step out of your vehicle to avoid distracting the passenger as you interact with the police.",
+            "Stop, offer to help the passenger arrange another taxi if to avoid delays."
+        ],
+        "options_uk": [
+            "Поспішайте під час спілкування з поліцейським, щоб зекономити час пасажиру.",
+            "Залишайтеся спокійними та будьте готові надати документи на авто на вимогу поліцейського.",
+            "Залишайтеся спокійними та вийдіть з автомобіля, щоб не відволікати пасажира під час спілкування з поліцією.",
+            "Зупиніться, запропонуйте пасажиру допомогу з організацією іншого таксі, щоб уникнути затримки."
+        ],
+        "answer_index": 1,
+        "explanation_en": "Remain calm and provide documents as requested during a police stop.",
+        "explanation_uk": "Залишайтеся спокійними та будьте готові надати документи на авто на вимогу поліцейського.",
+        "image": ""
+    }
 ]
-,
-  {
-    "question_number": 111,
-    "question": "When the overhead lights and siren are activated, what is the recommended lane in which to drive an emergency vehicle on a four-lane highway?",
-    "options": [
-      "The right lane in the same direction as traffic.",
-      "The left lane in the same direction as traffic.",
-      "The left lane in the opposite direction as traffic.",
-      "The right lane in the opposite direction as traffic."
-    ],
-    "answer_index": 1,
-    "explanation_en": "",
-    "image": ""
-  },
-  {
-    "question_number": 112,
-    "question": "__________ is driving with the aim to anticipate possible hazards and take action to reduce danger before it can occur.",
-    "options": [
-      "Visual lead time",
-      "Cautionary driving",
-      "Careless driving",
-      "Proactive driving"
-    ],
-    "answer_index": 3,
-    "explanation_en": "",
-    "image": ""
-  },
-  {
-    "question_number": 113,
-    "question": "Which of these is a defensive driving tactic?",
-    "options": [
-      "Anticipating and preventing another driver from changing lanes.",
-      "Making up time by changing to a faster lane.",
-      "Being aware of your own physical and mental condition.",
-      "Making eye contact with other drivers."
-    ],
-    "answer_index": 2,
-    "explanation_en": "",
-    "image": ""
-  },
-  {
-    "question_number": 114,
-    "question": "What is a general rule for judging distance in front of you when pushing a person with a wheelchair?",
-    "options": [
-      "Judge distance by where you are standing.",
-      "Judge distance by the front of the foot rests.",
-      "Judge distance by the front of the seat.",
-      "Judge distance by the passenger’s knees."
-    ],
-    "answer_index": 1,
-    "explanation_en": "",
-    "image": ""
-  },
-  {
-    "question_number": 115,
-    "question": "__________ can impair your judgment and ability to safely operate a vehicle.",
-    "options": [
-      "Stress",
-      "Mental fatigue",
-      "Physical fatigue",
-      "All of the above."
-    ],
-    "answer_index": 3,
-    "explanation_en": "",
-    "image": ""
-  },
-  {
-    "question_number": 116,
-    "question": "Vehicles must be parked what minimum distance from a marked crosswalk?",
-    "options": [
-      "5 metres from the near side of the crosswalk.",
-      "4 metres from the near side of the crosswalk.",
-      "1.5 metres from the near side of the crosswalk.",
-      "3 metres from the near side of the crosswalk."
-    ],
-    "answer_index": 0,
-    "explanation_en": "",
-    "image": ""
-  },
-  {
-    "question_number": 117,
-    "question": "If a bus breaks down in a safe location, what should the driver typically do?",
-    "options": [
-      "Evacuate the bus and arrange replacement transportation.",
-      "Instruct passengers to remain on the bus and take a break.",
-      "Evacuate the bus to the side of the road and wait for a replacement bus.",
-      "Instruct passengers to remain on the bus and watch the situation."
-    ],
-    "answer_index": 3,
-    "explanation_en": "",
-    "image": ""
-  },
-  {
-    "question_number": 118,
-    "question": "To avoid collision, a school bus driver could reverse a school bus next to a school ground if:",
-    "options": [
-      "They physically check the area for any obstructions and clearances.",
-      "The school ground is empty.",
-      "The school bus is unloaded.",
-      "It is against the law to reverse a school bus next to a school ground."
-    ],
-    "answer_index": 0,
-    "explanation_en": "",
-    "image": ""
-  },
-  {
-    "question_number": 119,
-    "question": "Fatigue can be caused by:",
-    "options": [
-      "Keeping the vehicle at a comfortable temperature",
-      "Eye strain",
-      "Using sunglasses",
-      "Prescription glasses"
-    ],
-    "answer_index": 1,
-    "explanation_en": "",
-    "image": ""
-  },
-  {
-    "question_number": 120,
-    "question": "What should you do if you have a passenger on board, and a police vehicle stops behind your vehicle?",
-    "options": [
-      "Be quick as you interact with the police officer to save the passenger's time.",
-      "Stay calm and be prepared to provide your car documents when requested by the police officer.",
-      "Stay calm and step out of your vehicle to avoid distracting the passenger as you interact with the police.",
-      "Stop, offer to help the passenger arrange another taxi if to avoid delays."
-    ],
-    "answer_index": 1,
-    "explanation_en": "",
-    "image": ""
-  }
