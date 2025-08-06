@@ -473,6 +473,9 @@ async def next_handler(update: Update, context: CallbackContext) -> None:
 
 
 def main() -> None:
+    render_url = os.environ.get("RENDER_EXTERNAL_URL")
+    if not render_url:
+        raise RuntimeError("RENDER_EXTERNAL_URL is not set.")
     token = os.getenv("BOT_TOKEN")
     if not token:
         raise RuntimeError("The BOT_TOKEN environment variable is not set.")
@@ -500,11 +503,6 @@ async def handle_text_input(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("ℹ️ Please enter a valid question number.")
 
 
-    port = int(os.environ.get("PORT", 10000))
-    render_url = os.environ.get("RENDER_EXTERNAL_URL")
-    if not render_url:
-        raise RuntimeError("RENDER_EXTERNAL_URL is not set. Make sure your environment provides it.")
-
     # Add global error handler
     from telegram.error import TelegramError
     async def error_handler(update, context):
@@ -513,8 +511,8 @@ async def handle_text_input(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     application.run_webhook(
         listen="0.0.0.0",
-        port=port,
-        webhook_url=f"{render_url}"
+        port=int(os.environ.get("PORT", 1000)),
+        webhook_url=os.environ["RENDER_EXTERNAL_URL"]
     )
 
 
