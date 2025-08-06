@@ -1,15 +1,3 @@
-"""Telegram bot for Alberta Class 4 driver’s licence practice.
-
-This bot asks 10 multiple‑choice questions about traffic rules and safe driving.
-Each question is bilingual (English and Ukrainian) and uses inline keyboard
-buttons for answer selection.  User progress and score are stored in
-``context.chat_data`` so that each user can take the quiz independently.
-
-To run locally, export your Telegram token in the environment variable
-``BOT_TOKEN`` and execute ``python main.py``.  The bot uses long polling via
-``run_polling``.
-"""
-
 import logging
 import os
 import json
@@ -309,12 +297,12 @@ async def send_score(chat_id: int, context: CallbackContext) -> None:
         )
     else:
         text = (
-            f"<b>🎉 You scored {score} out of {total}!</b><br/>"
+            f"<b>🎉 You scored {score} out of {total}!</b>\n"
             "Type /quiz to try again.<br/><br/>"
-            f"<b>🇺🇦 Ви набрали {score} із {total} балів!</b><br/>"
+            f"<b>🇺🇦 Ви набрали {score} із {total} балів!</b>\n"
             "Наберіть /quiz, щоб спробувати ще раз."
         )
-    await context.bot.send_message(chat_id=chat_id, text=text, parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔁 Start Again", callback_data="mode_exam")]]))
+    await context.bot.send_message(chat_id=chat_id, text=text, parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔁 Start Again", callback_data="mode_exam"), InlineKeyboardButton("🏠 Main Menu", callback_data="main_menu")]]))
     chat_data.clear()
 
 async def quiz_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
