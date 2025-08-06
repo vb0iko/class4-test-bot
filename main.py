@@ -427,7 +427,8 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
                 options_text.append(f"       {option_labels[idx]}. {line}")
 
         total_questions = 30 if mode == 'exam' else len(QUESTIONS)
-        result_title = f"<i><b>Question {current_index + 1} of {total_questions} ({'✅ Correct!' if is_correct else '❌ Incorrect!'})</b></i>"
+        fail_count = current_index + 1 - chat_data.get("score", 0)
+        result_title = f"<i><b>Question {current_index + 1} of {total_questions} ({fail_count} Fails)</b></i>"
         full_text = [result_title, ""]
 
         if lang_mode == "bilingual":
