@@ -547,3 +547,5 @@ def main() -> None:
         port=int(os.environ.get("PORT", "10000")),
         webhook_url=os.environ["RENDER_EXTERNAL_URL"]
     )
+    # Keep the process alive (for platforms like Render)
+    import asyncio; asyncio.get_event_loop().run_forever()
