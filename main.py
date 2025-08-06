@@ -472,6 +472,47 @@ async def next_handler(update: Update, context: CallbackContext) -> None:
         await send_score(update.effective_chat.id, context)
 
 
+
+# --- Text input handler for question number ---
+async def handle_text_input(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    message = update.message.text.strip()
+    if message.isdigit():
+        number = int(message)
+        if context.chat_data.get("mode") != "learning":
+            await update.message.reply_text("ℹ️ You can only jump to a question in Learning Mode.")
+            return
+        if 1 <= number <= len(QUESTIONS):
+            context.chat_data["current_index"] = number - 1
+            await send_question(update.effective_chat.id, context)
+            return
+        else:
+            await update.message.reply_text("ℹ️ Please enter a valid question number between 1 and {}.".format(len(QUESTIONS)))
+            return
+    else:
+        await update.message.reply_text("ℹ️ Please enter a valid question number.")
+
+# --- Pause/resume handlers ---
+async def handle_resume_pause(update: Update, context: CallbackContext) -> None:
+    query = update.callback_query
+    import telegram.error
+    try:
+        await query.answer()
+    except telegram.error.BadRequest as e:
+        if "Query is too old" in str(e):
+            logger.warning("Callback query too old; skipping answer.")
+            return
+        else:
+            raise
+    context.chat_data["paused"] = False
+    context.chat_data["current_index"] = context.chat_data.get("resume_question", 0)
+    await send_question(query.message.chat.id, context)
+
+# --- Global error handler ---
+from telegram.error import TelegramError
+async def error_handler(update, context):
+    logger.error(msg="Exception while handling an update:", exc_info=context.error)
+
+
 def main() -> None:
     render_url = os.environ.get("RENDER_EXTERNAL_URL")
     if not render_url:
@@ -492,21 +533,8 @@ def main() -> None:
     application.add_handler(CallbackQueryHandler(handle_mode, pattern="^mode_.*$"))
     application.add_handler(CallbackQueryHandler(handle_resume_pause, pattern="^RESUME_PAUSE$"))
     application.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), handle_text_input))
-# --- Text input handler for question number ---
-async def handle_text_input(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    message = update.message.text.strip()
-    if message.isdigit():
-        index = int(message)
-        context.chat_data["question_index"] = index - 1
-        await update.message.reply_text(f"✅ Starting from question {index}. Use /start to continue.")
-    else:
-        await update.message.reply_text("ℹ️ Please enter a valid question number.")
-
 
     # Add global error handler
-    from telegram.error import TelegramError
-    async def error_handler(update, context):
-        logger.error(msg="Exception while handling an update:", exc_info=context.error)
     application.add_error_handler(error_handler)
 
     application.run_webhook(
@@ -514,34 +542,3 @@ async def handle_text_input(update: Update, context: ContextTypes.DEFAULT_TYPE):
         port=int(os.environ.get("PORT", "10000")),
         webhook_url=os.environ["RENDER_EXTERNAL_URL"]
     )
-
-
- # --- Pause/resume handlers ---
-
-async def handle_resume_pause(update: Update, context: CallbackContext) -> None:
-    query = update.callback_query
-    try:
-        await query.answer()
-    except telegram.error.BadRequest as e:
-        if "Query is too old" in str(e):
-            logger.warning("Callback query too old; skipping answer.")
-            return
-        else:
-            raise
-    context.chat_data["paused"] = False
-    context.chat_data["current_index"] = context.chat_data.get("resume_question", 0)
-    await send_question(query.message.chat.id, context)
-
-if __name__ == "__main__":
-    main()
-
-async def text_handler(update: Update, context: CallbackContext) -> None:
-    text = update.message.text.strip()
-    if not text.isdigit():
-        return
-    number = int(text)
-    if context.chat_data.get("mode") != "learning":
-        return
-    if 1 <= number <= len(QUESTIONS):
-        context.chat_data["current_index"] = number - 1
-        await send_question(update.effective_chat.id, context)
