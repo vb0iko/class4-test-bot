@@ -64,10 +64,25 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     lang_options = LANG_OPTIONS.copy()
     if context.chat_data.get("paused"):
         lang_options.append([InlineKeyboardButton("▶️ Continue", callback_data="RESUME_PAUSE")])
+    # Add Main Menu button
+    lang_options.append([InlineKeyboardButton("🏠 Main Menu", callback_data="MAIN_MENU")])
     await update.effective_chat.send_message(
         "Please choose your language / Будь ласка, оберіть мову:",
         reply_markup=InlineKeyboardMarkup(lang_options)
     )
+async def handle_main_menu(update: Update, context: CallbackContext) -> None:
+    query = update.callback_query
+    import telegram.error
+    try:
+        await query.answer()
+    except telegram.error.BadRequest as e:
+        if "Query is too old" in str(e):
+            logger.warning("Callback query too old; skipping answer.")
+            return
+        else:
+            raise
+    context.chat_data.clear()
+    await start(update, context)
 
 async def handle_language(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
@@ -413,21 +428,43 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
         options_uk = question.get("options_uk", [])
         options_text = []
 
-        # Bold the selected answer and the correct answer (with ✅), even if not selected
+        # Format options per requirements:
+        # - If selected and incorrect: ❌ <b>A. text</b>
+        # - If selected and correct: ✅ <b>A. text</b>
+        # - If correct but not selected: ✅ A. text
+        # - All others: unformatted
         for idx, opt_en in enumerate(options_en):
             opt_uk = options_uk[idx] if lang_mode == "bilingual" and options_uk else ""
             line = f"{opt_en}" if not opt_uk else f"{opt_en} / {opt_uk}"
-
-            if idx == selected_index:
-                emoji_prefix = "✅" if idx == correct_index else "❌"
-                options_text.append(f"<b>{emoji_prefix} {option_labels[idx]}. {line}</b>")
+            option_letter = option_labels[idx]
+            if idx == selected_index and idx != correct_index:
+                # Selected and incorrect
+                options_text.append(f"❌ <b>{option_letter}. {line}</b>")
+            elif idx == selected_index and idx == correct_index:
+                # Selected and correct
+                options_text.append(f"✅ <b>{option_letter}. {line}</b>")
             elif idx == correct_index:
-                options_text.append(f"<b>✅ {option_labels[idx]}. {line}</b>")
+                # Correct but not selected
+                options_text.append(f"✅ {option_letter}. {line}")
             else:
-                options_text.append(f"       {option_labels[idx]}. {line}")
+                # All others
+                options_text.append(f"       {option_letter}. {line}")
 
         total_questions = 30 if mode == 'exam' else len(QUESTIONS)
         fail_count = current_index + 1 - chat_data.get("score", 0)
+        # --- Insert fail fast logic for exam mode ---
+        if mode == "exam" and fail_count >= 6:
+            text = (
+                f"<b>❌ You made {fail_count} mistakes. Test failed.</b>\n\n"
+                f"<b>🇺🇦 Ви зробили {fail_count} помилок. Тест не складено.</b>\n\n"
+            )
+            keyboard = InlineKeyboardMarkup([
+                [InlineKeyboardButton("🔁 Try Again / Спробувати ще раз", callback_data="mode_exam")]
+            ])
+            await query.message.reply_text(text, parse_mode=ParseMode.HTML, reply_markup=keyboard)
+            chat_data.clear()
+            return
+        # --- End fail fast logic ---
         result_title = f"<i><b>Question {current_index + 1} of {total_questions} ({fail_count} Fails)</b></i>"
         full_text = [result_title, ""]
 
@@ -565,6 +602,7 @@ def main() -> None:
     application.add_handler(CallbackQueryHandler(handle_mode, pattern="^mode_.*$"))
     application.add_handler(CallbackQueryHandler(handle_pause, pattern="^mode_pause$"))
     application.add_handler(CallbackQueryHandler(handle_resume_pause, pattern="^RESUME_PAUSE$"))
+    application.add_handler(CallbackQueryHandler(handle_main_menu, pattern="^MAIN_MENU$"))
 
     port = int(os.environ.get("PORT", 10000))
     render_url = os.environ.get("RENDER_EXTERNAL_URL")
