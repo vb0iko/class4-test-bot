@@ -15,6 +15,7 @@ from telegram.ext import (
     CommandHandler,
     ContextTypes,
     Defaults,
+    PollAnswerHandler,  # for quiz polls
 )
 
 with open("questions.json", "r", encoding="utf-8") as f:
@@ -133,6 +134,13 @@ async def handle_mode(update: Update, context: CallbackContext) -> None:
     context.chat_data["current_index"] = 0
     context.chat_data["score"] = 0
     context.chat_data["paused"] = False
+    # Initialize per-user state when using learning mode so that poll answers can be tracked
+    if mode == "learning":
+        context.user_data.clear()
+        context.user_data["mode"] = mode
+        context.user_data["current_question_index"] = 0
+        context.user_data["score"] = 0
+        context.user_data["lang_mode"] = context.chat_data.get("lang_mode", "en")
     # Reset used_questions only on new exam start
     if mode == "exam":
         import random
@@ -222,6 +230,55 @@ async def send_question(chat_id: int, context: CallbackContext) -> None:
             await send_score(chat_id, context)
             return
         q = QUESTIONS[index]
+            # Learning mode uses quiz polls instead of inline keyboards
+            if mode != "exam":
+                total_questions = len(QUESTIONS)
+                # Build question text based on language
+                if lang_mode == "bilingual":
+                    question_text = f"Q{index + 1}/{total_questions}:\n🇬🇧 {q['question']}\n🇺🇦 {q['question_uk']}"
+                else:
+                    question_text = f"Q{index + 1}/{total_questions}:\n{q['question']}"
+                # Build options list
+                options_en = q["options"]
+                options_uk = q.get("options_uk", [])
+                poll_options = []
+                for i, opt_en in enumerate(options_en):
+                    if lang_mode == "bilingual" and options_uk:
+                        poll_options.append(f"{opt_en} / {options_uk[i]}")
+                    else:
+                        poll_options.append(opt_en)
+                # Build explanation
+                explanation_en = q.get("explanation_en") or q.get("explanation")
+                explanation_uk = q.get("explanation_uk")
+                explanation = None
+                if explanation_en or explanation_uk:
+                    if lang_mode == "bilingual":
+                        parts = []
+                        if explanation_en:
+                            parts.append(explanation_en)
+                        if explanation_uk:
+                            parts.append(explanation_uk)
+                        explanation = "\n".join(parts)
+                    else:
+                        explanation = explanation_en or ""
+                # Send quiz poll
+                poll_message = await context.bot.send_poll(
+                    chat_id=chat_id,
+                    question=question_text,
+                    options=poll_options,
+                    type="quiz",
+                    correct_option_id=q["answer_index"],
+                    explanation=explanation,
+                    is_anonymous=False,
+                )
+                # Store mapping of poll ID to chat ID for poll answer handler
+                context.bot_data.setdefault("polls", {})[poll_message.poll.id] = chat_id
+                # Update per-user state for poll answers
+                context.user_data["current_question_index"] = index
+                context.user_data["mode"] = "learning"
+                context.user_data["lang_mode"] = lang_mode
+                context.user_data.setdefault("score", 0)
+                return
 
     total_questions = len(chat_data.get("exam_questions", [])) if mode == 'exam' else len(QUESTIONS)
     fail_count = chat_data.get("current_index", 0) - chat_data.get("score", 0)
@@ -282,13 +339,15 @@ async def send_question(chat_id: int, context: CallbackContext) -> None:
 
 async def send_score(chat_id: int, context: CallbackContext) -> None:
     chat_data = context.chat_data
-    score = chat_data.get("score", 0)
-    total = len(chat_data.get("exam_questions", [])) if chat_data.get("mode", "learning") == "exam" else len(QUESTIONS)
-    if chat_data.get("mode", "learning") == "exam":
+    user_data = context.user_data
+    # Determine which mode is active (learning mode state may reside in user_data)
+    mode = user_data.get("mode") or chat_data.get("mode", "learning")
+    if mode == "exam":
+        score = chat_data.get("score", 0)
+        total = len(chat_data.get("exam_questions", []))
         passed = score >= 25
         result_en = "✅ You passed the exam!" if passed else "❌ You did not pass the exam."
         result_uk = "✅ Ви склали іспит!" if passed else "❌ Ви не склали іспит."
-
         text = (
             f"<b>🎉 You scored {score} out of {total}!</b>\n"
             f"{result_en}\n\n"
@@ -297,15 +356,36 @@ async def send_score(chat_id: int, context: CallbackContext) -> None:
             "Type /start to try again.\n"
             "Наберіть /start, щоб спробувати ще раз."
         )
+        await context.bot.send_message(
+            chat_id=chat_id,
+            text=text,
+            parse_mode=ParseMode.HTML,
+            reply_markup=InlineKeyboardMarkup(
+                [
+                    [
+                        InlineKeyboardButton("🔁 Start Again", callback_data="mode_exam"),
+                        InlineKeyboardButton("🏠 Main Menu", callback_data="main_menu"),
+                    ]
+                ]
+            ),
+        )
+        chat_data.clear()
     else:
+        # learning mode scoreboard
+        score = user_data.get("score", 0)
+        total = len(QUESTIONS)
         text = (
             f"<b>🎉 You scored {score} out of {total}!</b>\n"
             "Type /quiz to try again.<br/><br/>"
             f"<b>🇺🇦 Ви набрали {score} із {total} балів!</b>\n"
             "Наберіть /quiz, щоб спробувати ще раз."
         )
-    await context.bot.send_message(chat_id=chat_id, text=text, parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔁 Start Again", callback_data="mode_exam"), InlineKeyboardButton("🏠 Main Menu", callback_data="main_menu")]]))
-    chat_data.clear()
+        await context.bot.send_message(
+            chat_id=chat_id,
+            text=text,
+            parse_mode=ParseMode.HTML,
+        )
+        user_data.clear()
 
 async def quiz_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     # Reset state and behave exactly like /start
@@ -492,6 +572,37 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
                 await query.edit_message_text("Invalid selection. Please try again.\n\nНеправильний вибір. Спробуйте ще раз.")
         return
 
+# --- Poll answer handler ---
+async def handle_poll_answer(update: Update, context: CallbackContext) -> None:
+    """
+    Handle answers from quiz polls in learning mode.
+    When a user answers a poll, update their score and send the next question.
+    """
+    poll_answer = update.poll_answer
+    # Retrieve chat_id stored when poll was sent
+    poll_id = poll_answer.poll_id
+    chat_id = context.bot_data.get("polls", {}).pop(poll_id, None)
+    if chat_id is None:
+        return
+    user_data = context.user_data
+    # Get the index of the question that was answered
+    index = user_data.get("current_question_index", 0)
+    if index < len(QUESTIONS):
+        question = QUESTIONS[index]
+        correct_index = question["answer_index"]
+        selected_indices = poll_answer.option_ids
+        selected_index = selected_indices[0] if selected_indices else -1
+        if selected_index == correct_index:
+            user_data["score"] = user_data.get("score", 0) + 1
+        # Move to next question index
+        user_data["current_question_index"] = index + 1
+    # Determine whether to send next question or final score
+    next_index = user_data.get("current_question_index", 0)
+    if next_index < len(QUESTIONS):
+        await send_question(chat_id, context)
+    else:
+        await send_score(chat_id, context)
+
     # --- Text answer logic ---
     # If this is a text message (user sends answer as text)
     if update.message and update.message.text:
@@ -631,6 +742,11 @@ def main() -> None:
     application.add_handler(CallbackQueryHandler(handle_pause, pattern="^mode_pause$"))
     application.add_handler(CallbackQueryHandler(handle_resume_pause, pattern="^RESUME_PAUSE$"))
     application.add_handler(CallbackQueryHandler(handle_main_menu, pattern="^MAIN_MENU$"))
+    # Allow users to answer by sending A/B/C/D as text
+    from telegram.ext import MessageHandler, filters
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text_answer))
+    # Register handler for quiz poll answers
+    application.add_handler(PollAnswerHandler(handle_poll_answer))
 
     port = int(os.environ.get("PORT", 10000))
     render_url = os.environ.get("RENDER_EXTERNAL_URL")
@@ -683,3 +799,18 @@ async def handle_resume_pause(update: Update, context: CallbackContext) -> None:
 
 if __name__ == "__main__":
     main()
+
+
+# --- Text answer handler for A/B/C/D replies ---
+async def handle_text_answer(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if "quiz_type" not in context.user_data or "current_question_index" not in context.user_data:
+        return
+
+    user_input = update.message.text.strip().upper()
+    if user_input in ["A", "B", "C", "D"]:
+        option_index = ["A", "B", "C", "D"].index(user_input)
+        question_list = context.user_data["question_list"]
+        index = context.user_data["current_question_index"]
+        if index < len(question_list):
+            question = question_list[index]
+            await handle_answer(update, context, str(option_index))
