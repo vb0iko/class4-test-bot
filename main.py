@@ -64,8 +64,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     lang_options = LANG_OPTIONS.copy()
     if context.chat_data.get("paused"):
         lang_options.append([InlineKeyboardButton("▶️ Continue", callback_data="RESUME_PAUSE")])
-    # Add Main Menu button
-    lang_options.append([InlineKeyboardButton("🏠 Main Menu", callback_data="MAIN_MENU")])
     await update.effective_chat.send_message(
         "Please choose your language / Будь ласка, оберіть мову:",
         reply_markup=InlineKeyboardMarkup(lang_options)
@@ -364,7 +362,8 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
         if query.message:
             await query.edit_message_text(
                 "❌ Exam data missing.",
-                reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔁 Start Again", callback_data="mode_exam")]])
+                reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔁 Start Again", callback_data="start_exam"),
+     InlineKeyboardButton("🏠 Main Menu", callback_data="main_menu")]])
             )
         return
 
@@ -384,36 +383,6 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
     option_map: Dict[str, int] = {"A": 0, "B": 1, "C": 2, "D": 3}
     selected_letter = query.data
     selected_index = option_map.get(selected_letter, -1)
-
-    if selected_letter == "STOP":
-        current = chat_data.get("current_index", 0)
-        total = 30 if mode == "exam" else len(QUESTIONS)
-        progress_text = f"Progress: {current} out of {total} questions completed." if lang_mode == "en" else f"Пройдено: {current} з {total} питань."
-
-        stop_text = (
-            "🛑 Test stopped.\n\n" + progress_text + "\n\n"
-            "Would you like to continue or restart?" if lang_mode == "en"
-            else "🛑 Тест зупинено.\n\n" + progress_text + "\n\n"
-            "Бажаєте продовжити чи почати спочатку?"
-        )
-
-        keyboard = InlineKeyboardMarkup([
-            [
-                InlineKeyboardButton("▶️ Continue", callback_data="CONTINUE"),
-                InlineKeyboardButton("🔁 Restart", callback_data="RESTART")
-            ] if lang_mode == "en" else [
-                InlineKeyboardButton("▶️ Продовжити", callback_data="CONTINUE"),
-                InlineKeyboardButton("🔁 Почати спочатку", callback_data="RESTART")
-            ]
-        ])
-
-        if query.message and query.message.text:
-            await query.edit_message_text(stop_text, reply_markup=keyboard)
-
-        chat_data["awaiting_next"] = True
-        chat_data["resume_question"] = chat_data.get("current_index", 0)
-        return
-
     max_questions = 30 if mode == "exam" else len(QUESTIONS)
     if current_index < max_questions and 0 <= selected_index < 4:
         question = QUESTIONS[question_index]
