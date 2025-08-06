@@ -482,14 +482,17 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
         if lang_mode == "bilingual":
             full_text.append(f"<i>🇺🇦 {question['explanation_uk']}</i>")
         formatted_question = "\n".join(full_text)
-        index = chat_data.get("current_index", 0)
-        image_path_jpg = f"images/{index + 1}.jpg"
-        image_path_png = f"images/{index + 1}.png"
+        # --- New image sending logic: find by question_number and possible extensions ---
+        import os
+        question_number = question.get("question_number")
+        possible_extensions = [".jpg", ".jpeg", ".png", ".webp"]
         image_path = None
-        if os.path.exists(image_path_jpg) and os.path.getsize(image_path_jpg) > 0:
-            image_path = image_path_jpg
-        elif os.path.exists(image_path_png) and os.path.getsize(image_path_png) > 0:
-            image_path = image_path_png
+        if question_number is not None:
+            for ext in possible_extensions:
+                filename = f"images/{question_number}{ext}"
+                if os.path.exists(filename):
+                    image_path = filename
+                    break
 
         # Show result and explanation, then automatically move to next question
         if image_path:
