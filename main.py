@@ -511,7 +511,7 @@ async def handle_text_input(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     application.run_webhook(
         listen="0.0.0.0",
-        port=int(os.environ.get("PORT", 10000)),
+        port=int(os.environ.get("PORT", "10000")),
         webhook_url=os.environ["RENDER_EXTERNAL_URL"]
     )
 
