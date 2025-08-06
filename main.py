@@ -6,6 +6,7 @@ from telegram import BotCommand
 from typing import Dict
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, InputFile
+import difflib
 from telegram.constants import ParseMode
 from telegram.ext import (
     ApplicationBuilder,
@@ -223,7 +224,8 @@ async def send_question(chat_id: int, context: CallbackContext) -> None:
         q = QUESTIONS[index]
 
     total_questions = len(chat_data.get("exam_questions", [])) if mode == 'exam' else len(QUESTIONS)
-    lines = [f"<i><b>Question {index + 1} of {total_questions}</b></i>", ""]
+    fail_count = chat_data.get("current_index", 0) - chat_data.get("score", 0)
+    lines = [f"<i><b>Question {index + 1} of {total_questions} ({fail_count} Fails)</b></i>", ""]
 
     if lang_mode == "bilingual":
         lines.append(f"<b>🇬🇧 {q['question']}</b>")
@@ -311,196 +313,264 @@ async def quiz_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     await start(update, context)
 
 async def answer_handler(update: Update, context: CallbackContext) -> None:
-    query = update.callback_query
+    # Support both button (callback_query) and text answers (update.message)
     import telegram.error
-    try:
-        await query.answer()
-    except telegram.error.BadRequest as e:
-        if "Query is too old" in str(e):
-            logger.warning("Callback query too old; skipping answer.")
-        else:
-            raise
     chat_data = context.chat_data
-
-    if not chat_data:
-        if query.message:
-            await query.edit_message_text(
-                "⏸ Quiz was interrupted. Resuming from last question...",
-                reply_markup=None
-            )
-            context.chat_data["current_index"] = 0
-            context.chat_data["score"] = 0
-            context.chat_data["mode"] = "exam"
-            context.chat_data["paused"] = False
-            lang_mode = context.chat_data.get("lang_mode", "en")
-            if lang_mode not in ("en", "bilingual"):
-                context.chat_data["lang_mode"] = "en"
-            if "exam_questions" not in context.chat_data:
-                import random
-                if len(QUESTIONS) < 30:
-                    await query.edit_message_text("❌ Not enough questions to resume exam. Please add more questions.")
-                    return
-                sample = random.sample(range(len(QUESTIONS)), 30)
-                context.chat_data["exam_questions"] = sample
-            await send_question(query.message.chat.id, context)
-        return
-
-    mode = chat_data.get("mode", "learning")
-    if mode == "exam" and "exam_questions" not in chat_data:
-        if query.message:
-            await query.edit_message_text(
-                "❌ Exam data missing.",
-                reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔁 Start Again", callback_data="start_exam"),
-     InlineKeyboardButton("🏠 Main Menu", callback_data="main_menu")]])
-            )
-        return
-
-    # Do not remove previous inline keyboard here to avoid UI flicker.
-
-    current_index = chat_data.get("current_index", 0)
-    if mode == "exam":
-        # Find the last asked question index (the one just presented)
-        used_questions = chat_data.get("used_questions", [])
-        if used_questions:
-            question_index = used_questions[-1]
-        else:
-            question_index = chat_data["exam_questions"][current_index]
-    else:
-        question_index = current_index
-    lang_mode = chat_data.get("lang_mode", "en")
-    option_map: Dict[str, int] = {"A": 0, "B": 1, "C": 2, "D": 3}
-    selected_letter = query.data
-    selected_index = option_map.get(selected_letter, -1)
-    max_questions = 30 if mode == "exam" else len(QUESTIONS)
-    if current_index < max_questions and 0 <= selected_index < 4:
-        question = QUESTIONS[question_index]
-        correct_index = question["answer_index"]
-        is_correct = selected_index == correct_index
-
-        if is_correct:
-            chat_data["score"] = chat_data.get("score", 0) + 1
-
-        option_labels = ["A", "B", "C", "D"]
-        options_en = question["options"]
-        options_uk = question.get("options_uk", [])
-        options_text = []
-
-        # Format options per requirements:
-        # - If selected and incorrect: ❌ <b>A. text</b>
-        # - If selected and correct: ✅ <b>A. text</b>
-        # - If correct but not selected: ✅ A. text
-        # - All others: unformatted
-        for idx, opt_en in enumerate(options_en):
-            opt_uk = options_uk[idx] if lang_mode == "bilingual" and options_uk else ""
-            line = f"{opt_en}" if not opt_uk else f"{opt_en} / {opt_uk}"
-            option_letter = option_labels[idx]
-            if idx == selected_index and idx != correct_index:
-                # Selected and incorrect
-                options_text.append(f"❌ <b>{option_letter}. {line}</b>")
-            elif idx == selected_index and idx == correct_index:
-                # Selected and correct
-                options_text.append(f"✅ <b>{option_letter}. {line}</b>")
-            elif idx == correct_index:
-                # Correct but not selected
-                options_text.append(f"✅ {option_letter}. {line}")
+    # If this is a callback query (button answer)
+    if update.callback_query:
+        query = update.callback_query
+        try:
+            await query.answer()
+        except telegram.error.BadRequest as e:
+            if "Query is too old" in str(e):
+                logger.warning("Callback query too old; skipping answer.")
             else:
-                # All others
-                options_text.append(f"       {option_letter}. {line}")
-
-        total_questions = 30 if mode == 'exam' else len(QUESTIONS)
-        fail_count = current_index + 1 - chat_data.get("score", 0)
-        # --- Insert fail fast logic for exam mode ---
-        if mode == "exam" and fail_count >= 6:
-            text = (
-                f"<b>❌ You made {fail_count} mistakes. Test failed.</b>\n\n"
-                f"<b>🇺🇦 Ви зробили {fail_count} помилок. Тест не складено.</b>\n\n"
-            )
-            keyboard = InlineKeyboardMarkup([
-                [InlineKeyboardButton("🔁 Try Again / Спробувати ще раз", callback_data="mode_exam")]
-            ])
-            await query.message.reply_text(text, parse_mode=ParseMode.HTML, reply_markup=keyboard)
-            chat_data.clear()
+                raise
+        if not chat_data:
+            if query.message:
+                await query.edit_message_text(
+                    "⏸ Quiz was interrupted. Resuming from last question...",
+                    reply_markup=None
+                )
+                context.chat_data["current_index"] = 0
+                context.chat_data["score"] = 0
+                context.chat_data["mode"] = "exam"
+                context.chat_data["paused"] = False
+                lang_mode = context.chat_data.get("lang_mode", "en")
+                if lang_mode not in ("en", "bilingual"):
+                    context.chat_data["lang_mode"] = "en"
+                if "exam_questions" not in context.chat_data:
+                    import random
+                    if len(QUESTIONS) < 30:
+                        await query.edit_message_text("❌ Not enough questions to resume exam. Please add more questions.")
+                        return
+                    sample = random.sample(range(len(QUESTIONS)), 30)
+                    context.chat_data["exam_questions"] = sample
+                await send_question(query.message.chat.id, context)
             return
-        # --- End fail fast logic ---
-        result_title = f"<i><b>Question {current_index + 1} of {total_questions} ({fail_count} Fails)</b></i>"
-        full_text = [result_title, ""]
 
-        if lang_mode == "bilingual":
-            full_text += [
-                f"<b>🇬🇧 {question['question']}</b>",
-                f"<b>🇺🇦 {question['question_uk']}</b>"
-            ]
-        else:
-            if lang_mode == "en":
-                full_text.append(f"<b>{question['question']}</b>")
+        mode = chat_data.get("mode", "learning")
+        if mode == "exam" and "exam_questions" not in chat_data:
+            if query.message:
+                await query.edit_message_text(
+                    "❌ Exam data missing.",
+                    reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔁 Start Again", callback_data="start_exam"),
+         InlineKeyboardButton("🏠 Main Menu", callback_data="main_menu")]])
+                )
+            return
+        # Do not remove previous inline keyboard here to avoid UI flicker.
+        current_index = chat_data.get("current_index", 0)
+        if mode == "exam":
+            used_questions = chat_data.get("used_questions", [])
+            if used_questions:
+                question_index = used_questions[-1]
             else:
-                full_text.append(f"<b>🇬🇧 {question['question']}</b>")
-
-        full_text.append("------------------------------")
-        full_text += options_text
-        full_text.append("------------------------------")
-        full_text.append("<b>Explanation:</b>")
-        full_text.append(f"<i>{'🇬🇧 ' if lang_mode == 'bilingual' else ''}{question['explanation_en']}</i>")
-        if lang_mode == "bilingual":
-            full_text.append(f"<i>🇺🇦 {question['explanation_uk']}</i>")
-        formatted_question = "\n".join(full_text)
-        # Load image based on question_number (matches file like '12.jpg' or '12.png')
-        index = chat_data.get("current_index", 0)
-        image_filename = None
-        possible_extensions = [".jpg", ".jpeg", ".png", ".webp"]
-        for ext in possible_extensions:
-            path = f"images/{question['question_number']}{ext}"
-            if os.path.exists(path):
-                image_filename = path
-                break
-
-        # Show result and explanation, then automatically move to next question
-        if image_filename:
-            try:
-                import telegram
-                with open(image_filename, "rb") as photo:
-                    await context.bot.edit_message_media(
-                        chat_id=query.message.chat.id,
-                        message_id=query.message.message_id,
-                        media=telegram.InputMediaPhoto(photo, caption=formatted_question, parse_mode=ParseMode.HTML),
-                        reply_markup=None
+                question_index = chat_data["exam_questions"][current_index]
+        else:
+            question_index = current_index
+        lang_mode = chat_data.get("lang_mode", "en")
+        option_map: Dict[str, int] = {"A": 0, "B": 1, "C": 2, "D": 3}
+        selected_letter = query.data
+        selected_index = option_map.get(selected_letter, -1)
+        max_questions = 30 if mode == "exam" else len(QUESTIONS)
+        if current_index < max_questions and 0 <= selected_index < 4:
+            question = QUESTIONS[question_index]
+            correct_index = question["answer_index"]
+            is_correct = selected_index == correct_index
+            if is_correct:
+                chat_data["score"] = chat_data.get("score", 0) + 1
+            option_labels = ["A", "B", "C", "D"]
+            options_en = question["options"]
+            options_uk = question.get("options_uk", [])
+            options_text = []
+            for idx, opt_en in enumerate(options_en):
+                opt_uk = options_uk[idx] if lang_mode == "bilingual" and options_uk else ""
+                line = f"{opt_en}" if not opt_uk else f"{opt_en} / {opt_uk}"
+                option_letter = option_labels[idx]
+                if idx == selected_index and idx != correct_index:
+                    options_text.append(f"❌ <b>{option_letter}. {line}</b>")
+                elif idx == selected_index and idx == correct_index:
+                    options_text.append(f"✅ <b>{option_letter}. {line}</b>")
+                elif idx == correct_index:
+                    options_text.append(f"✅ {option_letter}. {line}")
+                else:
+                    options_text.append(f"       {option_letter}. {line}")
+            total_questions = 30 if mode == 'exam' else len(QUESTIONS)
+            fail_count = current_index + 1 - chat_data.get("score", 0)
+            # --- Insert fail fast logic for exam mode ---
+            if mode == "exam" and fail_count >= 6:
+                text = (
+                    f"<b>❌ You made {fail_count} mistakes. Test failed.</b>\n\n"
+                    f"<b>🇺🇦 Ви зробили {fail_count} помилок. Тест не складено.</b>\n\n"
+                )
+                keyboard = InlineKeyboardMarkup([
+                    [InlineKeyboardButton("🔁 Try Again / Спробувати ще раз", callback_data="mode_exam")]
+                ])
+                await query.message.reply_text(text, parse_mode=ParseMode.HTML, reply_markup=keyboard)
+                chat_data.clear()
+                return
+            # --- End fail fast logic ---
+            result_title = f"<i><b>Question {current_index + 1} of {total_questions} ({fail_count} Fails)</b></i>"
+            full_text = [result_title, ""]
+            if lang_mode == "bilingual":
+                full_text += [
+                    f"<b>🇬🇧 {question['question']}</b>",
+                    f"<b>🇺🇦 {question['question_uk']}</b>"
+                ]
+            else:
+                if lang_mode == "en":
+                    full_text.append(f"<b>{question['question']}</b>")
+                else:
+                    full_text.append(f"<b>🇬🇧 {question['question']}</b>")
+            full_text.append("------------------------------")
+            full_text += options_text
+            # Do not show explanation in exam mode
+            # Show explanation only in learning mode, and only if correct
+            if mode == "exam" or not is_correct:
+                pass
+            else:
+                if mode == "learning" and "explanation" in question:
+                    full_text.append("------------------------------")
+                    full_text.append("<b>Explanation:</b>")
+                    full_text.append(f"*{question['explanation']}*")
+            formatted_question = "\n".join(full_text)
+            # Load image based on question_number
+            index = chat_data.get("current_index", 0)
+            image_filename = None
+            possible_extensions = [".jpg", ".jpeg", ".png", ".webp"]
+            for ext in possible_extensions:
+                path = f"images/{question['question_number']}{ext}"
+                if os.path.exists(path):
+                    image_filename = path
+                    break
+            # Show result and explanation, then automatically move to next question
+            if image_filename:
+                try:
+                    import telegram
+                    with open(image_filename, "rb") as photo:
+                        await context.bot.edit_message_media(
+                            chat_id=query.message.chat.id,
+                            message_id=query.message.message_id,
+                            media=telegram.InputMediaPhoto(photo, caption=formatted_question, parse_mode=ParseMode.HTML),
+                            reply_markup=None
+                        )
+                    context.chat_data["last_message_id"] = query.message.message_id
+                except Exception as e:
+                    logger.warning(f"Failed to edit photo, fallback to delete/send: {e}")
+                    if query.message:
+                        await context.bot.delete_message(chat_id=query.message.chat.id, message_id=query.message.message_id)
+                    with open(image_filename, "rb") as photo:
+                        msg = await context.bot.send_photo(
+                            chat_id=query.message.chat.id,
+                            photo=photo,
+                            caption=formatted_question,
+                            parse_mode=ParseMode.HTML,
+                            reply_markup=None
+                        )
+                    context.chat_data["last_message_id"] = msg.message_id
+            else:
+                if query.message and query.message.text:
+                    msg = await query.edit_message_text(
+                        text=formatted_question,
+                        reply_markup=None,
+                        parse_mode=ParseMode.HTML
                     )
-                context.chat_data["last_message_id"] = query.message.message_id
-            except Exception as e:
-                logger.warning(f"Failed to edit photo, fallback to delete/send: {e}")
-                if query.message:
-                    await context.bot.delete_message(chat_id=query.message.chat.id, message_id=query.message.message_id)
-                with open(image_filename, "rb") as photo:
-                    msg = await context.bot.send_photo(
-                        chat_id=query.message.chat.id,
-                        photo=photo,
-                        caption=formatted_question,
-                        parse_mode=ParseMode.HTML,
-                        reply_markup=None
-                    )
-                context.chat_data["last_message_id"] = msg.message_id
+                    context.chat_data["last_message_id"] = msg.message_id
+            # Automatically proceed to next question after showing result
+            import asyncio
+            await asyncio.sleep(1.0)
+            chat_data["current_index"] = chat_data.get("current_index", 0) + 1
+            chat_data.pop("awaiting_next", None)
+            max_questions = len(chat_data.get("exam_questions", [])) if chat_data.get("mode", "learning") == "exam" else len(QUESTIONS)
+            if chat_data["current_index"] < max_questions:
+                await send_question(query.message.chat.id, context)
+            else:
+                await send_score(query.message.chat.id, context)
+            return
         else:
             if query.message and query.message.text:
-                msg = await query.edit_message_text(
-                    text=formatted_question,
-                    reply_markup=None,
-                    parse_mode=ParseMode.HTML
-                )
-                context.chat_data["last_message_id"] = msg.message_id
-        # Automatically proceed to next question after showing result
-        import asyncio
-        await asyncio.sleep(1.0)
+                await query.edit_message_text("Invalid selection. Please try again.\n\nНеправильний вибір. Спробуйте ще раз.")
+        return
+
+    # --- Text answer logic ---
+    # If this is a text message (user sends answer as text)
+    if update.message and update.message.text:
+        user_msg = update.message.text.strip()
+        # Defensive: skip if no quiz running
+        if not chat_data or "mode" not in chat_data:
+            return
+        mode = chat_data.get("mode", "learning")
+        current_index = chat_data.get("current_index", 0)
+        if mode == "exam":
+            used_questions = chat_data.get("used_questions", [])
+            if used_questions:
+                question_index = used_questions[-1]
+            else:
+                question_index = chat_data["exam_questions"][current_index]
+        else:
+            question_index = current_index
+        question = QUESTIONS[question_index]
+        options_en = question["options"]
+        options_uk = question.get("options_uk", [])
+        option_labels = ["A", "B", "C", "D"]
+        # Accept answers as full text or letter (A/B/C/D)
+        all_possible_answers = []
+        # Add English and Ukrainian options (case-insensitive)
+        for idx, opt in enumerate(options_en):
+            all_possible_answers.append((opt, idx))
+        for idx, opt in enumerate(options_uk):
+            all_possible_answers.append((opt, idx))
+        # Also support A/B/C/D as answer
+        for idx, label in enumerate(option_labels):
+            all_possible_answers.append((label, idx))
+        # Lowercase mapping for fuzzy match
+        user_text = user_msg.lower()
+        answer_candidates = [ans.lower() for ans, _ in all_possible_answers]
+        # Use difflib to get close matches (allowing for typos)
+        matches = difflib.get_close_matches(user_text, answer_candidates, n=1, cutoff=0.7)
+        selected_index = -1
+        if matches:
+            match = matches[0]
+            for i, (ans, idx) in enumerate(all_possible_answers):
+                if ans.lower() == match:
+                    selected_index = idx
+                    break
+        else:
+            # fallback: try if user typed number 1-4
+            if user_text in ["1", "2", "3", "4"]:
+                selected_index = int(user_text) - 1
+        # If not recognized, reply and do NOT advance
+        if selected_index < 0 or selected_index >= 4:
+            await update.message.reply_text("❌ Could not recognize your answer. Please reply with the full text or letter (A, B, C, D).")
+            return
+        correct_index = question["answer_index"]
+        is_correct = selected_index == correct_index
+        if is_correct:
+            chat_data["score"] = chat_data.get("score", 0) + 1
+        # Prepare feedback message
+        feedback_lines = []
+        if is_correct:
+            feedback_lines.append("✅ Correct!")
+        else:
+            feedback_lines.append("❌ Incorrect.")
+        # In learning mode, show explanation if correct
+        if mode == "learning" and "explanation" in question:
+            feedback_lines.append("------------------------------")
+            feedback_lines.append("<b>Explanation:</b>")
+            feedback_lines.append(f"*{question['explanation']}*")
+        # Reply to user
+        await update.message.reply_text(
+            "\n".join(feedback_lines),
+            parse_mode=ParseMode.HTML
+        )
+        # Advance to next question
         chat_data["current_index"] = chat_data.get("current_index", 0) + 1
-        chat_data.pop("awaiting_next", None)
         max_questions = len(chat_data.get("exam_questions", [])) if chat_data.get("mode", "learning") == "exam" else len(QUESTIONS)
         if chat_data["current_index"] < max_questions:
-            await send_question(query.message.chat.id, context)
+            await send_question(update.effective_chat.id, context)
         else:
-            await send_score(query.message.chat.id, context)
+            await send_score(update.effective_chat.id, context)
         return
-    else:
-        if query.message and query.message.text:
-            await query.edit_message_text("Invalid selection. Please try again.\n\nНеправильний вибір. Спробуйте ще раз.")
 
 async def next_handler(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
