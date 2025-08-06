@@ -84,9 +84,19 @@ async def handle_language(update: Update, context: CallbackContext) -> None:
     context.chat_data["current_index"] = 0
     context.chat_data["score"] = 0
     if lang_mode == "bilingual":
-        text = "Please choose mode / Будь ласка, оберіть режим:\n\n<i>You can also enter a question number (1–120) to jump to a specific question in Learning Mode.</i>"
+        text = (
+            "🧠 <b>Learning Mode</b> – shows the correct answer and explanation immediately after each question. Includes all 120 questions.\n"
+            "🧠 <b>Навчальний режим</b> – показує правильну відповідь і пояснення одразу після кожного питання. Усього 120 питань.\n\n"
+            "📝 <b>Exam Mode</b> – 30 random questions, no hints. You must answer at least 25 correctly to pass.\n"
+            "📝 <b>Режим іспиту</b> – 30 випадкових питань, без підказок. Для успішного складання потрібно дати щонайменше 25 правильних відповідей.\n\n"
+            "Please choose mode / Будь ласка, оберіть режим:"
+        )
     else:
-        text = "Please choose a mode:\n\n<i>You can enter a number (1–120) to go directly to a question in Learning Mode.</i>"
+        text = (
+            "🧠 <b>Learning Mode</b> – shows the correct answer and explanation immediately after each question. Includes all 120 questions.\n\n"
+            "📝 <b>Exam Mode</b> – 30 random questions, no hints. You must answer at least 25 correctly to pass.\n\n"
+            "Please choose a mode:"
+        )
 
     await query.edit_message_text(
         text,
@@ -116,7 +126,8 @@ async def handle_mode(update: Update, context: CallbackContext) -> None:
         if len(QUESTIONS) < 30:
             await query.edit_message_text("❌ Not enough questions to start the exam. Please add more questions.")
             return
-        context.chat_data["exam_questions"] = random.sample(range(len(QUESTIONS)), 30)
+        sample = random.sample(range(len(QUESTIONS)), 30)
+        context.chat_data["exam_questions"] = sample
     await send_question(update.effective_chat.id, context)
 
 def build_option_keyboard() -> InlineKeyboardMarkup:
@@ -339,15 +350,15 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
         for idx, opt_en in enumerate(options_en):
             opt_uk = options_uk[idx] if lang_mode == "bilingual" and options_uk else ""
             line = f"{opt_en}" if not opt_uk else f"{opt_en} / {opt_uk}"
-            is_correct = (idx == correct_index)
-            is_selected = (idx == selected_index)
-
-            if is_selected:
-                emoji_prefix = "✅" if is_correct else "❌"
-                options_text.append(f"<b>{emoji_prefix} {option_labels[idx]}. {line}</b>")
-            elif is_correct:
+            emoji_prefix = ""
+            if idx == correct_index:
                 emoji_prefix = "✅"
-                options_text.append(f"{emoji_prefix} {option_labels[idx]}. {line}")
+            elif idx == selected_index and selected_index != correct_index:
+                emoji_prefix = "❌"
+
+            # Bold only the selected answer, regardless of correctness
+            if idx == selected_index:
+                options_text.append(f"<b>{emoji_prefix} {option_labels[idx]}. {line}</b>")
             else:
                 options_text.append(f"       {option_labels[idx]}. {line}")
 
@@ -472,29 +483,60 @@ async def next_handler(update: Update, context: CallbackContext) -> None:
         await send_score(update.effective_chat.id, context)
 
 
+def main() -> None:
+    token = os.getenv("BOT_TOKEN")
+    if not token:
+        raise RuntimeError("The BOT_TOKEN environment variable is not set.")
 
-# --- Text input handler for question number ---
-async def handle_text_input(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    message = update.message.text.strip()
-    if message.isdigit():
-        number = int(message)
-        if context.chat_data.get("mode") != "learning":
-            await update.message.reply_text("ℹ️ You can only jump to a question in Learning Mode.")
-            return
-        if 1 <= number <= len(QUESTIONS):
-            context.chat_data["current_index"] = number - 1
-            await send_question(update.effective_chat.id, context)
-            return
-        else:
-            await update.message.reply_text("ℹ️ Please enter a valid question number between 1 and {}.".format(len(QUESTIONS)))
-            return
-    else:
-        await update.message.reply_text("ℹ️ Please enter a valid question number.")
+    application = ApplicationBuilder().token(token).defaults(
+        Defaults(parse_mode=ParseMode.MARKDOWN)
+    ).post_init(post_init).build()
+
+    application.add_handler(CommandHandler("start", start))
+    application.add_handler(CommandHandler("pause", handle_pause))
+    application.add_handler(CallbackQueryHandler(next_handler, pattern="^(NEXT|CONTINUE|RESTART)$"))
+    application.add_handler(CallbackQueryHandler(answer_handler, pattern="^[ABCDSTOP]{1,4}$"))
+    application.add_handler(CallbackQueryHandler(handle_language, pattern="^lang_.*$"))
+    application.add_handler(CallbackQueryHandler(handle_mode, pattern="^mode_.*$"))
+    application.add_handler(CallbackQueryHandler(handle_pause, pattern="^mode_pause$"))
+    application.add_handler(CallbackQueryHandler(handle_resume_pause, pattern="^RESUME_PAUSE$"))
+
+    port = int(os.environ.get("PORT", 10000))
+    render_url = os.environ.get("RENDER_EXTERNAL_URL")
+    if not render_url:
+        raise RuntimeError("RENDER_EXTERNAL_URL is not set. Make sure your environment provides it.")
+
+    # Add global error handler
+    from telegram.error import TelegramError
+    async def error_handler(update, context):
+        logger.error(msg="Exception while handling an update:", exc_info=context.error)
+    application.add_error_handler(error_handler)
+
+    application.run_webhook(
+        listen="0.0.0.0",
+        port=port,
+        webhook_url=f"{render_url}"
+    )
+
 
 # --- Pause/resume handlers ---
+import telegram.error
+async def handle_pause(update: Update, context: CallbackContext) -> None:
+    query = update.callback_query
+    try:
+        await query.answer()
+    except telegram.error.BadRequest as e:
+        if "Query is too old" in str(e):
+            logger.warning("Callback query too old; skipping answer.")
+            return
+        else:
+            raise
+    context.chat_data["paused"] = True
+    context.chat_data["resume_question"] = context.chat_data.get("current_index", 0)
+    await query.edit_message_text("⏸ Test paused. You can continue anytime by selecting Continue from the main menu.")
+
 async def handle_resume_pause(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
-    import telegram.error
     try:
         await query.answer()
     except telegram.error.BadRequest as e:
@@ -507,45 +549,9 @@ async def handle_resume_pause(update: Update, context: CallbackContext) -> None:
     context.chat_data["current_index"] = context.chat_data.get("resume_question", 0)
     await send_question(query.message.chat.id, context)
 
-# --- Global error handler ---
-from telegram.error import TelegramError
-async def error_handler(update, context):
-    logger.error(msg="Exception while handling an update:", exc_info=context.error)
+
+if __name__ == "__main__":
+    main()
 
 
-def main() -> None:
-    logger.info("=== Bot startup ===")
-    logger.info("Step: checking RENDER_EXTERNAL_URL")
-    render_url = os.environ.get("RENDER_EXTERNAL_URL")
-    if not render_url:
-        raise RuntimeError("RENDER_EXTERNAL_URL is not set.")
-    logger.info("Step: loading token and setting up webhook")
-    token = os.getenv("BOT_TOKEN")
-    if not token:
-        raise RuntimeError("The BOT_TOKEN environment variable is not set.")
 
-    application = ApplicationBuilder().token(token).defaults(
-        Defaults(parse_mode=ParseMode.MARKDOWN)
-    ).post_init(post_init).build()
-
-    from telegram.ext import MessageHandler, filters
-    logger.info("Step: adding handlers")
-    application.add_handler(CommandHandler("start", start))
-    application.add_handler(CallbackQueryHandler(next_handler, pattern="^(NEXT|CONTINUE|RESTART)$"))
-    application.add_handler(CallbackQueryHandler(answer_handler, pattern="^[ABCDSTOP]{1,4}$"))
-    application.add_handler(CallbackQueryHandler(handle_language, pattern="^lang_.*$"))
-    application.add_handler(CallbackQueryHandler(handle_mode, pattern="^mode_.*$"))
-    application.add_handler(CallbackQueryHandler(handle_resume_pause, pattern="^RESUME_PAUSE$"))
-    application.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), handle_text_input))
-
-    # Add global error handler
-    application.add_error_handler(error_handler)
-
-    logger.info("Step: running webhook")
-    application.run_webhook(
-        listen="0.0.0.0",
-        port=int(os.environ.get("PORT", "10000")),
-        webhook_url=os.environ["RENDER_EXTERNAL_URL"]
-    )
-    # Keep the process alive (for platforms like Render)
-    import asyncio; asyncio.get_event_loop().run_forever()
