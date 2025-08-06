@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: class4-telegram-bot
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python main.py
+    envVars:
+      - key: BOT_TOKEN
+        value: 8441235482:AAFkQ3xxgjvcD9JOOwK0PSuLCDYi5nc5Ff0

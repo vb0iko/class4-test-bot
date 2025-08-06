@@ -1,0 +1,17 @@
+[
+  {
+    "question_number": 1,
+    "question": "Is an operator permitted to turn left from a one-way road onto a one-way road at a steady red traffic control light?",
+    "question_uk": "Чи дозволено водієві повернути ліворуч з дороги з одностороннім рухом на іншу дорогу з одностороннім рухом при сталому червоному сигналі світлофора?",
+    "options": [
+      "No, only right turns are permitted on a red light.",
+      "Yes, after reducing speed and yielding to any traffic or pedestrians.",
+      "Only when there is a sign permitting the turn at a red light.",
+      "Yes, after stopping, when it is safe, unless prohibited by a sign."
+    ],
+    "answer_index": 2,
+    "explanation_en": "A left turn on red from a one-way to another one-way road is permitted only when a sign allows it.",
+    "explanation_uk": "Поворот ліворуч на червоне світло з дороги з одностороннім рухом на іншу дозволено лише за наявності відповідного знака.",
+    "image": "1.png/jpg"
+  }
+]
