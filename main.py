@@ -261,20 +261,20 @@ async def send_question(chat_id: int, context: CallbackContext) -> None:
         else:
             lines.append(f"       <b>{label}.</b> {options_en[idx]}")
 
-    image_path_jpg = f"images/{index + 1}.jpg"
-    image_path_png = f"images/{index + 1}.png"
-
-    image_path = None
-    if os.path.exists(image_path_jpg) and os.path.getsize(image_path_jpg) > 0:
-        image_path = image_path_jpg
-    elif os.path.exists(image_path_png) and os.path.getsize(image_path_png) > 0:
-        image_path = image_path_png
+    # Load image based on question_number (matches file like '12.jpg' or '12.png')
+    image_filename = None
+    possible_extensions = [".jpg", ".jpeg", ".png", ".webp"]
+    for ext in possible_extensions:
+        path = f"images/{q['question_number']}{ext}"
+        if os.path.exists(path):
+            image_filename = path
+            break
 
     text = "\n".join(lines)
 
     keyboard = build_option_keyboard()
-    if image_path:
-        with open(image_path, "rb") as photo:
+    if image_filename:
+        with open(image_filename, "rb") as photo:
             msg = await context.bot.send_photo(
                 chat_id=chat_id,
                 photo=photo,
@@ -487,20 +487,21 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
         if lang_mode == "bilingual":
             full_text.append(f"<i>🇺🇦 {question['explanation_uk']}</i>")
         formatted_question = "\n".join(full_text)
+        # Load image based on question_number (matches file like '12.jpg' or '12.png')
         index = chat_data.get("current_index", 0)
-        image_path_jpg = f"images/{index + 1}.jpg"
-        image_path_png = f"images/{index + 1}.png"
-        image_path = None
-        if os.path.exists(image_path_jpg) and os.path.getsize(image_path_jpg) > 0:
-            image_path = image_path_jpg
-        elif os.path.exists(image_path_png) and os.path.getsize(image_path_png) > 0:
-            image_path = image_path_png
+        image_filename = None
+        possible_extensions = [".jpg", ".jpeg", ".png", ".webp"]
+        for ext in possible_extensions:
+            path = f"images/{question['question_number']}{ext}"
+            if os.path.exists(path):
+                image_filename = path
+                break
 
         # Show result and explanation, then automatically move to next question
-        if image_path:
+        if image_filename:
             try:
                 import telegram
-                with open(image_path, "rb") as photo:
+                with open(image_filename, "rb") as photo:
                     await context.bot.edit_message_media(
                         chat_id=query.message.chat.id,
                         message_id=query.message.message_id,
@@ -512,7 +513,7 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
                 logger.warning(f"Failed to edit photo, fallback to delete/send: {e}")
                 if query.message:
                     await context.bot.delete_message(chat_id=query.message.chat.id, message_id=query.message.message_id)
-                with open(image_path, "rb") as photo:
+                with open(image_filename, "rb") as photo:
                     msg = await context.bot.send_photo(
                         chat_id=query.message.chat.id,
                         photo=photo,
