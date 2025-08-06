@@ -132,18 +132,7 @@ async def handle_mode(update: Update, context: CallbackContext) -> None:
     context.chat_data["score"] = 0
     context.chat_data["paused"] = False
 
-    # Show explanation of the selected mode after setting mode (single message, replaces previous)
-    if mode == "learning":
-        return await query.edit_message_text(
-            "🧠 <b>Learning Mode</b> – shows the correct answer and explanation immediately after each question. Includes all 120 questions.",
-            parse_mode=ParseMode.HTML
-        )
-    else:
-        return await query.edit_message_text(
-            "📝 <b>Exam Mode</b> – 30 random questions, no hints. You must answer at least 25 correctly to pass.",
-            parse_mode=ParseMode.HTML
-        )
-
+    # Якщо режим 'exam', вибираємо 30 випадкових питань
     if mode == "exam":
         import random
         if len(QUESTIONS) < 30:
@@ -151,7 +140,20 @@ async def handle_mode(update: Update, context: CallbackContext) -> None:
             return
         sample = random.sample(range(len(QUESTIONS)), 30)
         context.chat_data["exam_questions"] = sample
-    await send_question(update.effective_chat.id, context)
+
+    await send_question(query.message.chat.id, context)
+
+    # Show explanation of the selected mode after setting mode (single message, replaces previous)
+    if mode == "learning":
+        await query.edit_message_text(
+            "🧠 <b>Learning Mode</b> – shows the correct answer and explanation immediately after each question. Includes all 120 questions.",
+            parse_mode=ParseMode.HTML
+        )
+    else:
+        await query.edit_message_text(
+            "📝 <b>Exam Mode</b> – 30 random questions, no hints. You must answer at least 25 correctly to pass.",
+            parse_mode=ParseMode.HTML
+        )
 
 def build_option_keyboard() -> InlineKeyboardMarkup:
     # Buttons show plain letters; labels in question text are bolded
