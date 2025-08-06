@@ -131,8 +131,7 @@ async def handle_mode(update: Update, context: CallbackContext) -> None:
     context.chat_data["current_index"] = 0
     context.chat_data["score"] = 0
     context.chat_data["paused"] = False
-
-    # Якщо режим 'exam', вибираємо 30 випадкових питань
+    # Reset used_questions only on new exam start
     if mode == "exam":
         import random
         if len(QUESTIONS) < 30:
@@ -140,20 +139,29 @@ async def handle_mode(update: Update, context: CallbackContext) -> None:
             return
         sample = random.sample(range(len(QUESTIONS)), 30)
         context.chat_data["exam_questions"] = sample
+        context.chat_data["used_questions"] = []
+
+    # Show only selected mode's description after setting mode
+    lang = context.chat_data.get("lang_mode", "en")
+    selected_mode = mode
+    if lang == "en":
+        await query.edit_message_text(
+            "📝 <b>Exam Mode</b> – 30 random questions, no hints. You must answer at least 25 correctly to pass."
+            if selected_mode == "exam"
+            else "🧠 <b>Learning Mode</b> – shows the correct answer and explanation immediately after each question. Includes all 120 questions.",
+            parse_mode=ParseMode.HTML
+        )
+    elif lang == "bilingual":
+        await query.edit_message_text(
+            "📝 <b>Exam Mode</b> – 30 random questions, no hints. You must answer at least 25 correctly to pass.\n"
+            "📝 <b>Режим іспиту</b> – 30 випадкових питань, без підказок. Для успішного складання потрібно дати щонайменше 25 правильних відповідей."
+            if selected_mode == "exam"
+            else "🧠 <b>Learning Mode</b> – shows the correct answer and explanation immediately after each question. Includes all 120 questions.\n"
+                 "🧠 <b>Навчальний режим</b> – показує правильну відповідь і пояснення одразу після кожного питання. Усього 120 питань.",
+            parse_mode=ParseMode.HTML
+        )
 
     await send_question(query.message.chat.id, context)
-
-    # Show explanation of the selected mode after setting mode (single message, replaces previous)
-    if mode == "learning":
-        await query.edit_message_text(
-            "🧠 <b>Learning Mode</b> – shows the correct answer and explanation immediately after each question. Includes all 120 questions.",
-            parse_mode=ParseMode.HTML
-        )
-    else:
-        await query.edit_message_text(
-            "📝 <b>Exam Mode</b> – 30 random questions, no hints. You must answer at least 25 correctly to pass.",
-            parse_mode=ParseMode.HTML
-        )
 
 def build_option_keyboard() -> InlineKeyboardMarkup:
     # Buttons show plain letters; labels in question text are bolded
@@ -177,11 +185,36 @@ async def send_question(chat_id: int, context: CallbackContext) -> None:
     mode = chat_data.get("mode", "learning")
     if mode == "exam":
         exam_questions = chat_data.get("exam_questions", [])
-        if index >= len(exam_questions):
+        # used_questions as a list for persistence
+        used_questions = chat_data.get("used_questions", [])
+        used_ids = set(used_questions)
+        # Exclude used questions
+        remaining_questions = [qidx for qidx in exam_questions if qidx not in used_ids]
+        if not remaining_questions:
             await send_score(chat_id, context)
             return
-        question_index = exam_questions[index]
-        q = QUESTIONS[question_index]
+        # Find the next question index to ask
+        # Use current_index to preserve ordering, but skip used
+        # Find the first not-yet-used question at or after current_index
+        next_qidx = None
+        for i in range(chat_data.get("current_index", 0), len(exam_questions)):
+            if exam_questions[i] not in used_ids:
+                next_qidx = exam_questions[i]
+                chat_data["current_index"] = i
+                break
+        if next_qidx is None:
+            # If all questions from current_index are used, try from beginning
+            for i, qidx in enumerate(exam_questions):
+                if qidx not in used_ids:
+                    next_qidx = qidx
+                    chat_data["current_index"] = i
+                    break
+        if next_qidx is None:
+            await send_score(chat_id, context)
+            return
+        # Add this question to used_questions
+        chat_data.setdefault("used_questions", []).append(next_qidx)
+        q = QUESTIONS[next_qidx]
     else:
         if index >= len(QUESTIONS):
             await send_score(chat_id, context)
@@ -323,7 +356,15 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
     # Do not remove previous inline keyboard here to avoid UI flicker.
 
     current_index = chat_data.get("current_index", 0)
-    question_index = chat_data["exam_questions"][current_index] if mode == "exam" else current_index
+    if mode == "exam":
+        # Find the last asked question index (the one just presented)
+        used_questions = chat_data.get("used_questions", [])
+        if used_questions:
+            question_index = used_questions[-1]
+        else:
+            question_index = chat_data["exam_questions"][current_index]
+    else:
+        question_index = current_index
     lang_mode = chat_data.get("lang_mode", "en")
     option_map: Dict[str, int] = {"A": 0, "B": 1, "C": 2, "D": 3}
     selected_letter = query.data
