@@ -186,7 +186,9 @@ def build_option_keyboard() -> InlineKeyboardMarkup:
 
 
 async def send_question(chat_id: int, context: CallbackContext) -> None:
-    chat_data = context.chat_data
+    # Ensure chat_id is int if needed
+    chat_id = int(chat_id)
+    chat_data = context.application.chat_data.get(chat_id, {})
     index = chat_data.get("current_index", 0)
     lang_mode = chat_data.get("lang_mode", "en")
 
