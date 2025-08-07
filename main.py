@@ -781,7 +781,7 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
         # Only include the explanation section in learning mode.  In exam mode
         # explanations should be suppressed to avoid revealing the answer.
         if mode != "exam":
-	    full_text.append("------------------------------")
+            full_text.append("------------------------------")
             full_text.append("<b>Explanation:</b>")
             # Always include the English explanation; if in bilingual mode,
             # include the Ukrainian explanation as well.
