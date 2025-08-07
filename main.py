@@ -190,6 +190,8 @@ async def send_question(chat_id: int, context: CallbackContext) -> None:
     index = chat_data.get("current_index", 0)
     lang_mode = chat_data.get("lang_mode", "en")
 
+    print(f"Sending question {index + 1} to user {chat_id}")
+
     # Do not remove previous inline keyboard here to avoid UI flicker.
 
     mode = chat_data.get("mode", "learning")
@@ -574,6 +576,7 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
 async def handle_poll_answer(update: Update, context: CallbackContext) -> None:
     poll_answer = update.poll_answer
     user_id = poll_answer.user.id
+    print(f"Handling poll answer for user {user_id}")
     user_data = context.user_data
 
     mode = user_data.get("mode", "learning")
