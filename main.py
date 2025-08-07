@@ -3,10 +3,10 @@ import os
 import json
 import random
 
-from telegram import BotCommand, Poll
+from telegram import BotCommand, Poll, InlineKeyboardButton, InlineKeyboardMarkup
 from typing import Dict, List, Optional
 
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, InputFile
+from telegram import Update, InputFile
 from telegram.constants import ParseMode
 from telegram.ext import (
     ApplicationBuilder,
@@ -224,6 +224,31 @@ async def language_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -
         "Please choose your language / Будь ласка, оберіть мову:",
         reply_markup=InlineKeyboardMarkup(LANG_OPTIONS)
     )
+
+# --- Menu command and handlers ---
+async def menu(update: Update, context: CallbackContext) -> None:
+    keyboard = [
+        [InlineKeyboardButton("📊 Start exam mode", callback_data='start_exam')],
+        [InlineKeyboardButton("📚 Start learning mode", callback_data='start_learn')],
+        [InlineKeyboardButton("🌐 Change language", callback_data='change_lang')],
+        [InlineKeyboardButton("❓ Help", callback_data='help')]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    await update.message.reply_text("📋 Menu:", reply_markup=reply_markup)
+
+async def handle_menu_callback(update: Update, context: CallbackContext) -> None:
+    query = update.callback_query
+    await query.answer()
+    data = query.data
+
+    if data == 'start_exam':
+        await quiz_command(update, context)
+    elif data == 'start_learn':
+        await learn(update, context)
+    elif data == 'change_lang':
+        await language_command(update, context)
+    elif data == 'help':
+        await help_command(update, context)
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a help message explaining how the bot works."""
@@ -842,6 +867,10 @@ def main() -> None:
     application.add_handler(CommandHandler("learn", learn))
     application.add_handler(CommandHandler("language", language_command))
     application.add_handler(CommandHandler("help", help_command))
+    # --- Register /menu command and menu callback handler ---
+    application.add_handler(CommandHandler("menu", menu))
+    application.add_handler(CallbackQueryHandler(handle_menu_callback, pattern="^(rankings|play_friends|change_lang|help)$"))
+
     application.add_handler(CallbackQueryHandler(next_handler, pattern="^(NEXT|CONTINUE|RESTART)$"))
     application.add_handler(CallbackQueryHandler(answer_handler, pattern="^[ABCDSTOP]{1,4}$"))
     application.add_handler(CallbackQueryHandler(handle_language, pattern="^lang_.*$"))
