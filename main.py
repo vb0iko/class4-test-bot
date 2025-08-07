@@ -425,17 +425,20 @@ async def send_score(chat_id: int, context: CallbackContext) -> None:
             "Наберіть /start, щоб спробувати ще раз."
         )
     else:
+        # Learning mode summary: report number of mistakes and final score
+        mistakes = total - score
         text = (
-            f"<b>🎉 You scored {score} out of {total}!</b>\n"
-            "Type /quiz to try again.\n\n"
-            f"<b>🇺🇦 Ви набрали {score} із {total} балів!</b>\n"
-            "Наберіть /quiz, щоб спробувати ще раз."
+            f"<b>🎉 Learning complete! You answered {score} of {total} questions correctly.</b>\n"
+            f"Mistakes: {mistakes}\n\n"
+            f"<b>🇺🇦 Навчання завершено! Ви відповіли правильно на {score} з {total} питань.</b>\n"
+            f"Кількість помилок: {mistakes}"
         )
 
     # Choose the appropriate callback for the restart button
     start_again_callback = "mode_exam" if mode == "exam" else "mode_learning"
-
-    # Send the score message
+    # Provide a dedicated callback for returning to the main menu
+    main_menu_callback = "MAIN_MENU"
+    # Send the score message with restart and main menu buttons
     await context.bot.send_message(
         chat_id=chat_id,
         text=text,
@@ -443,7 +446,7 @@ async def send_score(chat_id: int, context: CallbackContext) -> None:
         reply_markup=InlineKeyboardMarkup([
             [
                 InlineKeyboardButton("🔁 Start Again", callback_data=start_again_callback),
-                InlineKeyboardButton("🏠 Main Menu", callback_data="main_menu"),
+                InlineKeyboardButton("🏠 Main Menu", callback_data=main_menu_callback),
             ]
         ])
     )
@@ -572,8 +575,8 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
         if query.message:
             await query.edit_message_text(
                 "❌ Exam data missing.",
-                reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔁 Start Again", callback_data="start_exam"),
-     InlineKeyboardButton("🏠 Main Menu", callback_data="main_menu")]])
+                reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔁 Start Again", callback_data="mode_exam"),
+     InlineKeyboardButton("🏠 Main Menu", callback_data="MAIN_MENU")]])
             )
         return
 
