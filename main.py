@@ -186,7 +186,19 @@ def build_option_keyboard() -> InlineKeyboardMarkup:
 
 
 async def send_question(chat_id: int, context: CallbackContext) -> None:
-    chat_data = context.chat_data
+    # Obtain the correct chat_data for the given chat_id.  When this function
+    # is called from a PollAnswer update, ``context.chat_data`` may be empty
+    # or belong to a different chat.  In that case, fall back to
+    # ``context.application.chat_data``.
+    chat_data = None
+    try:
+        # In typical handlers, context.chat_data refers to the current chat
+        if context.chat_data:
+            chat_data = context.chat_data
+    except Exception:
+        chat_data = None
+    if chat_data is None or not chat_data:
+        chat_data = context.application.chat_data.get(chat_id, {})
     index = chat_data.get("current_index", 0)
     lang_mode = chat_data.get("lang_mode", "en")
 
@@ -459,7 +471,15 @@ async def handle_poll_answer(update: Update, context: CallbackContext) -> None:
     # These should already be set in chat_state; only set defaults if missing
     user_state.setdefault("mode", chat_state.get("mode", "learning"))
     chat_state.setdefault("mode", "learning")
-    user_state.setdefault("lang_mode", chat_state.get("lang_mode", "en"))
+    # Ensure the language mode persists across questions.  If chat_state does
+    # not yet have a lang_mode (e.g., when handling poll answers), copy it
+    # from the user_state or default to English.  Also propagate the value
+    # into user_state if needed.
+    lang_mode_existing = chat_state.get("lang_mode")
+    if lang_mode_existing is None:
+        lang_mode_existing = user_state.get("lang_mode", "en")
+        chat_state["lang_mode"] = lang_mode_existing
+    user_state.setdefault("lang_mode", lang_mode_existing)
 
     # Save updated state back (user_state and chat_state are already
     # stored in application.user_data and application.chat_data)
