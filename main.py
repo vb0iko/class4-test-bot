@@ -256,7 +256,11 @@ async def send_question(chat_id: int, context: CallbackContext) -> None:
             type=Poll.QUIZ,
             correct_option_id=q['answer_index'],
             explanation=explanation_text,
-            is_anonymous=True,
+            # Polls must be non-anonymous to receive PollAnswer updates.  When
+            # anonymous, Telegram does not send poll answer updates, so we
+            # cannot trigger the next question.  Therefore, set
+            # is_anonymous=False.
+            is_anonymous=False,
         )
         # Store the poll id with its associated chat and question index so that the answer can be processed later
         context.bot_data[poll_message.poll.id] = {
