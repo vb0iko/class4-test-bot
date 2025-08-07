@@ -193,6 +193,94 @@ async def send_question(chat_id: int, context: CallbackContext) -> None:
     # Do not remove previous inline keyboard here to avoid UI flicker.
 
     mode = chat_data.get("mode", "learning")
+
+    # Exam Mode block - DO NOT REMOVE OR MODIFY
+    if mode == "exam":
+        exam_questions = chat_data.get("exam_questions", [])
+        # used_questions as a list for persistence
+        used_questions = chat_data.get("used_questions", [])
+        used_ids = set(used_questions)
+        # Exclude used questions
+        remaining_questions = [qidx for qidx in exam_questions if qidx not in used_ids]
+        if not remaining_questions:
+            await send_score(chat_id, context)
+            return
+        # Find the next question index to ask
+        # Use current_index to preserve ordering, but skip used
+        # Find the first not-yet-used question at or after current_index
+        next_qidx = None
+        for i in range(chat_data.get("current_index", 0), len(exam_questions)):
+            if exam_questions[i] not in used_ids:
+                next_qidx = exam_questions[i]
+                chat_data["current_index"] = i
+                break
+        if next_qidx is None:
+            # If all questions from current_index are used, try from beginning
+            for i, qidx in enumerate(exam_questions):
+                if qidx not in used_ids:
+                    next_qidx = qidx
+                    chat_data["current_index"] = i
+                    break
+        if next_qidx is None:
+            await send_score(chat_id, context)
+            return
+        # Add this question to used_questions
+        chat_data.setdefault("used_questions", []).append(next_qidx)
+        q = QUESTIONS[next_qidx]
+        total_questions = len(chat_data.get("exam_questions", []))
+        fail_count = chat_data.get("current_index", 0) - chat_data.get("score", 0)
+        lines = [f"<i><b>Question {index + 1} of {total_questions} ({fail_count} Fails)</b></i>", ""]
+        if lang_mode == "bilingual":
+            lines.append(f"<b>🇬🇧 {q['question']}</b>")
+            lines.append(f"<b>🇺🇦 {q['question_uk']}</b>")
+        else:
+            if lang_mode == "en":
+                lines.append(f"<b>{q['question']}</b>")
+            else:
+                lines.append(f"<b>🇬🇧 {q['question']}</b>")
+        lines.append("------------------------------")
+        option_labels = ["A", "B", "C", "D"]
+        options_en = q["options"]
+        options_uk = q.get("options_uk", [])
+        for idx, label in enumerate(option_labels):
+            if lang_mode == "bilingual" and options_uk:
+                lines.append(f"       <b>{label}.</b> {options_en[idx]} / {options_uk[idx]}")
+            else:
+                lines.append(f"       <b>{label}.</b> {options_en[idx]}")
+        # Load image based on question_number (matches file like '12.jpg' or '12.png')
+        image_filename = None
+        possible_extensions = [".jpg", ".jpeg", ".png", ".webp"]
+        for ext in possible_extensions:
+            path = f"images/{q['question_number']}{ext}"
+            if os.path.exists(path):
+                image_filename = path
+                break
+        question_text = "\n".join(lines)
+        keyboard = [
+            [InlineKeyboardButton("A", callback_data="0")],
+            [InlineKeyboardButton("B", callback_data="1")],
+            [InlineKeyboardButton("C", callback_data="2")],
+            [InlineKeyboardButton("D", callback_data="3")],
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        if image_filename:
+            with open(image_filename, "rb") as photo:
+                await context.bot.send_photo(
+                    chat_id=chat_id,
+                    photo=photo,
+                    caption=question_text,
+                    parse_mode=ParseMode.MARKDOWN,
+                    reply_markup=reply_markup
+                )
+        else:
+            await context.bot.send_message(
+                chat_id=chat_id,
+                text=question_text,
+                reply_markup=reply_markup,
+                parse_mode=ParseMode.MARKDOWN
+            )
+        return
+
     # When not in exam mode, send the question as a quiz poll and return early
     if mode != "exam":
         # If we've exhausted all questions, send the score
@@ -247,100 +335,6 @@ async def send_question(chat_id: int, context: CallbackContext) -> None:
         context.user_data["lang_mode"] = lang_mode
         context.user_data.setdefault("score", 0)
         return
-    if mode == "exam":
-        exam_questions = chat_data.get("exam_questions", [])
-        # used_questions as a list for persistence
-        used_questions = chat_data.get("used_questions", [])
-        used_ids = set(used_questions)
-        # Exclude used questions
-        remaining_questions = [qidx for qidx in exam_questions if qidx not in used_ids]
-        if not remaining_questions:
-            await send_score(chat_id, context)
-            return
-        # Find the next question index to ask
-        # Use current_index to preserve ordering, but skip used
-        # Find the first not-yet-used question at or after current_index
-        next_qidx = None
-        for i in range(chat_data.get("current_index", 0), len(exam_questions)):
-            if exam_questions[i] not in used_ids:
-                next_qidx = exam_questions[i]
-                chat_data["current_index"] = i
-                break
-        if next_qidx is None:
-            # If all questions from current_index are used, try from beginning
-            for i, qidx in enumerate(exam_questions):
-                if qidx not in used_ids:
-                    next_qidx = qidx
-                    chat_data["current_index"] = i
-                    break
-        if next_qidx is None:
-            await send_score(chat_id, context)
-            return
-        # Add this question to used_questions
-        chat_data.setdefault("used_questions", []).append(next_qidx)
-        q = QUESTIONS[next_qidx]
-    else:
-        if index >= len(QUESTIONS):
-            await send_score(chat_id, context)
-            return
-        q = QUESTIONS[index]
-
-    total_questions = len(chat_data.get("exam_questions", [])) if mode == 'exam' else len(QUESTIONS)
-    fail_count = chat_data.get("current_index", 0) - chat_data.get("score", 0)
-    lines = [f"<i><b>Question {index + 1} of {total_questions} ({fail_count} Fails)</b></i>", ""]
-
-    if lang_mode == "bilingual":
-        lines.append(f"<b>🇬🇧 {q['question']}</b>")
-        lines.append(f"<b>🇺🇦 {q['question_uk']}</b>")
-    else:
-        # If mode is 'en', do not show the 🇬🇧 flag
-        if lang_mode == "en":
-            lines.append(f"<b>{q['question']}</b>")
-        else:
-            lines.append(f"<b>🇬🇧 {q['question']}</b>")
-
-    lines.append("------------------------------")
-
-    option_labels = ["A", "B", "C", "D"]
-    options_en = q["options"]
-    options_uk = q.get("options_uk", [])
-
-    for idx, label in enumerate(option_labels):
-        if lang_mode == "bilingual" and options_uk:
-            lines.append(f"       <b>{label}.</b> {options_en[idx]} / {options_uk[idx]}")
-        else:
-            lines.append(f"       <b>{label}.</b> {options_en[idx]}")
-
-    # Load image based on question_number (matches file like '12.jpg' or '12.png')
-    image_filename = None
-    possible_extensions = [".jpg", ".jpeg", ".png", ".webp"]
-    for ext in possible_extensions:
-        path = f"images/{q['question_number']}{ext}"
-        if os.path.exists(path):
-            image_filename = path
-            break
-
-    text = "\n".join(lines)
-
-    keyboard = build_option_keyboard()
-    if image_filename:
-        with open(image_filename, "rb") as photo:
-            msg = await context.bot.send_photo(
-                chat_id=chat_id,
-                photo=photo,
-                caption=text,
-                parse_mode=ParseMode.HTML,
-                reply_markup=keyboard
-            )
-        context.chat_data["last_message_id"] = msg.message_id
-    else:
-        msg = await context.bot.send_message(
-            chat_id=chat_id,
-            text=text,
-            parse_mode=ParseMode.HTML,
-            reply_markup=keyboard
-        )
-        context.chat_data["last_message_id"] = msg.message_id
 
 async def send_score(chat_id: int, context: CallbackContext) -> None:
     chat_data = context.chat_data
