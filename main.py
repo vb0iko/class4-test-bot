@@ -193,6 +193,60 @@ async def send_question(chat_id: int, context: CallbackContext) -> None:
     # Do not remove previous inline keyboard here to avoid UI flicker.
 
     mode = chat_data.get("mode", "learning")
+    # When not in exam mode, send the question as a quiz poll and return early
+    if mode != "exam":
+        # If we've exhausted all questions, send the score
+        if index >= len(QUESTIONS):
+            await send_score(chat_id, context)
+            return
+        q = QUESTIONS[index]
+        total_questions = len(QUESTIONS)
+        # Build question text based on the chosen language mode
+        if lang_mode == "bilingual":
+            question_text = f"Q{index + 1}/{total_questions}:\n🇬🇧 {q['question']}\n🇺🇦 {q['question_uk']}"
+        else:
+            question_text = f"Q{index + 1}/{total_questions}:\n{q['question']}"
+        # Prepare options list
+        options_en = q["options"]
+        options_uk = q.get("options_uk", [])
+        poll_options = []
+        for i, opt_en in enumerate(options_en):
+            if lang_mode == "bilingual" and options_uk:
+                poll_options.append(f"{opt_en} / {options_uk[i]}")
+            else:
+                poll_options.append(opt_en)
+        # Build explanation if available
+        explanation_en = q.get("explanation_en") or q.get("explanation")
+        explanation_uk = q.get("explanation_uk")
+        explanation = None
+        if explanation_en or explanation_uk:
+            if lang_mode == "bilingual":
+                parts = []
+                if explanation_en:
+                    parts.append(explanation_en)
+                if explanation_uk:
+                    parts.append(explanation_uk)
+                explanation = "\n".join(parts)
+            else:
+                explanation = explanation_en or ""
+        # Send quiz poll
+        poll_message = await context.bot.send_poll(
+            chat_id=chat_id,
+            question=question_text,
+            options=poll_options,
+            type="quiz",
+            correct_option_id=q["answer_index"],
+            explanation=explanation,
+            is_anonymous=False,
+        )
+        # Store mapping of poll ID to chat ID for poll answer handler
+        context.bot_data.setdefault("polls", {})[poll_message.poll.id] = chat_id
+        # Update per-user state for poll answers
+        context.user_data["current_question_index"] = index
+        context.user_data["mode"] = "learning"
+        context.user_data["lang_mode"] = lang_mode
+        context.user_data.setdefault("score", 0)
+        return
     if mode == "exam":
         exam_questions = chat_data.get("exam_questions", [])
         # used_questions as a list for persistence
@@ -230,55 +284,6 @@ async def send_question(chat_id: int, context: CallbackContext) -> None:
             await send_score(chat_id, context)
             return
         q = QUESTIONS[index]
-            # Learning mode uses quiz polls instead of inline keyboards
-            if mode != "exam":
-                total_questions = len(QUESTIONS)
-                # Build question text based on language
-                if lang_mode == "bilingual":
-                    question_text = f"Q{index + 1}/{total_questions}:\n🇬🇧 {q['question']}\n🇺🇦 {q['question_uk']}"
-                else:
-                    question_text = f"Q{index + 1}/{total_questions}:\n{q['question']}"
-                # Build options list
-                options_en = q["options"]
-                options_uk = q.get("options_uk", [])
-                poll_options = []
-                for i, opt_en in enumerate(options_en):
-                    if lang_mode == "bilingual" and options_uk:
-                        poll_options.append(f"{opt_en} / {options_uk[i]}")
-                    else:
-                        poll_options.append(opt_en)
-                # Build explanation
-                explanation_en = q.get("explanation_en") or q.get("explanation")
-                explanation_uk = q.get("explanation_uk")
-                explanation = None
-                if explanation_en or explanation_uk:
-                    if lang_mode == "bilingual":
-                        parts = []
-                        if explanation_en:
-                            parts.append(explanation_en)
-                        if explanation_uk:
-                            parts.append(explanation_uk)
-                        explanation = "\n".join(parts)
-                    else:
-                        explanation = explanation_en or ""
-                # Send quiz poll
-                poll_message = await context.bot.send_poll(
-                    chat_id=chat_id,
-                    question=question_text,
-                    options=poll_options,
-                    type="quiz",
-                    correct_option_id=q["answer_index"],
-                    explanation=explanation,
-                    is_anonymous=False,
-                )
-                # Store mapping of poll ID to chat ID for poll answer handler
-                context.bot_data.setdefault("polls", {})[poll_message.poll.id] = chat_id
-                # Update per-user state for poll answers
-                context.user_data["current_question_index"] = index
-                context.user_data["mode"] = "learning"
-                context.user_data["lang_mode"] = lang_mode
-                context.user_data.setdefault("score", 0)
-                return
 
     total_questions = len(chat_data.get("exam_questions", [])) if mode == 'exam' else len(QUESTIONS)
     fail_count = chat_data.get("current_index", 0) - chat_data.get("score", 0)
