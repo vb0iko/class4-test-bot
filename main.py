@@ -427,7 +427,7 @@ async def send_score(chat_id: int, context: CallbackContext) -> None:
     else:
         text = (
             f"<b>🎉 You scored {score} out of {total}!</b>\n"
-            "Type /quiz to try again.<br/><br/>"
+            "Type /quiz to try again.\n\n"
             f"<b>🇺🇦 Ви набрали {score} із {total} балів!</b>\n"
             "Наберіть /quiz, щоб спробувати ще раз."
         )
