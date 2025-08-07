@@ -1,6 +1,7 @@
 import logging
 import os
 import json
+import random
 
 from telegram import BotCommand, Poll
 from typing import Dict, List, Optional
@@ -27,10 +28,14 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 async def post_init(application):
+    # Set up custom menu commands that appear in the Telegram UI.  These commands start the
+    # exam mode, learning mode, change language, or show help.  They replace the default
+    # start/stop/pause commands so that the menu buttons match the quiz functionality.
     commands = [
-        BotCommand("start", "Start the quiz"),
-        BotCommand("stop", "Stop the quiz"),
-        BotCommand("pause", "Pause the quiz")
+        BotCommand("quiz", "📊 Start exam mode"),
+        BotCommand("learn", "📚 Start learning mode"),
+        BotCommand("language", "🇬🇧 Change language / 🇺🇦 Змінити мову"),
+        BotCommand("help", "❓ Help / Допомога"),
     ]
     await application.bot.set_my_commands(commands)
 
@@ -183,6 +188,52 @@ def build_option_keyboard() -> InlineKeyboardMarkup:
             InlineKeyboardButton("D", callback_data="D")
         ]
     ])
+
+
+async def quiz(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Start exam mode directly via /quiz command."""
+    # Reset state and configure exam mode
+    context.chat_data.clear()
+    context.chat_data["mode"] = "exam"
+    context.chat_data["current_index"] = 0
+    context.chat_data["score"] = 0
+    context.chat_data["paused"] = False
+    # Ensure there are enough questions to start an exam
+    if len(QUESTIONS) < 30:
+        await update.message.reply_text("❌ Not enough questions to start the exam. Please add more questions.")
+        return
+    # Select 30 random questions for the exam
+    sample = random.sample(range(len(QUESTIONS)), 30)
+    context.chat_data["exam_questions"] = sample
+    context.chat_data["used_questions"] = []
+    await send_question(update.effective_chat.id, context)
+
+async def learn(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Start learning mode directly via /learn command."""
+    context.chat_data.clear()
+    context.chat_data["mode"] = "learning"
+    context.chat_data["current_index"] = 0
+    context.chat_data["score"] = 0
+    context.chat_data["paused"] = False
+    await send_question(update.effective_chat.id, context)
+
+async def language_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Ask the user to choose a language."""
+    context.chat_data.clear()
+    await update.message.reply_text(
+        "Please choose your language / Будь ласка, оберіть мову:",
+        reply_markup=InlineKeyboardMarkup(LANG_OPTIONS)
+    )
+
+async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Send a help message explaining how the bot works."""
+    help_text = (
+        "📊 <b>Quiz</b> – Start an exam of 30 random questions.\n"
+        "📚 <b>Learn</b> – Study all questions with explanations after each answer.\n"
+        "🇬🇧 <b>Change language</b> – Switch between English and Bilingual mode.\n"
+        "❓ <b>Help</b> – Show this help message."
+    )
+    await update.message.reply_text(help_text, parse_mode=ParseMode.HTML)
 
 
 async def send_question(chat_id: int, context: CallbackContext) -> None:
@@ -664,10 +715,17 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
         full_text.append("------------------------------")
         full_text += options_text
         full_text.append("------------------------------")
-        full_text.append("<b>Explanation:</b>")
-        full_text.append(f"<i>{'🇬🇧 ' if lang_mode == 'bilingual' else ''}{question['explanation_en']}</i>")
-        if lang_mode == "bilingual":
-            full_text.append(f"<i>🇺🇦 {question['explanation_uk']}</i>")
+        # Only include the explanation section in learning mode.  In exam mode
+        # explanations should be suppressed to avoid revealing the answer.
+        if mode != "exam":
+            full_text.append("<b>Explanation:</b>")
+            # Always include the English explanation; if in bilingual mode,
+            # include the Ukrainian explanation as well.
+            full_text.append(
+                f"<i>{'🇬🇧 ' if lang_mode == 'bilingual' else ''}{question['explanation_en']}</i>"
+            )
+            if lang_mode == "bilingual":
+                full_text.append(f"<i>🇺🇦 {question['explanation_uk']}</i>")
         formatted_question = "\n".join(full_text)
         # Load image based on question_number (matches file like '12.jpg' or '12.png')
         index = chat_data.get("current_index", 0)
@@ -779,6 +837,11 @@ def main() -> None:
 
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("pause", handle_pause))
+    # Handlers for menu commands
+    application.add_handler(CommandHandler("quiz", quiz))
+    application.add_handler(CommandHandler("learn", learn))
+    application.add_handler(CommandHandler("language", language_command))
+    application.add_handler(CommandHandler("help", help_command))
     application.add_handler(CallbackQueryHandler(next_handler, pattern="^(NEXT|CONTINUE|RESTART)$"))
     application.add_handler(CallbackQueryHandler(answer_handler, pattern="^[ABCDSTOP]{1,4}$"))
     application.add_handler(CallbackQueryHandler(handle_language, pattern="^lang_.*$"))
