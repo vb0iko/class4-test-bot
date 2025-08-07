@@ -333,10 +333,35 @@ async def send_question(chat_id: int, context: CallbackContext) -> None:
         context.chat_data["last_message_id"] = msg.message_id
 
 async def send_score(chat_id: int, context: CallbackContext) -> None:
-    chat_data = context.application.chat_data.get(chat_id, {})
+    """
+    Send the final score summary to the user.
+
+    This function attempts to retrieve the current chat's state from
+    ``context.chat_data`` when it exists (i.e., for callback queries and
+    commands). When invoked from a poll answer (where ``context.chat_data``
+    may be empty), it falls back to ``context.application.chat_data`` using
+    the provided ``chat_id``. This ensures that both exam and learning modes
+    have access to the correct state without overwriting the chat_data mapping.
+    """
+    # Determine the appropriate chat_data source
+    chat_data = None
+    try:
+        # In typical handlers (exam mode), context.chat_data holds the chat's state
+        if context.chat_data:
+            chat_data = context.chat_data
+    except Exception:
+        # context.chat_data may not be available (e.g., in poll answers)
+        chat_data = None
+    if chat_data is None:
+        # Fallback to application-level chat_data mapping
+        chat_data = context.application.chat_data.get(chat_id, {})
+
+    # Extract mode and score information
     mode = chat_data.get("mode", "learning")
     score = chat_data.get("score", 0)
     total = len(chat_data.get("exam_questions", [])) if mode == "exam" else len(QUESTIONS)
+
+    # Build the result message based on mode
     if mode == "exam":
         passed = score >= 25
         result_en = "✅ You passed the exam!" if passed else "❌ You did not pass the exam."
@@ -357,7 +382,11 @@ async def send_score(chat_id: int, context: CallbackContext) -> None:
             f"<b>🇺🇦 Ви набрали {score} із {total} балів!</b>\n"
             "Наберіть /quiz, щоб спробувати ще раз."
         )
+
+    # Choose the appropriate callback for the restart button
     start_again_callback = "mode_exam" if mode == "exam" else "mode_learning"
+
+    # Send the score message
     await context.bot.send_message(
         chat_id=chat_id,
         text=text,
@@ -369,44 +398,72 @@ async def send_score(chat_id: int, context: CallbackContext) -> None:
             ]
         ])
     )
-    chat_data.clear()
+    # Clear the chat-specific state to reset for a new session
+    if chat_data:
+        chat_data.clear()
 
 async def handle_poll_answer(update: Update, context: CallbackContext) -> None:
     """Process answers from quiz polls to advance the learning mode."""
+    """
+    Process answers from quiz polls to advance the learning mode.
+
+    This handler retrieves the stored poll data to determine which chat and
+    question the answer belongs to. It then updates the user and chat state
+    in place rather than replacing the entire chat_data mapping. Replacing
+    the chat_data mapping can break subsequent exam mode sessions, as the
+    Telegram framework expects a special ChatData object. Updating in place
+    preserves the underlying data structures.
+    """
     # Retrieve the poll answer and associated data
     answer = update.poll_answer
     poll_id = answer.poll_id
     poll_data = context.bot_data.get(poll_id)
     if not poll_data:
+        # No associated poll data found; nothing to do
         return
     chat_id_local = poll_data.get("chat_id")
     question_index = poll_data.get("question_index")
     # Remove the poll mapping now that it's been answered
     context.bot_data.pop(poll_id, None)
+
     # Identify the user who answered
     user_id = answer.user.id
-    # Get or initialize per-user and per-chat state
-    user_data = context.application.user_data.get(user_id, {})
-    chat_state = context.application.chat_data.get(chat_id_local, {})
+    # Access existing per-user and per-chat state
+    # Do not replace the stored state objects; update them in place to
+    # preserve the ChatData wrappers used by the framework.
+    user_state = context.application.user_data.get(user_id)
+    if user_state is None:
+        user_state = {}
+        context.application.user_data[user_id] = user_state
+    chat_state = context.application.chat_data.get(chat_id_local)
+    if chat_state is None:
+        # Initialize a fresh chat_state if none exists
+        chat_state = {}
+        context.application.chat_data[chat_id_local] = chat_state
+
     # Evaluate the answer
     question = QUESTIONS[question_index]
     correct_index = question["answer_index"]
     selected_indices = answer.option_ids
     selected_index = selected_indices[0] if selected_indices else -1
     if selected_index == correct_index:
-        user_data["score"] = user_data.get("score", 0) + 1
+        # Increment score for both user and chat state
+        user_state["score"] = user_state.get("score", 0) + 1
         chat_state["score"] = chat_state.get("score", 0) + 1
+
     # Advance to the next question
     next_index = question_index + 1
-    user_data["current_index"] = next_index
+    user_state["current_index"] = next_index
     chat_state["current_index"] = next_index
     # Preserve mode and language settings
-    user_data["mode"] = user_data.get("mode", chat_state.get("mode", "learning"))
-    chat_state["mode"] = chat_state.get("mode", "learning")
-    user_data["lang_mode"] = user_data.get("lang_mode", chat_state.get("lang_mode", "en"))
-    # Save updated state back to the application
-    context.application.user_data[user_id] = user_data
-    context.application.chat_data[chat_id_local] = chat_state
+    # These should already be set in chat_state; only set defaults if missing
+    user_state.setdefault("mode", chat_state.get("mode", "learning"))
+    chat_state.setdefault("mode", "learning")
+    user_state.setdefault("lang_mode", chat_state.get("lang_mode", "en"))
+
+    # Save updated state back (user_state and chat_state are already
+    # stored in application.user_data and application.chat_data)
+
     # Send the next question or the final score
     if next_index < len(QUESTIONS):
         await send_question(chat_id_local, context)
