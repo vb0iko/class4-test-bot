@@ -227,19 +227,11 @@ async def language_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -
 
 # --- Menu command and handlers ---
 async def menu(update: Update, context: CallbackContext) -> None:
-    # Display the menu as a 2x2 grid (two rows of two buttons).  Each
-    # InlineKeyboardButton corresponds to one action: start exam, start
-    # learning, change language, or show help.  This layout mirrors the
-    # example with a table of four buttons.
     keyboard = [
-        [
-            InlineKeyboardButton("📊 Start exam mode", callback_data='start_exam'),
-            InlineKeyboardButton("📚 Start learning mode", callback_data='start_learn')
-        ],
-        [
-            InlineKeyboardButton("🌐 Change language", callback_data='change_lang'),
-            InlineKeyboardButton("❓ Help", callback_data='help')
-        ]
+        [InlineKeyboardButton("📊 Start exam mode", callback_data='start_exam')],
+        [InlineKeyboardButton("📚 Start learning mode", callback_data='start_learn')],
+        [InlineKeyboardButton("🌐 Change language", callback_data='change_lang')],
+        [InlineKeyboardButton("❓ Help", callback_data='help')]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     await update.message.reply_text("📋 Menu:", reply_markup=reply_markup)
@@ -250,52 +242,13 @@ async def handle_menu_callback(update: Update, context: CallbackContext) -> None
     data = query.data
 
     if data == 'start_exam':
-        # Start exam mode directly from the menu.  Use the same logic as the /quiz command.
-        # Clear existing state and set up exam mode.
-        context.chat_data.clear()
-        context.chat_data["mode"] = "exam"
-        context.chat_data["current_index"] = 0
-        context.chat_data["score"] = 0
-        context.chat_data["paused"] = False
-        # Ensure there are enough questions to start an exam
-        if len(QUESTIONS) < 30:
-            await query.edit_message_text(
-                "❌ Not enough questions to start the exam. Please add more questions."
-            )
-            return
-        sample = random.sample(range(len(QUESTIONS)), 30)
-        context.chat_data["exam_questions"] = sample
-        context.chat_data["used_questions"] = []
-        await send_question(update.effective_chat.id, context)
+        await quiz_command(update, context)
     elif data == 'start_learn':
-        # Start learning mode directly from the menu
-        context.chat_data.clear()
-        context.chat_data["mode"] = "learning"
-        context.chat_data["current_index"] = 0
-        context.chat_data["score"] = 0
-        context.chat_data["paused"] = False
-        await send_question(update.effective_chat.id, context)
+        await learn(update, context)
     elif data == 'change_lang':
-        # Ask the user to choose a language again
-        context.chat_data.clear()
-        await context.bot.send_message(
-            chat_id=update.effective_chat.id,
-            text="Please choose your language / Будь ласка, оберіть мову:",
-            reply_markup=InlineKeyboardMarkup(LANG_OPTIONS)
-        )
+        await language_command(update, context)
     elif data == 'help':
-        # Show the help message directly
-        help_text = (
-            "📊 <b>Quiz</b> – Start an exam of 30 random questions.\n"
-            "📚 <b>Learn</b> – Study all questions with explanations after each answer.\n"
-            "🌐 <b>Change language</b> – Switch between English and Bilingual mode.\n"
-            "❓ <b>Help</b> – Show this help message."
-        )
-        await context.bot.send_message(
-            chat_id=update.effective_chat.id,
-            text=help_text,
-            parse_mode=ParseMode.HTML
-        )
+        await help_command(update, context)
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a help message explaining how the bot works."""
@@ -335,13 +288,9 @@ async def send_question(chat_id: int, context: CallbackContext) -> None:
             await send_score(chat_id, context)
             return
         q = QUESTIONS[index]
-        # Build caption for the image. Include question number and bilingual text if needed.
+        # Build caption for the image.  Only include the question number; do not repeat
+        # the question text below the image in learning mode to avoid duplication.
         caption_lines: List[str] = [f"<i><b>Question {index + 1} of {len(QUESTIONS)}</b></i>"]
-        if lang_mode == "bilingual":
-            caption_lines.append(f"<b>🇬🇧 {q['question']}</b>")
-            caption_lines.append(f"<b>🇺🇦 {q.get('question_uk', '')}</b>")
-        else:
-            caption_lines.append(f"<b>{q['question']}</b>")
         caption_text = "\n".join(caption_lines)
         # Determine image path based on question_number
         image_filename = None
@@ -603,9 +552,13 @@ async def handle_poll_answer(update: Update, context: CallbackContext) -> None:
 
     # Identify the user who answered
     user_id = answer.user.id
-    # Retrieve the chat-specific state.  We avoid assigning to
-    # ``context.application.user_data`` because it is a read-only mapping
-    # proxy.  Instead, we track progress solely in the chat_state.
+    # Access existing per-user and per-chat state
+    # Do not replace the stored state objects; update them in place to
+    # preserve the ChatData wrappers used by the framework.
+    user_state = context.application.user_data.get(user_id)
+    if user_state is None:
+        user_state = {}
+        context.application.user_data[user_id] = user_state
     chat_state = context.application.chat_data.get(chat_id_local)
     if chat_state is None:
         # Initialize a fresh chat_state if none exists
@@ -618,23 +571,27 @@ async def handle_poll_answer(update: Update, context: CallbackContext) -> None:
     selected_indices = answer.option_ids
     selected_index = selected_indices[0] if selected_indices else -1
     if selected_index == correct_index:
-        # Increment score in the chat state.  We no longer track a separate
-        # per-user score in ``application.user_data`` to avoid assignment
-        # errors on the read-only mapping proxy.
+        # Increment score for both user and chat state
+        user_state["score"] = user_state.get("score", 0) + 1
         chat_state["score"] = chat_state.get("score", 0) + 1
 
     # Advance to the next question
     next_index = question_index + 1
-    # Update the current index in the chat state.  We do not track
-    # a per-user current index separately.
+    user_state["current_index"] = next_index
     chat_state["current_index"] = next_index
-    # Preserve mode and language settings in chat_state; set defaults if missing.
+    # Preserve mode and language settings
+    # These should already be set in chat_state; only set defaults if missing
+    user_state.setdefault("mode", chat_state.get("mode", "learning"))
     chat_state.setdefault("mode", "learning")
     # Ensure the language mode persists across questions.  If chat_state does
-    # not yet have a lang_mode, default to English.
+    # not yet have a lang_mode (e.g., when handling poll answers), copy it
+    # from the user_state or default to English.  Also propagate the value
+    # into user_state if needed.
     lang_mode_existing = chat_state.get("lang_mode")
     if lang_mode_existing is None:
-        chat_state["lang_mode"] = "en"
+        lang_mode_existing = user_state.get("lang_mode", "en")
+        chat_state["lang_mode"] = lang_mode_existing
+    user_state.setdefault("lang_mode", lang_mode_existing)
 
     # Save updated state back (user_state and chat_state are already
     # stored in application.user_data and application.chat_data)
@@ -781,7 +738,7 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
         # Only include the explanation section in learning mode.  In exam mode
         # explanations should be suppressed to avoid revealing the answer.
         if mode != "exam":
-            full_text.append("------------------------------")
+	    full_text.append("------------------------------")
             full_text.append("<b>Explanation:</b>")
             # Always include the English explanation; if in bilingual mode,
             # include the Ukrainian explanation as well.
@@ -908,8 +865,7 @@ def main() -> None:
     application.add_handler(CommandHandler("help", help_command))
     # --- Register /menu command and menu callback handler ---
     application.add_handler(CommandHandler("menu", menu))
-    # Callback handler for menu buttons: start_exam, start_learn, change_lang, help
-    application.add_handler(CallbackQueryHandler(handle_menu_callback, pattern="^(start_exam|start_learn|change_lang|help)$"))
+    application.add_handler(CallbackQueryHandler(handle_menu_callback, pattern="^(rankings|play_friends|change_lang|help)$"))
 
     application.add_handler(CallbackQueryHandler(next_handler, pattern="^(NEXT|CONTINUE|RESTART)$"))
     application.add_handler(CallbackQueryHandler(answer_handler, pattern="^[ABCDSTOP]{1,4}$"))
