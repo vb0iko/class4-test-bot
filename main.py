@@ -749,7 +749,6 @@ def main() -> None:
     application.add_handler(CallbackQueryHandler(handle_main_menu, pattern="^MAIN_MENU$"))
     # Allow users to answer by sending A/B/C/D as text
     from telegram.ext import MessageHandler, filters
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text_answer))
     # Register handler for quiz poll answers
     application.add_handler(PollAnswerHandler(handle_poll_answer))
 
@@ -805,17 +804,3 @@ async def handle_resume_pause(update: Update, context: CallbackContext) -> None:
 if __name__ == "__main__":
     main()
 
-
-# --- Text answer handler for A/B/C/D replies ---
-async def handle_text_answer(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if "quiz_type" not in context.user_data or "current_question_index" not in context.user_data:
-        return
-
-    user_input = update.message.text.strip().upper()
-    if user_input in ["A", "B", "C", "D"]:
-        option_index = ["A", "B", "C", "D"].index(user_input)
-        question_list = context.user_data["question_list"]
-        index = context.user_data["current_question_index"]
-        if index < len(question_list):
-            question = question_list[index]
-            await handle_answer(update, context, str(option_index))
