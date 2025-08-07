@@ -205,61 +205,79 @@ async def send_question(chat_id: int, context: CallbackContext) -> None:
     # Do not remove previous inline keyboard here to avoid UI flicker.
 
     mode = chat_data.get("mode", "learning")
-    # If not in exam mode, send a quiz poll instead of an inline keyboard
+    # If not in exam mode, send an image (if available) and a quiz poll for the question.
     if mode != "exam":
+        # End of questions: show score
         if index >= len(QUESTIONS):
             await send_score(chat_id, context)
             return
         q = QUESTIONS[index]
-        # Build the question text based on language mode
+        # Build caption for the image. Include question number and bilingual text if needed.
+        caption_lines: List[str] = [f"<i><b>Question {index + 1} of {len(QUESTIONS)}</b></i>"]
         if lang_mode == "bilingual":
-            question_text = f"{q['question']} / {q.get('question_uk', '')}"
+            caption_lines.append(f"<b>🇬🇧 {q['question']}</b>")
+            caption_lines.append(f"<b>🇺🇦 {q.get('question_uk', '')}</b>")
         else:
-            question_text = q['question']
-        # Prepare the answer options
+            caption_lines.append(f"<b>{q['question']}</b>")
+        caption_text = "\n".join(caption_lines)
+        # Determine image path based on question_number
+        image_filename = None
+        possible_extensions = [".jpg", ".jpeg", ".png", ".webp"]
+        for ext in possible_extensions:
+            path = f"images/{q['question_number']}{ext}"
+            if os.path.exists(path):
+                image_filename = path
+                break
+        # Send image with caption if available
+        if image_filename:
+            try:
+                with open(image_filename, "rb") as photo:
+                    await context.bot.send_photo(
+                        chat_id=chat_id,
+                        photo=photo,
+                        caption=caption_text,
+                        parse_mode=ParseMode.HTML
+                    )
+            except Exception as e:
+                logger.warning(f"Failed to send image for question {q['question_number']}: {e}")
+        else:
+            # If no image, send the caption as a simple message to present the question
+            await context.bot.send_message(
+                chat_id=chat_id,
+                text=caption_text,
+                parse_mode=ParseMode.HTML
+            )
+        # Now prepare the poll question (reuse bilingual or english question). Trim if necessary
+        if lang_mode == "bilingual":
+            poll_question = f"{q['question']} / {q.get('question_uk', '')}"
+        else:
+            poll_question = q['question']
+        # Ensure poll question length does not exceed 300 characters
+        if len(poll_question) > 300:
+            poll_question = poll_question[:297] + "..."
+        # Prepare the answer options (English only, truncated if needed)
         options_en = q["options"]
-        options_uk = q.get("options_uk", [])
         poll_options: List[str] = []
-        # In bilingual mode, avoid concatenating English and Ukrainian options
-        # because Telegram limits each poll option to 100 characters. Use only
-        # English options here to stay within the limit.
-        if lang_mode == "bilingual":
-            # Use only English options; ensure each option does not exceed
-            # Telegram's 100-character limit by truncating when necessary.
-            for opt in options_en:
-                trimmed = opt
-                if len(trimmed) > 100:
-                    trimmed = trimmed[:97] + "..."
-                poll_options.append(trimmed)
-        else:
-            for opt_idx in range(len(options_en)):
-                # Use only English options; truncate if needed
-                opt = options_en[opt_idx]
-                if len(opt) > 100:
-                    opt = opt[:97] + "..."
-                poll_options.append(opt)
-        # Prepare the explanation text if available.  Telegram limits this
-        # field to 200 characters. If the explanation is too long or we're
-        # in bilingual mode, omit it here and consider sending it separately.
+        for opt in options_en:
+            trimmed = opt
+            if len(trimmed) > 100:
+                trimmed = trimmed[:97] + "..."
+            poll_options.append(trimmed)
+        # Prepare explanation text (English only) for non-bilingual mode and trim to 200 characters
         explanation_text: Optional[str] = None
         if lang_mode != "bilingual" and q.get("explanation_en"):
             exp_en = q["explanation_en"]
-            # Trim explanation to 200 characters to satisfy Telegram limits
             if len(exp_en) > 200:
                 exp_en = exp_en[:197] + "..."
             explanation_text = exp_en
-        # Send the quiz poll; Poll.QUIZ requires Poll to be imported at the top
+        # Send the quiz poll. Polls must be non-anonymous to receive PollAnswer updates.
         poll_message = await context.bot.send_poll(
             chat_id=chat_id,
-            question=question_text,
+            question=poll_question,
             options=poll_options,
             type=Poll.QUIZ,
             correct_option_id=q['answer_index'],
             explanation=explanation_text,
-            # Polls must be non-anonymous to receive PollAnswer updates.  When
-            # anonymous, Telegram does not send poll answer updates, so we
-            # cannot trigger the next question.  Therefore, set
-            # is_anonymous=False.
             is_anonymous=False,
         )
         # Store the poll id with its associated chat and question index so that the answer can be processed later

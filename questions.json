@@ -918,7 +918,7 @@
             "Зміститися до правого краю смуги, щоб дати водієві, який обганяє, кращий огляд дороги попереду, якщо це безпечно.",
             "Завжди оглядатися через плече, якщо хтось хоче вас обігнати."
         ],
-        "answer_index": 3,
+        "answer_index": 2,
         "explanation_en": "Shoulder checking improves awareness and safety during overtaking.",
         "explanation_uk": "Оглядання через плече підвищує обізнаність і безпеку під час обгону.",
         "image": "44.png"
@@ -1689,7 +1689,7 @@
             "Cameras",
             "Hand-held communication devices when acting within the scope of their employment"
         ],
-        "answer_index": 1,
+        "answer_index": 3,
         "explanation_en": "Emergency vehicle drivers may use cell phones during emergency management situations.",
         "explanation_uk": "Водії аварійних транспортних засобів можуть користуватися мобільним телефоном у надзвичайних ситуаціях.",
         "image": "81.png",
