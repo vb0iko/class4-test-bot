@@ -577,116 +577,29 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
                 await query.edit_message_text("Invalid selection. Please try again.\n\nНеправильний вибір. Спробуйте ще раз.")
         return
 
-# --- Poll answer handler ---
 async def handle_poll_answer(update: Update, context: CallbackContext) -> None:
-    """
-    Handle answers from quiz polls in learning mode.
-    When a user answers a poll, update their score and send the next question.
-    """
     poll_answer = update.poll_answer
-    # Retrieve chat_id stored when poll was sent
-    poll_id = poll_answer.poll_id
-    chat_id = context.bot_data.get("polls", {}).pop(poll_id, None)
-    if chat_id is None:
-        return
+    user_id = poll_answer.user.id
     user_data = context.user_data
-    # Get the index of the question that was answered
-    index = user_data.get("current_question_index", 0)
-    if index < len(QUESTIONS):
-        question = QUESTIONS[index]
-        correct_index = question["answer_index"]
-        selected_indices = poll_answer.option_ids
-        selected_index = selected_indices[0] if selected_indices else -1
-        if selected_index == correct_index:
-            user_data["score"] = user_data.get("score", 0) + 1
-        # Move to next question index
-        user_data["current_question_index"] = index + 1
-    # Determine whether to send next question or final score
-    next_index = user_data.get("current_question_index", 0)
-    if next_index < len(QUESTIONS):
-        await send_question(chat_id, context)
-    else:
-        await send_score(chat_id, context)
 
-    # --- Text answer logic ---
-    # If this is a text message (user sends answer as text)
-    if update.message and update.message.text:
-        user_msg = update.message.text.strip()
-        # Defensive: skip if no quiz running
-        if not chat_data or "mode" not in chat_data:
-            return
-        mode = chat_data.get("mode", "learning")
-        current_index = chat_data.get("current_index", 0)
-        if mode == "exam":
-            used_questions = chat_data.get("used_questions", [])
-            if used_questions:
-                question_index = used_questions[-1]
-            else:
-                question_index = chat_data["exam_questions"][current_index]
-        else:
-            question_index = current_index
-        question = QUESTIONS[question_index]
-        options_en = question["options"]
-        options_uk = question.get("options_uk", [])
-        option_labels = ["A", "B", "C", "D"]
-        # Accept answers as full text or letter (A/B/C/D)
-        all_possible_answers = []
-        # Add English and Ukrainian options (case-insensitive)
-        for idx, opt in enumerate(options_en):
-            all_possible_answers.append((opt, idx))
-        for idx, opt in enumerate(options_uk):
-            all_possible_answers.append((opt, idx))
-        # Also support A/B/C/D as answer
-        for idx, label in enumerate(option_labels):
-            all_possible_answers.append((label, idx))
-        # Lowercase mapping for fuzzy match
-        user_text = user_msg.lower()
-        answer_candidates = [ans.lower() for ans, _ in all_possible_answers]
-        # Use difflib to get close matches (allowing for typos)
-        matches = difflib.get_close_matches(user_text, answer_candidates, n=1, cutoff=0.7)
-        selected_index = -1
-        if matches:
-            match = matches[0]
-            for i, (ans, idx) in enumerate(all_possible_answers):
-                if ans.lower() == match:
-                    selected_index = idx
-                    break
-        else:
-            # fallback: try if user typed number 1-4
-            if user_text in ["1", "2", "3", "4"]:
-                selected_index = int(user_text) - 1
-        # If not recognized, reply and do NOT advance
-        if selected_index < 0 or selected_index >= 4:
-            await update.message.reply_text("❌ Could not recognize your answer. Please reply with the full text or letter (A, B, C, D).")
-            return
-        correct_index = question["answer_index"]
-        is_correct = selected_index == correct_index
-        if is_correct:
-            chat_data["score"] = chat_data.get("score", 0) + 1
-        # Prepare feedback message
-        feedback_lines = []
-        if is_correct:
-            feedback_lines.append("✅ Correct!")
-        else:
-            feedback_lines.append("❌ Incorrect.")
-        # In learning mode, show explanation if correct
-        if mode == "learning" and "explanation" in question:
-            feedback_lines.append("------------------------------")
-            feedback_lines.append("<b>Explanation:</b>")
-            feedback_lines.append(f"*{question['explanation']}*")
-        # Reply to user
-        await update.message.reply_text(
-            "\n".join(feedback_lines),
-            parse_mode=ParseMode.HTML
-        )
-        # Advance to next question
-        chat_data["current_index"] = chat_data.get("current_index", 0) + 1
-        max_questions = len(chat_data.get("exam_questions", [])) if chat_data.get("mode", "learning") == "exam" else len(QUESTIONS)
-        if chat_data["current_index"] < max_questions:
-            await send_question(update.effective_chat.id, context)
-        else:
-            await send_score(update.effective_chat.id, context)
+    mode = user_data.get("mode", "learning")
+    if mode != "learning":
         return
+
+    index = user_data.get("current_index", 0)
+    if index >= len(QUESTIONS):
+        return
+
+    question = QUESTIONS[index]
+    correct_answer = question["answer_index"]
+    user_choice = poll_answer.option_ids[0]
+
+    if user_choice == correct_answer:
+        user_data["score"] = user_data.get("score", 0) + 1
+
+    user_data["current_index"] = index + 1
+
+    await send_question(user_id, context)
 
 async def next_handler(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
