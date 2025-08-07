@@ -3,7 +3,7 @@ import os
 import json
 
 from telegram import BotCommand, Poll
-from typing import Dict
+from typing import Dict, List, Optional
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, InputFile
 from telegram.constants import ParseMode
@@ -219,20 +219,35 @@ async def send_question(chat_id: int, context: CallbackContext) -> None:
         # Prepare the answer options
         options_en = q["options"]
         options_uk = q.get("options_uk", [])
-        poll_options = []
-        for opt_idx in range(len(options_en)):
-            if lang_mode == "bilingual" and options_uk:
-                poll_options.append(f"{options_en[opt_idx]} / {options_uk[opt_idx]}")
-            else:
-                poll_options.append(options_en[opt_idx])
-        # Prepare the explanation text if available
-        explanation_text = None
-        if q.get("explanation_en"):
-            if lang_mode == "bilingual":
-                explanation_uk = q.get("explanation_uk", "")
-                explanation_text = f"{q['explanation_en']} / {explanation_uk}" if explanation_uk else q['explanation_en']
-            else:
-                explanation_text = q['explanation_en']
+        poll_options: List[str] = []
+        # In bilingual mode, avoid concatenating English and Ukrainian options
+        # because Telegram limits each poll option to 100 characters. Use only
+        # English options here to stay within the limit.
+        if lang_mode == "bilingual":
+            # Use only English options; ensure each option does not exceed
+            # Telegram's 100-character limit by truncating when necessary.
+            for opt in options_en:
+                trimmed = opt
+                if len(trimmed) > 100:
+                    trimmed = trimmed[:97] + "..."
+                poll_options.append(trimmed)
+        else:
+            for opt_idx in range(len(options_en)):
+                # Use only English options; truncate if needed
+                opt = options_en[opt_idx]
+                if len(opt) > 100:
+                    opt = opt[:97] + "..."
+                poll_options.append(opt)
+        # Prepare the explanation text if available.  Telegram limits this
+        # field to 200 characters. If the explanation is too long or we're
+        # in bilingual mode, omit it here and consider sending it separately.
+        explanation_text: Optional[str] = None
+        if lang_mode != "bilingual" and q.get("explanation_en"):
+            exp_en = q["explanation_en"]
+            # Trim explanation to 200 characters to satisfy Telegram limits
+            if len(exp_en) > 200:
+                exp_en = exp_en[:197] + "..."
+            explanation_text = exp_en
         # Send the quiz poll; Poll.QUIZ requires Poll to be imported at the top
         poll_message = await context.bot.send_poll(
             chat_id=chat_id,
