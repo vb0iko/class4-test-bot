@@ -309,9 +309,12 @@ async def send_question(chat_id: int, context: CallbackContext) -> None:
 
 async def send_score(chat_id: int, context: CallbackContext) -> None:
     chat_data = context.chat_data
+    mode = chat_data.get("mode", "learning")
     score = chat_data.get("score", 0)
-    total = len(chat_data.get("exam_questions", [])) if chat_data.get("mode", "learning") == "exam" else len(QUESTIONS)
-    if chat_data.get("mode", "learning") == "exam":
+    lang = chat_data.get("lang_mode", "en")
+
+    if mode == "exam":
+        total = len(chat_data.get("exam_questions", []))
         passed = score >= 25
         result_en = "✅ You passed the exam!" if passed else "❌ You did not pass the exam."
         result_uk = "✅ Ви склали іспит!" if passed else "❌ Ви не склали іспит."
@@ -320,18 +323,47 @@ async def send_score(chat_id: int, context: CallbackContext) -> None:
             f"<b>🎉 You scored {score} out of {total}!</b>\n"
             f"{result_en}\n\n"
             f"<b>🇺🇦 Ви набрали {score} із {total} балів!</b>\n"
-            f"{result_uk}\n\n"
-            "Type /start to try again.\n"
-            "Наберіть /start, щоб спробувати ще раз."
+            f"{result_uk}"
         )
+        buttons = [
+            [InlineKeyboardButton("🔁 Start Exam Again", callback_data="mode_exam")],
+            [InlineKeyboardButton("🏠 Main Menu", callback_data="MAIN_MENU")],
+        ]
     else:
-        text = (
-            f"<b>🎉 You scored {score} out of {total}!</b>\n"
-            "Type /quiz to try again.<br/><br/>"
-            f"<b>🇺🇦 Ви набрали {score} із {total} балів!</b>\n"
-            "Наберіть /quiz, щоб спробувати ще раз."
-        )
-    await context.bot.send_message(chat_id=chat_id, text=text, parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔁 Start Again", callback_data="mode_exam"), InlineKeyboardButton("🏠 Main Menu", callback_data="main_menu")]]))
+        # Learning mode summary
+        total = len(QUESTIONS)
+        wrong = chat_data.get("wrong_count", 0)
+        correct = score
+
+        if lang == "bilingual":
+            text = (
+                f"<b>📚 Learning finished!</b>\n"
+                f"✅ Correct: <b>{correct}</b>\n❌ Fails: <b>{wrong}</b>\n"
+                f"— — — — — — — — — —\n"
+                f"<b>📚 Навчання завершено!</b>\n"
+                f"✅ Правильних: <b>{correct}</b>\n❌ Помилок: <b>{wrong}</b>"
+            )
+        else:
+            text = (
+                f"<b>📚 Learning finished!</b>\n"
+                f"✅ Correct: <b>{correct}</b>\n❌ Fails: <b>{wrong}</b>"
+            )
+
+        # Offer to restart learning or start exam, and main menu
+        buttons = [
+            [InlineKeyboardButton("🔁 Restart Learning", callback_data="mode_learning"),
+             InlineKeyboardButton("📝 Start Exam", callback_data="mode_exam")],
+            [InlineKeyboardButton("🏠 Main Menu", callback_data="MAIN_MENU")],
+        ]
+
+    await context.bot.send_message(
+        chat_id=chat_id,
+        text=text,
+        parse_mode=ParseMode.HTML,
+        reply_markup=InlineKeyboardMarkup(buttons),
+    )
+
+    # Clear state after summary is shown so next action starts fresh
     chat_data.clear()
 
 async def quiz_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
