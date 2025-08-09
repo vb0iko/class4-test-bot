@@ -1,6 +1,7 @@
 import logging
 import os
 import json
+import time
 
 from telegram import BotCommand
 from typing import Dict
@@ -108,13 +109,23 @@ LANG_OPTIONS = [
 ]
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    # Debounce flood: if we recently handled /start, ignore extra taps for a short time
-    now = context.application.timeouts.get("_now") if hasattr(context.application, "timeouts") else None
-    last = context.chat_data.get("last_start_ts")
-    if last and now and (now - last) < 2:
-        # We already showed the screen very recently; just ensure it exists and return
-        pass
-    context.chat_data["last_start_ts"] = now or 0
+    # Debounce flood: ignore extra taps for 2s
+    now = time.time()
+    last = context.chat_data.get("last_start_ts", 0)
+    if now - last < 2:
+        try:
+            await upsert_message(
+                update.effective_chat,
+                context,
+                "menu_message_id",
+                "Use the menu below to navigate.",
+                reply_markup=build_main_menu(),
+                parse_mode=None,
+            )
+        except Exception:
+            pass
+        return
+    context.chat_data["last_start_ts"] = now
 
     # Build language keyboard; add Resume if paused
     lang_options = [row[:] for row in LANG_OPTIONS]
@@ -211,8 +222,8 @@ async def handle_mode(update: Update, context: CallbackContext) -> None:
     try:
         await query.answer()
         await query.edit_message_reply_markup(reply_markup=None)
-    # Reset the debounce clock when mode is chosen
-    context.chat_data.pop("last_start_ts", None)
+        # Reset the debounce clock when mode is chosen
+        context.chat_data.pop("last_start_ts", None)
     except telegram.error.BadRequest as e:
         if "Query is too old" in str(e):
             logger.warning("Callback query too old; skipping answer.")
@@ -293,8 +304,6 @@ async def menu_continue(update: Update, context: CallbackContext):
 
 async def menu_restart(update: Update, context: CallbackContext):
     context.chat_data.clear()
-    # Clear start_message_id so the restart message is recreated once
-    context.chat_data.pop("start_message_id", None)
     await start(update, context)
 
 async def stop_command(update: Update, context: CallbackContext):
@@ -303,6 +312,14 @@ async def stop_command(update: Update, context: CallbackContext):
 
 async def menu_stop(update: Update, context: CallbackContext):
     await stop_command(update, context)
+
+async def pause_command(update: Update, context: CallbackContext) -> None:
+    context.chat_data["paused"] = True
+    context.chat_data["resume_question"] = context.chat_data.get("current_index", 0)
+    await update.message.reply_text(
+        "⏸ Test paused. Use ▶️ Continue in the menu.",
+        reply_markup=build_main_menu()
+    )
 
 async def menu_help(update: Update, context: CallbackContext):
     await update.message.reply_text(
@@ -373,9 +390,17 @@ async def send_question(chat_id: int, context: CallbackContext) -> None:
             return
         q = QUESTIONS[index]
 
-    total_questions = len(chat_data.get("exam_questions", [])) if mode == 'exam' else len(QUESTIONS)
-    fail_count = chat_data.get("current_index", 0) - chat_data.get("score", 0)
-    lines = [f"<i><b>Question {index + 1} of {total_questions} ({fail_count} Fails)</b></i>", ""]
+    if mode == "exam":
+        answered = len(chat_data.get("used_questions", []))
+        total_questions = len(chat_data.get("exam_questions", []))
+        question_no = answered if answered > 0 else 1
+        fail_count = max(0, answered - chat_data.get("score", 0))
+    else:
+        total_questions = len(QUESTIONS)
+        question_no = index + 1
+        fail_count = max(0, index - chat_data.get("score", 0))
+
+    lines = [f"<i><b>Question {question_no} of {total_questions} ({fail_count} Fails)</b></i>", ""]
 
     if lang_mode == "bilingual":
         lines.append(f"<b>🇬🇧 {q['question']}</b>")
@@ -773,10 +798,10 @@ def main() -> None:
     ).post_init(post_init).build()
 
     application.add_handler(CommandHandler("start", start))
-    application.add_handler(CommandHandler("pause", handle_pause))
+    application.add_handler(CommandHandler("pause", pause_command))
     application.add_handler(CommandHandler("stop", stop_command))
     application.add_handler(CallbackQueryHandler(next_handler, pattern="^(NEXT|CONTINUE|RESTART)$"))
-    application.add_handler(CallbackQueryHandler(answer_handler, pattern="^[ABCDSTOP]{1,4}$"))
+    application.add_handler(CallbackQueryHandler(answer_handler, pattern="^[ABCD]$"))
     application.add_handler(CallbackQueryHandler(handle_language, pattern="^lang_.*$"))
     application.add_handler(CallbackQueryHandler(handle_mode, pattern="^mode_.*$"))
     application.add_handler(CallbackQueryHandler(handle_pause, pattern="^mode_pause$"))
