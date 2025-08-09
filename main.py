@@ -111,6 +111,9 @@ BTN_RESTART  = "🔁 Restart"
 BTN_STOP     = "⛔ Stop"
 BTN_HELP     = "❓ Help"
 
+# Invisible placeholder text to carry the reply keyboard without cluttering chat
+MENU_PLACEHOLDER = "\u2063"  # zero-width non-joiner
+
 def build_main_menu() -> ReplyKeyboardMarkup:
     return ReplyKeyboardMarkup(
         [
@@ -154,7 +157,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                 update.effective_chat,
                 context,
                 "menu_message_id",
-                "Use the menu below to navigate.",
+                MENU_PLACEHOLDER,
                 reply_markup=build_main_menu(),
                 parse_mode=None,
             )
@@ -184,7 +187,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             update.effective_chat,
             context,
             "menu_message_id",
-            "Use the menu below to navigate.",
+            MENU_PLACEHOLDER,
             reply_markup=build_main_menu(),
             parse_mode=None,
         )
@@ -348,7 +351,7 @@ async def menu_learning(update: Update, context: CallbackContext):
                 update.effective_chat,
                 context,
                 "menu_message_id",
-                "Use the menu below to navigate.",
+                MENU_PLACEHOLDER,
                 reply_markup=build_main_menu(),
                 parse_mode=None,
             )
@@ -364,7 +367,7 @@ async def menu_exam(update: Update, context: CallbackContext):
                 update.effective_chat,
                 context,
                 "menu_message_id",
-                "Use the menu below to navigate.",
+                MENU_PLACEHOLDER,
                 reply_markup=build_main_menu(),
                 parse_mode=None,
             )
@@ -380,7 +383,7 @@ async def menu_continue(update: Update, context: CallbackContext):
                 update.effective_chat,
                 context,
                 "menu_message_id",
-                "Use the menu below to navigate.",
+                MENU_PLACEHOLDER,
                 reply_markup=build_main_menu(),
                 parse_mode=None,
             )
@@ -399,7 +402,7 @@ async def menu_restart(update: Update, context: CallbackContext):
                 update.effective_chat,
                 context,
                 "menu_message_id",
-                "Use the menu below to navigate.",
+                MENU_PLACEHOLDER,
                 reply_markup=build_main_menu(),
                 parse_mode=None,
             )
@@ -420,7 +423,7 @@ async def menu_stop(update: Update, context: CallbackContext):
                 update.effective_chat,
                 context,
                 "menu_message_id",
-                "Use the menu below to navigate.",
+                MENU_PLACEHOLDER,
                 reply_markup=build_main_menu(),
                 parse_mode=None,
             )
@@ -444,7 +447,7 @@ async def menu_help(update: Update, context: CallbackContext):
                 update.effective_chat,
                 context,
                 "menu_message_id",
-                "Use the menu below to navigate.",
+                MENU_PLACEHOLDER,
                 reply_markup=build_main_menu(),
                 parse_mode=None,
             )
