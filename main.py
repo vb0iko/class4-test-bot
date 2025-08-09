@@ -440,17 +440,6 @@ async def menu_restart(update: Update, context: CallbackContext):
             pass
         return
     clear_state(context)
-    try:
-        await upsert_message(
-            update.effective_chat,
-            context,
-            "menu_message_id",
-            MENU_PLACEHOLDER,
-            reply_markup=build_main_menu(),
-            parse_mode=None,
-        )
-    except Exception:
-        pass
     await start(update, context)
 
 async def stop_command(update: Update, context: CallbackContext):
