@@ -1,13 +1,11 @@
 import logging
 import os
 import json
-import time
 
 from telegram import BotCommand
 from typing import Dict
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, InputFile
-from telegram import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
 import difflib
 from telegram.constants import ParseMode
 from telegram.ext import (
@@ -18,7 +16,6 @@ from telegram.ext import (
     ContextTypes,
     Defaults,
 )
-from telegram.ext import MessageHandler, filters
 
 with open("questions.json", "r", encoding="utf-8") as f:
     QUESTIONS = json.load(f)
@@ -27,109 +24,7 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
 )
 
-
 logger = logging.getLogger(__name__)
-def clear_state(context: CallbackContext, preserve=("start_message_id", "menu_message_id", "last_start_ts")):
-    data = context.chat_data
-    keep = {k: data.get(k) for k in preserve if k in data}
-    data.clear()
-    data.update(keep)
-
-# --- Debounce helper to avoid multiple parallel actions from menu ---
-def is_debounced(context: CallbackContext, key: str = "action_lock_until", window: float = 2.0) -> bool:
-    """
-    Returns True if we should ignore this action because a recent one is still 'locked'.
-    Sets lock for `window` seconds on first pass.
-    """
-    now = time.time()
-    lock_until = context.chat_data.get(key, 0)
-    if now < lock_until:
-        return True
-    context.chat_data[key] = now + window
-    return False
-
-# --- Helper: Upsert message to avoid duplicates ---
-async def upsert_message(chat, context, message_id_key: str, text: str, reply_markup=None, parse_mode: str | None = ParseMode.HTML):
-    """Edit an existing message if we already sent it; otherwise send a new one.
-    This prevents duplicates when /start is tapped many times during lag.
-    Stores the message_id in chat_data under `message_id_key`.
-    """
-    chat_data = context.chat_data
-    mid = chat_data.get(message_id_key)
-    if mid:
-        try:
-            # Try to edit the existing message
-            await context.bot.edit_message_text(
-                chat_id=chat.id,
-                message_id=mid,
-                text=text,
-                reply_markup=reply_markup,
-                parse_mode=parse_mode,
-            )
-            return mid
-        except Exception:
-            # If edit fails (deleted/too old), fall back to sending a new one
-            pass
-    # Send a new message and remember its id
-    if parse_mode:
-        msg = await context.bot.send_message(chat_id=chat.id, text=text, reply_markup=reply_markup, parse_mode=parse_mode)
-    else:
-        msg = await context.bot.send_message(chat_id=chat.id, text=text, reply_markup=reply_markup)
-    # Try to delete the previous message if it existed and is different
-    if mid and mid != msg.message_id:
-        try:
-            await context.bot.delete_message(chat.id, mid)
-        except Exception:
-            pass
-    chat_data[message_id_key] = msg.message_id
-    return msg.message_id
-
-# --- Helper: remove inline keyboards from previous interactive messages ---
-async def remove_old_inline_keyboards(context: CallbackContext, chat_id: int, skip_message_id: int | None = None):
-    """
-    Remove inline keyboards from previously sent interactive messages to avoid many active keyboards.
-    Stores/reads message ids in chat_data['active_message_ids'].
-    """
-    ids = context.chat_data.get("active_message_ids", [])
-    if not isinstance(ids, list):
-        ids = []
-    for mid in ids:
-        if skip_message_id is not None and mid == skip_message_id:
-            continue
-        try:
-            await context.bot.edit_message_reply_markup(chat_id=chat_id, message_id=mid, reply_markup=None)
-        except Exception:
-            pass
-    # After cleaning, reset the tracked list
-    context.chat_data["active_message_ids"] = []
-
-# === Persistent Reply Keyboard (Main Menu) ===
-BTN_LEARNING = "🧠 Learning Mode"
-BTN_EXAM     = "📝 Exam Mode"
-BTN_CONTINUE = "▶️ Continue"
-BTN_RESTART  = "🔁 Restart"
-BTN_STOP     = "⛔ Stop"
-BTN_HELP     = "❓ Help"
-
-# Invisible placeholder text to carry the reply keyboard without cluttering chat
-MENU_PLACEHOLDER = "\u2063"  # zero-width non-joiner
-
-def build_main_menu() -> ReplyKeyboardMarkup:
-    return ReplyKeyboardMarkup(
-        [[KeyboardButton(BTN_RESTART)]],
-        resize_keyboard=True,
-        one_time_keyboard=False,
-        input_field_placeholder="Choose an action…",
-    )
-
-def build_running_menu() -> ReplyKeyboardMarkup:
-    """Reply keyboard shown while a test is running: only Restart button."""
-    return ReplyKeyboardMarkup(
-        [[KeyboardButton(BTN_RESTART)]],
-        resize_keyboard=True,
-        one_time_keyboard=False,
-        input_field_placeholder="Choose an action…",
-    )
 
 async def post_init(application):
     commands = [
@@ -154,37 +49,13 @@ LANG_OPTIONS = [
 ]
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    # Debounce flood: ignore extra taps for 2s
-    now = time.time()
-    last = context.chat_data.get("last_start_ts", 0)
-    if now - last < 2:
-        try:
-            await upsert_message(
-                update.effective_chat,
-                context,
-                "menu_message_id",
-                MENU_PLACEHOLDER,
-                reply_markup=build_main_menu(),
-                parse_mode=None,
-            )
-        except Exception:
-            pass
-        return
-    context.chat_data["last_start_ts"] = now
-
-    # Build language keyboard; add Resume if paused
-    lang_options = [row[:] for row in LANG_OPTIONS]
+    # If paused, add Continue button
+    lang_options = LANG_OPTIONS.copy()
     if context.chat_data.get("paused"):
         lang_options.append([InlineKeyboardButton("▶️ Continue", callback_data="RESUME_PAUSE")])
-
-    # Show/refresh one single start screen message (no duplicates)
-    await upsert_message(
-        update.effective_chat,
-        context,
-        "start_message_id",
+    await update.effective_chat.send_message(
         "Please choose your language / Будь ласка, оберіть мову:",
-        reply_markup=InlineKeyboardMarkup(lang_options),
-        parse_mode=ParseMode.HTML,
+        reply_markup=InlineKeyboardMarkup(lang_options)
     )
 async def handle_main_menu(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
@@ -197,7 +68,7 @@ async def handle_main_menu(update: Update, context: CallbackContext) -> None:
             return
         else:
             raise
-    clear_state(context)
+    context.chat_data.clear()
     await start(update, context)
 
 async def handle_language(update: Update, context: CallbackContext) -> None:
@@ -214,8 +85,6 @@ async def handle_language(update: Update, context: CallbackContext) -> None:
     context.chat_data["lang_mode"] = lang_mode
     context.chat_data["current_index"] = 0
     context.chat_data["score"] = 0
-    # Clear any duplicated state timestamps (debounce)
-    context.chat_data.pop("last_start_ts", None)
     # New logic for text assignment based on lang_mode
     if lang_mode == "bilingual":
         text = (
@@ -254,8 +123,6 @@ async def handle_mode(update: Update, context: CallbackContext) -> None:
     try:
         await query.answer()
         await query.edit_message_reply_markup(reply_markup=None)
-        # Reset the debounce clock when mode is chosen
-        context.chat_data.pop("last_start_ts", None)
     except telegram.error.BadRequest as e:
         if "Query is too old" in str(e):
             logger.warning("Callback query too old; skipping answer.")
@@ -265,7 +132,6 @@ async def handle_mode(update: Update, context: CallbackContext) -> None:
     context.chat_data["mode"] = mode
     context.chat_data["current_index"] = 0
     context.chat_data["score"] = 0
-    context.chat_data["answered"] = 0
     context.chat_data["paused"] = False
     # Reset used_questions only on new exam start
     if mode == "exam":
@@ -296,111 +162,8 @@ async def handle_mode(update: Update, context: CallbackContext) -> None:
                  "🧠 <b>Навчальний режим</b> – показує правильну відповідь і пояснення одразу після кожного питання. Усього 120 питань.",
             parse_mode=ParseMode.HTML
         )
+
     await send_question(query.message.chat.id, context)
-
-
-# --- Persistent Menu Handlers ---
-async def start_mode_from_menu(update: Update, context: CallbackContext, mode: str) -> None:
-    if is_debounced(context):
-        return
-    # Ensure a language default exists
-    if "lang_mode" not in context.chat_data:
-        context.chat_data["lang_mode"] = "en"
-    context.chat_data["mode"] = mode
-    context.chat_data["current_index"] = 0
-    context.chat_data["score"] = 0
-    context.chat_data["answered"] = 0
-    context.chat_data["paused"] = False
-
-    if mode == "exam":
-        import random
-        if len(QUESTIONS) < 30:
-            await update.message.reply_text("❌ Not enough questions to start the exam.", reply_markup=build_main_menu())
-            return
-        context.chat_data["exam_questions"] = random.sample(range(len(QUESTIONS)), 30)
-        context.chat_data["used_questions"] = []
-    else:
-        context.chat_data["exam_questions"] = []
-        context.chat_data["used_questions"] = []
-
-    await send_question(update.effective_chat.id, context)
-
-async def menu_learning(update: Update, context: CallbackContext):
-    if is_debounced(context):
-        return
-    await start_mode_from_menu(update, context, "learning")
-
-async def menu_exam(update: Update, context: CallbackContext):
-    if is_debounced(context):
-        return
-    await start_mode_from_menu(update, context, "exam")
-
-async def menu_continue(update: Update, context: CallbackContext):
-    if is_debounced(context):
-        return
-    if "mode" not in context.chat_data:
-        await update.message.reply_text("No active session. Choose a mode first.", reply_markup=build_main_menu())
-        return
-    await send_question(update.effective_chat.id, context)
-
-async def menu_restart(update: Update, context: CallbackContext):
-    if is_debounced(context):
-        return
-    clear_state(context)
-    await start(update, context)
-
-async def stop_command(update: Update, context: CallbackContext):
-    clear_state(context)
-    await update.message.reply_text("⛔ Test stopped. Use /start to begin again.", reply_markup=build_main_menu())
-
-async def menu_stop(update: Update, context: CallbackContext):
-    if is_debounced(context):
-        return
-    await stop_command(update, context)
-
-async def pause_command(update: Update, context: CallbackContext) -> None:
-    context.chat_data["paused"] = True
-    context.chat_data["resume_question"] = context.chat_data.get("current_index", 0)
-    await update.message.reply_text(
-        "⏸ Test paused. Use ▶️ Continue in the menu.",
-        reply_markup=build_main_menu()
-    )
-
-async def menu_help(update: Update, context: CallbackContext):
-    if is_debounced(context):
-        return
-    await update.message.reply_text(
-        f"• *Learning Mode*: answers + explanations, 120 questions in order. Type a number (1–{len(QUESTIONS)}) to jump to that question.\n"
-        "• *Exam Mode*: 30 random questions, no hints, pass with ≤5 errors.\n"
-        "• *Continue*: resume current session.\n"
-        "• *Restart*: reset and go to start screen.\n"
-        "• *Stop*: end the current session.",
-        parse_mode=ParseMode.MARKDOWN,
-        reply_markup=build_main_menu(),
-    )
-
-# --- Numeric jump to question in Learning Mode ---
-async def jump_to_number(update: Update, context: CallbackContext):
-    """Allow jumping to a specific question number in learning mode by typing a number."""
-    if not update.message or not update.message.text:
-        return
-    text = update.message.text.strip()
-    if not text.isdigit():
-        return
-    # Only in learning mode
-    if context.chat_data.get("mode") != "learning":
-        return
-    n = int(text)
-    total = len(QUESTIONS)
-    if n < 1 or n > total:
-        await update.message.reply_text(
-            f"Enter a number from 1 to {total} to jump to a question in Learning Mode.",
-            reply_markup=build_main_menu(),
-        )
-        return
-    # Set index (0-based) and send that question
-    context.chat_data["current_index"] = n - 1
-    await send_question(update.effective_chat.id, context)
 
 def build_option_keyboard() -> InlineKeyboardMarkup:
     # Buttons show plain letters; labels in question text are bolded
@@ -409,9 +172,8 @@ def build_option_keyboard() -> InlineKeyboardMarkup:
             InlineKeyboardButton("A", callback_data="A"),
             InlineKeyboardButton("B", callback_data="B"),
             InlineKeyboardButton("C", callback_data="C"),
-            InlineKeyboardButton("D", callback_data="D"),
-        ],
-        [InlineKeyboardButton("🔁 Restart", callback_data="RESTART")],
+            InlineKeyboardButton("D", callback_data="D")
+        ]
     ])
 
 
@@ -461,18 +223,9 @@ async def send_question(chat_id: int, context: CallbackContext) -> None:
             return
         q = QUESTIONS[index]
 
-    if mode == "exam":
-        answered = len(chat_data.get("used_questions", []))
-        total_questions = len(chat_data.get("exam_questions", []))
-        question_no = answered if answered > 0 else 1
-        fail_count = max(0, answered - chat_data.get("score", 0))
-    else:
-        total_questions = len(QUESTIONS)
-        question_no = index + 1
-        answered = chat_data.get("answered", 0)
-        fail_count = max(0, answered - chat_data.get("score", 0))
-
-    lines = [f"<i><b>Question {question_no} of {total_questions} ({fail_count} Fails)</b></i>", ""]
+    total_questions = len(chat_data.get("exam_questions", [])) if mode == 'exam' else len(QUESTIONS)
+    fail_count = chat_data.get("current_index", 0) - chat_data.get("score", 0)
+    lines = [f"<i><b>Question {index + 1} of {total_questions} ({fail_count} Fails)</b></i>", ""]
 
     if lang_mode == "bilingual":
         lines.append(f"<b>🇬🇧 {q['question']}</b>")
@@ -507,12 +260,6 @@ async def send_question(chat_id: int, context: CallbackContext) -> None:
 
     text = "\n".join(lines)
 
-    # Before sending a new question with buttons, remove keyboards from older ones
-    try:
-        await remove_old_inline_keyboards(context, chat_id)
-    except Exception:
-        pass
-
     keyboard = build_option_keyboard()
     if image_filename:
         with open(image_filename, "rb") as photo:
@@ -524,8 +271,6 @@ async def send_question(chat_id: int, context: CallbackContext) -> None:
                 reply_markup=keyboard
             )
         context.chat_data["last_message_id"] = msg.message_id
-        # Track as active (has inline keyboard)
-        context.chat_data["active_message_ids"] = [msg.message_id]
     else:
         msg = await context.bot.send_message(
             chat_id=chat_id,
@@ -534,8 +279,6 @@ async def send_question(chat_id: int, context: CallbackContext) -> None:
             reply_markup=keyboard
         )
         context.chat_data["last_message_id"] = msg.message_id
-        # Track as active (has inline keyboard)
-        context.chat_data["active_message_ids"] = [msg.message_id]
 
 async def send_score(chat_id: int, context: CallbackContext) -> None:
     chat_data = context.chat_data
@@ -566,7 +309,7 @@ async def send_score(chat_id: int, context: CallbackContext) -> None:
 
 async def quiz_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     # Reset state and behave exactly like /start
-    clear_state(context)
+    context.chat_data.clear()
     await start(update, context)
 
 async def answer_handler(update: Update, context: CallbackContext) -> None:
@@ -636,8 +379,6 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
             is_correct = selected_index == correct_index
             if is_correct:
                 chat_data["score"] = chat_data.get("score", 0) + 1
-            if mode == "learning":
-                chat_data["answered"] = chat_data.get("answered", 0) + 1
             option_labels = ["A", "B", "C", "D"]
             options_en = question["options"]
             options_uk = question.get("options_uk", [])
@@ -655,10 +396,7 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
                 else:
                     options_text.append(f"       {option_letter}. {line}")
             total_questions = 30 if mode == 'exam' else len(QUESTIONS)
-            if mode == "exam":
-                fail_count = current_index + 1 - chat_data.get("score", 0)
-            else:
-                fail_count = max(0, chat_data.get("answered", 0) - chat_data.get("score", 0))
+            fail_count = current_index + 1 - chat_data.get("score", 0)
             # --- Insert fail fast logic for exam mode ---
             if mode == "exam" and fail_count >= 6:
                 text = (
@@ -717,8 +455,6 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
                             reply_markup=None
                         )
                     context.chat_data["last_message_id"] = query.message.message_id
-                    # No more inline keyboard on this message
-                    context.chat_data["active_message_ids"] = []
                 except Exception as e:
                     logger.warning(f"Failed to edit photo, fallback to delete/send: {e}")
                     if query.message:
@@ -732,8 +468,6 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
                             reply_markup=None
                         )
                     context.chat_data["last_message_id"] = msg.message_id
-                    # No more inline keyboard on this message
-                    context.chat_data["active_message_ids"] = []
             else:
                 if query.message and query.message.text:
                     msg = await query.edit_message_text(
@@ -742,7 +476,6 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
                         parse_mode=ParseMode.HTML
                     )
                     context.chat_data["last_message_id"] = msg.message_id
-                    context.chat_data["active_message_ids"] = []
             # Automatically proceed to next question after showing result
             import asyncio
             await asyncio.sleep(1.0)
@@ -814,8 +547,6 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
         is_correct = selected_index == correct_index
         if is_correct:
             chat_data["score"] = chat_data.get("score", 0) + 1
-        if mode == "learning":
-            chat_data["answered"] = chat_data.get("answered", 0) + 1
         # Prepare feedback message
         feedback_lines = []
         if is_correct:
@@ -892,26 +623,14 @@ def main() -> None:
     ).post_init(post_init).build()
 
     application.add_handler(CommandHandler("start", start))
-    application.add_handler(CommandHandler("pause", pause_command))
-    application.add_handler(CommandHandler("stop", stop_command))
+    application.add_handler(CommandHandler("pause", handle_pause))
     application.add_handler(CallbackQueryHandler(next_handler, pattern="^(NEXT|CONTINUE|RESTART)$"))
-    application.add_handler(CallbackQueryHandler(answer_handler, pattern="^[ABCD]$"))
+    application.add_handler(CallbackQueryHandler(answer_handler, pattern="^[ABCDSTOP]{1,4}$"))
     application.add_handler(CallbackQueryHandler(handle_language, pattern="^lang_.*$"))
     application.add_handler(CallbackQueryHandler(handle_mode, pattern="^mode_.*$"))
     application.add_handler(CallbackQueryHandler(handle_pause, pattern="^mode_pause$"))
     application.add_handler(CallbackQueryHandler(handle_resume_pause, pattern="^RESUME_PAUSE$"))
     application.add_handler(CallbackQueryHandler(handle_main_menu, pattern="^MAIN_MENU$"))
-
-    # Persistent menu reply keyboard handlers
-    application.add_handler(MessageHandler(filters.TEXT & filters.Regex(f"^{BTN_LEARNING}$"), menu_learning))
-    application.add_handler(MessageHandler(filters.TEXT & filters.Regex(f"^{BTN_EXAM}$"),     menu_exam))
-    application.add_handler(MessageHandler(filters.TEXT & filters.Regex(f"^{BTN_CONTINUE}$"), menu_continue))
-    application.add_handler(MessageHandler(filters.TEXT & filters.Regex(f"^{BTN_RESTART}$"),  menu_restart))
-    application.add_handler(MessageHandler(filters.TEXT & filters.Regex(f"^{BTN_STOP}$"),     menu_stop))
-    application.add_handler(MessageHandler(filters.TEXT & filters.Regex(f"^{BTN_HELP}$"),     menu_help))
-
-    # Numeric jump in Learning Mode
-    application.add_handler(MessageHandler(filters.TEXT & filters.Regex(r"^\d{1,3}$"), jump_to_number))
 
     port = int(os.environ.get("PORT", 10000))
     render_url = os.environ.get("RENDER_EXTERNAL_URL")
