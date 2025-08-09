@@ -536,6 +536,15 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
             n = int(user_msg)
             total = len(QUESTIONS)
             if 1 <= n <= total:
+                # When jumping, remove the previous question message so there aren't two active messages
+                last_id = chat_data.get("last_message_id")
+                if last_id:
+                    try:
+                        await context.bot.delete_message(chat_id=update.effective_chat.id, message_id=last_id)
+                    except Exception as _:
+                        # If deletion fails (already gone/edited), ignore
+                        pass
+                    chat_data.pop("last_message_id", None)
                 chat_data["current_index"] = n - 1
                 await send_question(update.effective_chat.id, context)
             else:
