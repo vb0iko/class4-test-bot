@@ -29,6 +29,11 @@ logging.basicConfig(
 
 
 logger = logging.getLogger(__name__)
+def clear_state(context: CallbackContext, preserve=("start_message_id", "menu_message_id", "last_start_ts")):
+    data = context.chat_data
+    keep = {k: data.get(k) for k in preserve if k in data}
+    data.clear()
+    data.update(keep)
 
 # --- Helper: Upsert message to avoid duplicates ---
 async def upsert_message(chat, context, message_id_key: str, text: str, reply_markup=None, parse_mode: str | None = ParseMode.HTML):
@@ -165,7 +170,7 @@ async def handle_main_menu(update: Update, context: CallbackContext) -> None:
             return
         else:
             raise
-    context.chat_data.clear()
+    clear_state(context)
     await start(update, context)
 
 async def handle_language(update: Update, context: CallbackContext) -> None:
@@ -303,11 +308,11 @@ async def menu_continue(update: Update, context: CallbackContext):
     await send_question(update.effective_chat.id, context)
 
 async def menu_restart(update: Update, context: CallbackContext):
-    context.chat_data.clear()
+    clear_state(context)
     await start(update, context)
 
 async def stop_command(update: Update, context: CallbackContext):
-    context.chat_data.clear()
+    clear_state(context)
     await update.message.reply_text("⛔ Test stopped. Use /start to begin again.", reply_markup=build_main_menu())
 
 async def menu_stop(update: Update, context: CallbackContext):
@@ -323,7 +328,7 @@ async def pause_command(update: Update, context: CallbackContext) -> None:
 
 async def menu_help(update: Update, context: CallbackContext):
     await update.message.reply_text(
-        "• *Learning Mode*: answers + explanations, 120 questions in order.\n"
+        "• *Learning Mode*: answers + explanations, 120 questions in order. Type a number (1–{len(QUESTIONS)}) to jump to that question.\n"
         "• *Exam Mode*: 30 random questions, no hints, pass with ≤5 errors.\n"
         "• *Continue*: resume current session.\n"
         "• *Restart*: reset and go to start screen.\n"
@@ -331,6 +336,29 @@ async def menu_help(update: Update, context: CallbackContext):
         parse_mode=ParseMode.MARKDOWN,
         reply_markup=build_main_menu(),
     )
+
+# --- Numeric jump to question in Learning Mode ---
+async def jump_to_number(update: Update, context: CallbackContext):
+    """Allow jumping to a specific question number in learning mode by typing a number."""
+    if not update.message or not update.message.text:
+        return
+    text = update.message.text.strip()
+    if not text.isdigit():
+        return
+    # Only in learning mode
+    if context.chat_data.get("mode") != "learning":
+        return
+    n = int(text)
+    total = len(QUESTIONS)
+    if n < 1 or n > total:
+        await update.message.reply_text(
+            f"Enter a number from 1 to {total} to jump to a question in Learning Mode.",
+            reply_markup=build_main_menu(),
+        )
+        return
+    # Set index (0-based) and send that question
+    context.chat_data["current_index"] = n - 1
+    await send_question(update.effective_chat.id, context)
 
 def build_option_keyboard() -> InlineKeyboardMarkup:
     # Buttons show plain letters; labels in question text are bolded
@@ -484,7 +512,7 @@ async def send_score(chat_id: int, context: CallbackContext) -> None:
 
 async def quiz_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     # Reset state and behave exactly like /start
-    context.chat_data.clear()
+    clear_state(context)
     await start(update, context)
 
 async def answer_handler(update: Update, context: CallbackContext) -> None:
@@ -815,6 +843,9 @@ def main() -> None:
     application.add_handler(MessageHandler(filters.TEXT & filters.Regex(f"^{BTN_RESTART}$"),  menu_restart))
     application.add_handler(MessageHandler(filters.TEXT & filters.Regex(f"^{BTN_STOP}$"),     menu_stop))
     application.add_handler(MessageHandler(filters.TEXT & filters.Regex(f"^{BTN_HELP}$"),     menu_help))
+
+    # Numeric jump in Learning Mode
+    application.add_handler(MessageHandler(filters.TEXT & filters.Regex(r"^\d{1,3}$"), jump_to_number))
 
     port = int(os.environ.get("PORT", 10000))
     render_url = os.environ.get("RENDER_EXTERNAL_URL")
