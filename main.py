@@ -35,6 +35,19 @@ def clear_state(context: CallbackContext, preserve=("start_message_id", "menu_me
     data.clear()
     data.update(keep)
 
+# --- Debounce helper to avoid multiple parallel actions from menu ---
+def is_debounced(context: CallbackContext, key: str = "action_lock_until", window: float = 2.0) -> bool:
+    """
+    Returns True if we should ignore this action because a recent one is still 'locked'.
+    Sets lock for `window` seconds on first pass.
+    """
+    now = time.time()
+    lock_until = context.chat_data.get(key, 0)
+    if now < lock_until:
+        return True
+    context.chat_data[key] = now + window
+    return False
+
 # --- Helper: Upsert message to avoid duplicates ---
 async def upsert_message(chat, context, message_id_key: str, text: str, reply_markup=None, parse_mode: str | None = ParseMode.HTML):
     """Edit an existing message if we already sent it; otherwise send a new one.
@@ -71,6 +84,25 @@ async def upsert_message(chat, context, message_id_key: str, text: str, reply_ma
     chat_data[message_id_key] = msg.message_id
     return msg.message_id
 
+# --- Helper: remove inline keyboards from previous interactive messages ---
+async def remove_old_inline_keyboards(context: CallbackContext, chat_id: int, skip_message_id: int | None = None):
+    """
+    Remove inline keyboards from previously sent interactive messages to avoid many active keyboards.
+    Stores/reads message ids in chat_data['active_message_ids'].
+    """
+    ids = context.chat_data.get("active_message_ids", [])
+    if not isinstance(ids, list):
+        ids = []
+    for mid in ids:
+        if skip_message_id is not None and mid == skip_message_id:
+            continue
+        try:
+            await context.bot.edit_message_reply_markup(chat_id=chat_id, message_id=mid, reply_markup=None)
+        except Exception:
+            pass
+    # After cleaning, reset the tracked list
+    context.chat_data["active_message_ids"] = []
+
 # === Persistent Reply Keyboard (Main Menu) ===
 BTN_LEARNING = "🧠 Learning Mode"
 BTN_EXAM     = "📝 Exam Mode"
@@ -83,8 +115,7 @@ def build_main_menu() -> ReplyKeyboardMarkup:
     return ReplyKeyboardMarkup(
         [
             [KeyboardButton(BTN_LEARNING), KeyboardButton(BTN_EXAM)],
-            [KeyboardButton(BTN_CONTINUE), KeyboardButton(BTN_RESTART)],
-            [KeyboardButton(BTN_STOP),     KeyboardButton(BTN_HELP)],
+            [KeyboardButton(BTN_RESTART)],
         ],
         resize_keyboard=True,
         one_time_keyboard=False,
@@ -238,6 +269,7 @@ async def handle_mode(update: Update, context: CallbackContext) -> None:
     context.chat_data["mode"] = mode
     context.chat_data["current_index"] = 0
     context.chat_data["score"] = 0
+    context.chat_data["answered"] = 0
     context.chat_data["paused"] = False
     # Reset used_questions only on new exam start
     if mode == "exam":
@@ -274,12 +306,26 @@ async def handle_mode(update: Update, context: CallbackContext) -> None:
 
 # --- Persistent Menu Handlers ---
 async def start_mode_from_menu(update: Update, context: CallbackContext, mode: str) -> None:
+    if is_debounced(context):
+        try:
+            await upsert_message(
+                update.effective_chat,
+                context,
+                "menu_message_id",
+                "Use the menu below to navigate.",
+                reply_markup=build_main_menu(),
+                parse_mode=None,
+            )
+        except Exception:
+            pass
+        return
     # Ensure a language default exists
     if "lang_mode" not in context.chat_data:
         context.chat_data["lang_mode"] = "en"
     context.chat_data["mode"] = mode
     context.chat_data["current_index"] = 0
     context.chat_data["score"] = 0
+    context.chat_data["answered"] = 0
     context.chat_data["paused"] = False
 
     if mode == "exam":
@@ -296,18 +342,70 @@ async def start_mode_from_menu(update: Update, context: CallbackContext, mode: s
     await send_question(update.effective_chat.id, context)
 
 async def menu_learning(update: Update, context: CallbackContext):
+    if is_debounced(context):
+        try:
+            await upsert_message(
+                update.effective_chat,
+                context,
+                "menu_message_id",
+                "Use the menu below to navigate.",
+                reply_markup=build_main_menu(),
+                parse_mode=None,
+            )
+        except Exception:
+            pass
+        return
     await start_mode_from_menu(update, context, "learning")
 
 async def menu_exam(update: Update, context: CallbackContext):
+    if is_debounced(context):
+        try:
+            await upsert_message(
+                update.effective_chat,
+                context,
+                "menu_message_id",
+                "Use the menu below to navigate.",
+                reply_markup=build_main_menu(),
+                parse_mode=None,
+            )
+        except Exception:
+            pass
+        return
     await start_mode_from_menu(update, context, "exam")
 
 async def menu_continue(update: Update, context: CallbackContext):
+    if is_debounced(context):
+        try:
+            await upsert_message(
+                update.effective_chat,
+                context,
+                "menu_message_id",
+                "Use the menu below to navigate.",
+                reply_markup=build_main_menu(),
+                parse_mode=None,
+            )
+        except Exception:
+            pass
+        return
     if "mode" not in context.chat_data:
         await update.message.reply_text("No active session. Choose a mode first.", reply_markup=build_main_menu())
         return
     await send_question(update.effective_chat.id, context)
 
 async def menu_restart(update: Update, context: CallbackContext):
+    if is_debounced(context):
+        try:
+            await upsert_message(
+                update.effective_chat,
+                context,
+                "menu_message_id",
+                "Use the menu below to navigate.",
+                reply_markup=build_main_menu(),
+                parse_mode=None,
+            )
+        except Exception:
+            pass
+        return
     clear_state(context)
     await start(update, context)
 
@@ -316,6 +414,19 @@ async def stop_command(update: Update, context: CallbackContext):
     await update.message.reply_text("⛔ Test stopped. Use /start to begin again.", reply_markup=build_main_menu())
 
 async def menu_stop(update: Update, context: CallbackContext):
+    if is_debounced(context):
+        try:
+            await upsert_message(
+                update.effective_chat,
+                context,
+                "menu_message_id",
+                "Use the menu below to navigate.",
+                reply_markup=build_main_menu(),
+                parse_mode=None,
+            )
+        except Exception:
+            pass
+        return
     await stop_command(update, context)
 
 async def pause_command(update: Update, context: CallbackContext) -> None:
@@ -327,8 +438,21 @@ async def pause_command(update: Update, context: CallbackContext) -> None:
     )
 
 async def menu_help(update: Update, context: CallbackContext):
+    if is_debounced(context):
+        try:
+            await upsert_message(
+                update.effective_chat,
+                context,
+                "menu_message_id",
+                "Use the menu below to navigate.",
+                reply_markup=build_main_menu(),
+                parse_mode=None,
+            )
+        except Exception:
+            pass
+        return
     await update.message.reply_text(
-        "• *Learning Mode*: answers + explanations, 120 questions in order. Type a number (1–{len(QUESTIONS)}) to jump to that question.\n"
+        f"• *Learning Mode*: answers + explanations, 120 questions in order. Type a number (1–{len(QUESTIONS)}) to jump to that question.\n"
         "• *Exam Mode*: 30 random questions, no hints, pass with ≤5 errors.\n"
         "• *Continue*: resume current session.\n"
         "• *Restart*: reset and go to start screen.\n"
@@ -426,7 +550,8 @@ async def send_question(chat_id: int, context: CallbackContext) -> None:
     else:
         total_questions = len(QUESTIONS)
         question_no = index + 1
-        fail_count = max(0, index - chat_data.get("score", 0))
+        answered = chat_data.get("answered", 0)
+        fail_count = max(0, answered - chat_data.get("score", 0))
 
     lines = [f"<i><b>Question {question_no} of {total_questions} ({fail_count} Fails)</b></i>", ""]
 
@@ -463,6 +588,12 @@ async def send_question(chat_id: int, context: CallbackContext) -> None:
 
     text = "\n".join(lines)
 
+    # Before sending a new question with buttons, remove keyboards from older ones
+    try:
+        await remove_old_inline_keyboards(context, chat_id)
+    except Exception:
+        pass
+
     keyboard = build_option_keyboard()
     if image_filename:
         with open(image_filename, "rb") as photo:
@@ -474,6 +605,8 @@ async def send_question(chat_id: int, context: CallbackContext) -> None:
                 reply_markup=keyboard
             )
         context.chat_data["last_message_id"] = msg.message_id
+        # Track as active (has inline keyboard)
+        context.chat_data["active_message_ids"] = [msg.message_id]
     else:
         msg = await context.bot.send_message(
             chat_id=chat_id,
@@ -482,6 +615,8 @@ async def send_question(chat_id: int, context: CallbackContext) -> None:
             reply_markup=keyboard
         )
         context.chat_data["last_message_id"] = msg.message_id
+        # Track as active (has inline keyboard)
+        context.chat_data["active_message_ids"] = [msg.message_id]
 
 async def send_score(chat_id: int, context: CallbackContext) -> None:
     chat_data = context.chat_data
@@ -582,6 +717,8 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
             is_correct = selected_index == correct_index
             if is_correct:
                 chat_data["score"] = chat_data.get("score", 0) + 1
+            if mode == "learning":
+                chat_data["answered"] = chat_data.get("answered", 0) + 1
             option_labels = ["A", "B", "C", "D"]
             options_en = question["options"]
             options_uk = question.get("options_uk", [])
@@ -599,7 +736,10 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
                 else:
                     options_text.append(f"       {option_letter}. {line}")
             total_questions = 30 if mode == 'exam' else len(QUESTIONS)
-            fail_count = current_index + 1 - chat_data.get("score", 0)
+            if mode == "exam":
+                fail_count = current_index + 1 - chat_data.get("score", 0)
+            else:
+                fail_count = max(0, chat_data.get("answered", 0) - chat_data.get("score", 0))
             # --- Insert fail fast logic for exam mode ---
             if mode == "exam" and fail_count >= 6:
                 text = (
@@ -658,6 +798,8 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
                             reply_markup=None
                         )
                     context.chat_data["last_message_id"] = query.message.message_id
+                    # No more inline keyboard on this message
+                    context.chat_data["active_message_ids"] = []
                 except Exception as e:
                     logger.warning(f"Failed to edit photo, fallback to delete/send: {e}")
                     if query.message:
@@ -671,6 +813,8 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
                             reply_markup=None
                         )
                     context.chat_data["last_message_id"] = msg.message_id
+                    # No more inline keyboard on this message
+                    context.chat_data["active_message_ids"] = []
             else:
                 if query.message and query.message.text:
                     msg = await query.edit_message_text(
@@ -679,6 +823,7 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
                         parse_mode=ParseMode.HTML
                     )
                     context.chat_data["last_message_id"] = msg.message_id
+                    context.chat_data["active_message_ids"] = []
             # Automatically proceed to next question after showing result
             import asyncio
             await asyncio.sleep(1.0)
@@ -750,6 +895,8 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
         is_correct = selected_index == correct_index
         if is_correct:
             chat_data["score"] = chat_data.get("score", 0) + 1
+        if mode == "learning":
+            chat_data["answered"] = chat_data.get("answered", 0) + 1
         # Prepare feedback message
         feedback_lines = []
         if is_correct:
