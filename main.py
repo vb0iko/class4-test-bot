@@ -6,6 +6,7 @@ from telegram import BotCommand
 from typing import Dict
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, InputFile
+from telegram import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
 import difflib
 from telegram.constants import ParseMode
 from telegram.ext import (
@@ -16,6 +17,7 @@ from telegram.ext import (
     ContextTypes,
     Defaults,
 )
+from telegram.ext import MessageHandler, filters
 
 with open("questions.json", "r", encoding="utf-8") as f:
     QUESTIONS = json.load(f)
@@ -24,7 +26,64 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
 )
 
+
 logger = logging.getLogger(__name__)
+
+# --- Helper: Upsert message to avoid duplicates ---
+async def upsert_message(chat, context, message_id_key: str, text: str, reply_markup=None, parse_mode: str | None = ParseMode.HTML):
+    """Edit an existing message if we already sent it; otherwise send a new one.
+    This prevents duplicates when /start is tapped many times during lag.
+    Stores the message_id in chat_data under `message_id_key`.
+    """
+    chat_data = context.chat_data
+    mid = chat_data.get(message_id_key)
+    if mid:
+        try:
+            # Try to edit the existing message
+            await context.bot.edit_message_text(
+                chat_id=chat.id,
+                message_id=mid,
+                text=text,
+                reply_markup=reply_markup,
+                parse_mode=parse_mode,
+            )
+            return mid
+        except Exception:
+            # If edit fails (deleted/too old), fall back to sending a new one
+            pass
+    # Send a new message and remember its id
+    if parse_mode:
+        msg = await context.bot.send_message(chat_id=chat.id, text=text, reply_markup=reply_markup, parse_mode=parse_mode)
+    else:
+        msg = await context.bot.send_message(chat_id=chat.id, text=text, reply_markup=reply_markup)
+    # Try to delete the previous message if it existed and is different
+    if mid and mid != msg.message_id:
+        try:
+            await context.bot.delete_message(chat.id, mid)
+        except Exception:
+            pass
+    chat_data[message_id_key] = msg.message_id
+    return msg.message_id
+
+# === Persistent Reply Keyboard (Main Menu) ===
+BTN_LEARNING = "🧠 Learning Mode"
+BTN_EXAM     = "📝 Exam Mode"
+BTN_CONTINUE = "▶️ Continue"
+BTN_RESTART  = "🔁 Restart"
+BTN_STOP     = "⛔ Stop"
+BTN_HELP     = "❓ Help"
+
+def build_main_menu() -> ReplyKeyboardMarkup:
+    return ReplyKeyboardMarkup(
+        [
+            [KeyboardButton(BTN_LEARNING), KeyboardButton(BTN_EXAM)],
+            [KeyboardButton(BTN_CONTINUE), KeyboardButton(BTN_RESTART)],
+            [KeyboardButton(BTN_STOP),     KeyboardButton(BTN_HELP)],
+        ],
+        resize_keyboard=True,
+        one_time_keyboard=False,
+        input_field_placeholder="Choose an action…",
+    )
 
 async def post_init(application):
     commands = [
@@ -49,14 +108,41 @@ LANG_OPTIONS = [
 ]
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    # If paused, add Continue button
-    lang_options = LANG_OPTIONS.copy()
+    # Debounce flood: if we recently handled /start, ignore extra taps for a short time
+    now = context.application.timeouts.get("_now") if hasattr(context.application, "timeouts") else None
+    last = context.chat_data.get("last_start_ts")
+    if last and now and (now - last) < 2:
+        # We already showed the screen very recently; just ensure it exists and return
+        pass
+    context.chat_data["last_start_ts"] = now or 0
+
+    # Build language keyboard; add Resume if paused
+    lang_options = [row[:] for row in LANG_OPTIONS]
     if context.chat_data.get("paused"):
         lang_options.append([InlineKeyboardButton("▶️ Continue", callback_data="RESUME_PAUSE")])
-    await update.effective_chat.send_message(
+
+    # Show/refresh one single start screen message (no duplicates)
+    await upsert_message(
+        update.effective_chat,
+        context,
+        "start_message_id",
         "Please choose your language / Будь ласка, оберіть мову:",
-        reply_markup=InlineKeyboardMarkup(lang_options)
+        reply_markup=InlineKeyboardMarkup(lang_options),
+        parse_mode=ParseMode.HTML,
     )
+
+    # Show/refresh the persistent main menu keyboard via a single message too
+    try:
+        await upsert_message(
+            update.effective_chat,
+            context,
+            "menu_message_id",
+            "Use the menu below to navigate.",
+            reply_markup=build_main_menu(),
+            parse_mode=None,
+        )
+    except Exception as e:
+        logger.warning(f"Failed to show main menu keyboard: {e}")
 async def handle_main_menu(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
     import telegram.error
@@ -85,6 +171,8 @@ async def handle_language(update: Update, context: CallbackContext) -> None:
     context.chat_data["lang_mode"] = lang_mode
     context.chat_data["current_index"] = 0
     context.chat_data["score"] = 0
+    # Clear any duplicated state timestamps (debounce)
+    context.chat_data.pop("last_start_ts", None)
     # New logic for text assignment based on lang_mode
     if lang_mode == "bilingual":
         text = (
@@ -123,6 +211,8 @@ async def handle_mode(update: Update, context: CallbackContext) -> None:
     try:
         await query.answer()
         await query.edit_message_reply_markup(reply_markup=None)
+    # Reset the debounce clock when mode is chosen
+    context.chat_data.pop("last_start_ts", None)
     except telegram.error.BadRequest as e:
         if "Query is too old" in str(e):
             logger.warning("Callback query too old; skipping answer.")
@@ -164,6 +254,66 @@ async def handle_mode(update: Update, context: CallbackContext) -> None:
         )
 
     await send_question(query.message.chat.id, context)
+
+
+# --- Persistent Menu Handlers ---
+async def start_mode_from_menu(update: Update, context: CallbackContext, mode: str) -> None:
+    # Ensure a language default exists
+    if "lang_mode" not in context.chat_data:
+        context.chat_data["lang_mode"] = "en"
+    context.chat_data["mode"] = mode
+    context.chat_data["current_index"] = 0
+    context.chat_data["score"] = 0
+    context.chat_data["paused"] = False
+
+    if mode == "exam":
+        import random
+        if len(QUESTIONS) < 30:
+            await update.message.reply_text("❌ Not enough questions to start the exam.", reply_markup=build_main_menu())
+            return
+        context.chat_data["exam_questions"] = random.sample(range(len(QUESTIONS)), 30)
+        context.chat_data["used_questions"] = []
+    else:
+        context.chat_data["exam_questions"] = []
+        context.chat_data["used_questions"] = []
+
+    await send_question(update.effective_chat.id, context)
+
+async def menu_learning(update: Update, context: CallbackContext):
+    await start_mode_from_menu(update, context, "learning")
+
+async def menu_exam(update: Update, context: CallbackContext):
+    await start_mode_from_menu(update, context, "exam")
+
+async def menu_continue(update: Update, context: CallbackContext):
+    if "mode" not in context.chat_data:
+        await update.message.reply_text("No active session. Choose a mode first.", reply_markup=build_main_menu())
+        return
+    await send_question(update.effective_chat.id, context)
+
+async def menu_restart(update: Update, context: CallbackContext):
+    context.chat_data.clear()
+    # Clear start_message_id so the restart message is recreated once
+    context.chat_data.pop("start_message_id", None)
+    await start(update, context)
+
+async def stop_command(update: Update, context: CallbackContext):
+    context.chat_data.clear()
+    await update.message.reply_text("⛔ Test stopped. Use /start to begin again.", reply_markup=build_main_menu())
+
+async def menu_stop(update: Update, context: CallbackContext):
+    await stop_command(update, context)
+
+async def menu_help(update: Update, context: CallbackContext):
+    await update.message.reply_text(
+        "• *Learning Mode*: answers + explanations, 120 questions in order.\n"
+        "• *Exam Mode*: 30 random questions, no hints, pass with ≤5 errors.\n"
+        "• *Continue*: resume current session.\n"
+        "• *Restart*: reset and go to start screen.\n"
+        "• *Stop*: end the current session.",
+        parse_mode=ParseMode.MARKDOWN,
+        reply_markup=build_main_menu(),
+    )
 
 def build_option_keyboard() -> InlineKeyboardMarkup:
     # Buttons show plain letters; labels in question text are bolded
@@ -624,6 +774,7 @@ def main() -> None:
 
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("pause", handle_pause))
+    application.add_handler(CommandHandler("stop", stop_command))
     application.add_handler(CallbackQueryHandler(next_handler, pattern="^(NEXT|CONTINUE|RESTART)$"))
     application.add_handler(CallbackQueryHandler(answer_handler, pattern="^[ABCDSTOP]{1,4}$"))
     application.add_handler(CallbackQueryHandler(handle_language, pattern="^lang_.*$"))
@@ -631,6 +782,14 @@ def main() -> None:
     application.add_handler(CallbackQueryHandler(handle_pause, pattern="^mode_pause$"))
     application.add_handler(CallbackQueryHandler(handle_resume_pause, pattern="^RESUME_PAUSE$"))
     application.add_handler(CallbackQueryHandler(handle_main_menu, pattern="^MAIN_MENU$"))
+
+    # Persistent menu reply keyboard handlers
+    application.add_handler(MessageHandler(filters.TEXT & filters.Regex(f"^{BTN_LEARNING}$"), menu_learning))
+    application.add_handler(MessageHandler(filters.TEXT & filters.Regex(f"^{BTN_EXAM}$"),     menu_exam))
+    application.add_handler(MessageHandler(filters.TEXT & filters.Regex(f"^{BTN_CONTINUE}$"), menu_continue))
+    application.add_handler(MessageHandler(filters.TEXT & filters.Regex(f"^{BTN_RESTART}$"),  menu_restart))
+    application.add_handler(MessageHandler(filters.TEXT & filters.Regex(f"^{BTN_STOP}$"),     menu_stop))
+    application.add_handler(MessageHandler(filters.TEXT & filters.Regex(f"^{BTN_HELP}$"),     menu_help))
 
     port = int(os.environ.get("PORT", 10000))
     render_url = os.environ.get("RENDER_EXTERNAL_URL")
