@@ -116,10 +116,7 @@ MENU_PLACEHOLDER = "\u2063"  # zero-width non-joiner
 
 def build_main_menu() -> ReplyKeyboardMarkup:
     return ReplyKeyboardMarkup(
-        [
-            [KeyboardButton(BTN_LEARNING), KeyboardButton(BTN_EXAM)],
-            [KeyboardButton(BTN_RESTART)],
-        ],
+        [[KeyboardButton(BTN_RESTART)]],
         resize_keyboard=True,
         one_time_keyboard=False,
         input_field_placeholder="Choose an action…",
@@ -189,19 +186,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         reply_markup=InlineKeyboardMarkup(lang_options),
         parse_mode=ParseMode.HTML,
     )
-
-    # Show/refresh the persistent main menu keyboard via a single message too
-    try:
-        await upsert_message(
-            update.effective_chat,
-            context,
-            "menu_message_id",
-            MENU_PLACEHOLDER,
-            reply_markup=build_main_menu(),
-            parse_mode=None,
-        )
-    except Exception as e:
-        logger.warning(f"Failed to show main menu keyboard: {e}")
 async def handle_main_menu(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
     import telegram.error
@@ -312,34 +296,12 @@ async def handle_mode(update: Update, context: CallbackContext) -> None:
                  "🧠 <b>Навчальний режим</b> – показує правильну відповідь і пояснення одразу після кожного питання. Усього 120 питань.",
             parse_mode=ParseMode.HTML
         )
-    try:
-        await upsert_message(
-            query.message.chat,
-            context,
-            "menu_message_id",
-            MENU_PLACEHOLDER,
-            reply_markup=build_running_menu(),
-            parse_mode=None,
-        )
-    except Exception:
-        pass
     await send_question(query.message.chat.id, context)
 
 
 # --- Persistent Menu Handlers ---
 async def start_mode_from_menu(update: Update, context: CallbackContext, mode: str) -> None:
     if is_debounced(context):
-        try:
-            await upsert_message(
-                update.effective_chat,
-                context,
-                "menu_message_id",
-                "Use the menu below to navigate.",
-                reply_markup=build_main_menu(),
-                parse_mode=None,
-            )
-        except Exception:
-            pass
         return
     # Ensure a language default exists
     if "lang_mode" not in context.chat_data:
@@ -362,63 +324,19 @@ async def start_mode_from_menu(update: Update, context: CallbackContext, mode: s
         context.chat_data["used_questions"] = []
 
     await send_question(update.effective_chat.id, context)
-    try:
-        await upsert_message(
-            update.effective_chat,
-            context,
-            "menu_message_id",
-            MENU_PLACEHOLDER,
-            reply_markup=build_running_menu(),
-            parse_mode=None,
-        )
-    except Exception:
-        pass
 
 async def menu_learning(update: Update, context: CallbackContext):
     if is_debounced(context):
-        try:
-            await upsert_message(
-                update.effective_chat,
-                context,
-                "menu_message_id",
-                MENU_PLACEHOLDER,
-                reply_markup=build_main_menu(),
-                parse_mode=None,
-            )
-        except Exception:
-            pass
         return
     await start_mode_from_menu(update, context, "learning")
 
 async def menu_exam(update: Update, context: CallbackContext):
     if is_debounced(context):
-        try:
-            await upsert_message(
-                update.effective_chat,
-                context,
-                "menu_message_id",
-                MENU_PLACEHOLDER,
-                reply_markup=build_main_menu(),
-                parse_mode=None,
-            )
-        except Exception:
-            pass
         return
     await start_mode_from_menu(update, context, "exam")
 
 async def menu_continue(update: Update, context: CallbackContext):
     if is_debounced(context):
-        try:
-            await upsert_message(
-                update.effective_chat,
-                context,
-                "menu_message_id",
-                MENU_PLACEHOLDER,
-                reply_markup=build_main_menu(),
-                parse_mode=None,
-            )
-        except Exception:
-            pass
         return
     if "mode" not in context.chat_data:
         await update.message.reply_text("No active session. Choose a mode first.", reply_markup=build_main_menu())
@@ -427,17 +345,6 @@ async def menu_continue(update: Update, context: CallbackContext):
 
 async def menu_restart(update: Update, context: CallbackContext):
     if is_debounced(context):
-        try:
-            await upsert_message(
-                update.effective_chat,
-                context,
-                "menu_message_id",
-                MENU_PLACEHOLDER,
-                reply_markup=build_main_menu(),
-                parse_mode=None,
-            )
-        except Exception:
-            pass
         return
     clear_state(context)
     await start(update, context)
@@ -445,31 +352,9 @@ async def menu_restart(update: Update, context: CallbackContext):
 async def stop_command(update: Update, context: CallbackContext):
     clear_state(context)
     await update.message.reply_text("⛔ Test stopped. Use /start to begin again.", reply_markup=build_main_menu())
-    try:
-        await upsert_message(
-            update.effective_chat,
-            context,
-            "menu_message_id",
-            MENU_PLACEHOLDER,
-            reply_markup=build_main_menu(),
-            parse_mode=None,
-        )
-    except Exception:
-        pass
 
 async def menu_stop(update: Update, context: CallbackContext):
     if is_debounced(context):
-        try:
-            await upsert_message(
-                update.effective_chat,
-                context,
-                "menu_message_id",
-                MENU_PLACEHOLDER,
-                reply_markup=build_main_menu(),
-                parse_mode=None,
-            )
-        except Exception:
-            pass
         return
     await stop_command(update, context)
 
@@ -483,17 +368,6 @@ async def pause_command(update: Update, context: CallbackContext) -> None:
 
 async def menu_help(update: Update, context: CallbackContext):
     if is_debounced(context):
-        try:
-            await upsert_message(
-                update.effective_chat,
-                context,
-                "menu_message_id",
-                MENU_PLACEHOLDER,
-                reply_markup=build_main_menu(),
-                parse_mode=None,
-            )
-        except Exception:
-            pass
         return
     await update.message.reply_text(
         f"• *Learning Mode*: answers + explanations, 120 questions in order. Type a number (1–{len(QUESTIONS)}) to jump to that question.\n"
@@ -535,8 +409,9 @@ def build_option_keyboard() -> InlineKeyboardMarkup:
             InlineKeyboardButton("A", callback_data="A"),
             InlineKeyboardButton("B", callback_data="B"),
             InlineKeyboardButton("C", callback_data="C"),
-            InlineKeyboardButton("D", callback_data="D")
-        ]
+            InlineKeyboardButton("D", callback_data="D"),
+        ],
+        [InlineKeyboardButton("🔁 Restart", callback_data="RESTART")],
     ])
 
 
@@ -687,18 +562,6 @@ async def send_score(chat_id: int, context: CallbackContext) -> None:
             "Наберіть /quiz, щоб спробувати ще раз."
         )
     await context.bot.send_message(chat_id=chat_id, text=text, parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔁 Start Again", callback_data="mode_exam"), InlineKeyboardButton("🏠 Main Menu", callback_data="main_menu")]]))
-    try:
-        chat = await context.bot.get_chat(chat_id)
-        await upsert_message(
-            chat,
-            context,
-            "menu_message_id",
-            MENU_PLACEHOLDER,
-            reply_markup=build_main_menu(),
-            parse_mode=None,
-        )
-    except Exception:
-        pass
     chat_data.clear()
 
 async def quiz_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
