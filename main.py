@@ -15,6 +15,8 @@ from telegram.ext import (
     CommandHandler,
     ContextTypes,
     Defaults,
+    MessageHandler,
+    filters,
 )
 
 with open("questions.json", "r", encoding="utf-8") as f:
@@ -29,8 +31,7 @@ logger = logging.getLogger(__name__)
 async def post_init(application):
     commands = [
         BotCommand("start", "Start the quiz"),
-        BotCommand("stop", "Stop the quiz"),
-        BotCommand("pause", "Pause the quiz")
+        BotCommand("stop", "Stop the quiz")
     ]
     await application.bot.set_my_commands(commands)
 
@@ -87,16 +88,21 @@ async def handle_language(update: Update, context: CallbackContext) -> None:
     context.chat_data["score"] = 0
     # New logic for text assignment based on lang_mode
     if lang_mode == "bilingual":
+        total = len(QUESTIONS)
         text = (
             "🧠 <b>Learning Mode</b> – shows the correct answer and explanation immediately after each question. Includes all 120 questions.\n"
-            "🧠 <b>Навчальний режим</b> – показує правильну відповідь і пояснення одразу після кожного питання. Усього 120 питань.\n\n"
+            f"💡 <i>Tip:</i> send a number (1–{total}) to jump to that question.\n"
+            "🧠 <b>Навчальний режим</b> – показує правильну відповідь і пояснення одразу після кожного питання. Усього 120 питань.\n"
+            f"💡 <i>Порада:</i> надішліть число (1–{total}), щоб перейти до відповідного питання.\n\n"
             "📝 <b>Exam Mode</b> – 30 random questions, no hints. You must answer at least 25 correctly to pass.\n"
             "📝 <b>Режим іспиту</b> – 30 випадкових питань, без підказок. Для успішного складання потрібно дати щонайменше 25 правильних відповідей.\n\n"
             "Please choose mode / Будь ласка, оберіть режим:"
         )
     elif lang_mode == "en":
+        total = len(QUESTIONS)
         text = (
-            "🧠 <b>Learning Mode</b> – shows the correct answer and explanation immediately after each question. Includes all 120 questions.\n\n"
+            "🧠 <b>Learning Mode</b> – shows the correct answer and explanation immediately after each question. Includes all 120 questions.\n"
+            f"💡 <i>Tip:</i> send a number (1–{total}) to jump to that question.\n\n"
             "📝 <b>Exam Mode</b> – 30 random questions, no hints. You must answer at least 25 correctly to pass.\n\n"
             "Please choose a mode:"
         )
@@ -147,19 +153,24 @@ async def handle_mode(update: Update, context: CallbackContext) -> None:
     lang = context.chat_data.get("lang_mode", "en")
     selected_mode = mode
     if lang == "en":
+        total = len(QUESTIONS)
         await query.edit_message_text(
             "📝 <b>Exam Mode</b> – 30 random questions, no hints. You must answer at least 25 correctly to pass."
             if selected_mode == "exam"
-            else "🧠 <b>Learning Mode</b> – shows the correct answer and explanation immediately after each question. Includes all 120 questions.",
+            else "🧠 <b>Learning Mode</b> – shows the correct answer and explanation immediately after each question. Includes all 120 questions.\n"
+                 f"💡 <i>Tip:</i> send a number (1–{total}) to jump to that question.",
             parse_mode=ParseMode.HTML
         )
     elif lang == "bilingual":
+        total = len(QUESTIONS)
         await query.edit_message_text(
             "📝 <b>Exam Mode</b> – 30 random questions, no hints. You must answer at least 25 correctly to pass.\n"
             "📝 <b>Режим іспиту</b> – 30 випадкових питань, без підказок. Для успішного складання потрібно дати щонайменше 25 правильних відповідей."
             if selected_mode == "exam"
             else "🧠 <b>Learning Mode</b> – shows the correct answer and explanation immediately after each question. Includes all 120 questions.\n"
-                 "🧠 <b>Навчальний режим</b> – показує правильну відповідь і пояснення одразу після кожного питання. Усього 120 питань.",
+                 f"💡 <i>Tip:</i> send a number (1–{total}) to jump to that question.\n"
+                 "🧠 <b>Навчальний режим</b> – показує правильну відповідь і пояснення одразу після кожного питання. Усього 120 питань.\n"
+                 f"💡 <i>Порада:</i> надішліть число (1–{total}), щоб перейти до відповідного питання.",
             parse_mode=ParseMode.HTML
         )
 
@@ -223,9 +234,17 @@ async def send_question(chat_id: int, context: CallbackContext) -> None:
             return
         q = QUESTIONS[index]
 
-    total_questions = len(chat_data.get("exam_questions", [])) if mode == 'exam' else len(QUESTIONS)
-    fail_count = chat_data.get("current_index", 0) - chat_data.get("score", 0)
-    lines = [f"<i><b>Question {index + 1} of {total_questions} ({fail_count} Fails)</b></i>", ""]
+    if mode == "exam":
+        total_questions = len(chat_data.get("exam_questions", []))
+        wrong_count = chat_data.get("wrong_count", 0)
+        # position in the exam is how many have been asked so far
+        position = len(chat_data.get("used_questions", []))
+        header = f"<i><b>Question {position} of {total_questions} ({wrong_count} Fails)</b></i>"
+    else:
+        total_questions = len(QUESTIONS)
+        position = index + 1
+        header = f"<i><b>Question {position} of {total_questions}</b></i>"
+    lines = [header, ""]
 
     if lang_mode == "bilingual":
         lines.append(f"<b>🇬🇧 {q['question']}</b>")
@@ -379,6 +398,9 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
             is_correct = selected_index == correct_index
             if is_correct:
                 chat_data["score"] = chat_data.get("score", 0) + 1
+            # Track mistakes separately for exam mode
+            if mode == "exam" and not is_correct:
+                chat_data["wrong_count"] = chat_data.get("wrong_count", 0) + 1
             option_labels = ["A", "B", "C", "D"]
             options_en = question["options"]
             options_uk = question.get("options_uk", [])
@@ -396,12 +418,12 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
                 else:
                     options_text.append(f"       {option_letter}. {line}")
             total_questions = 30 if mode == 'exam' else len(QUESTIONS)
-            fail_count = current_index + 1 - chat_data.get("score", 0)
+            wrong_count = chat_data.get("wrong_count", 0)
             # --- Insert fail fast logic for exam mode ---
-            if mode == "exam" and fail_count >= 6:
+            if mode == "exam" and wrong_count >= 6:
                 text = (
-                    f"<b>❌ You made {fail_count} mistakes. Test failed.</b>\n\n"
-                    f"<b>🇺🇦 Ви зробили {fail_count} помилок. Тест не складено.</b>\n\n"
+                    f"<b>❌ You made {wrong_count} mistakes. Test failed.</b>\n\n"
+                    f"<b>🇺🇦 Ви зробили {wrong_count} помилок. Тест не складено.</b>\n\n"
                 )
                 keyboard = InlineKeyboardMarkup([
                     [InlineKeyboardButton("🔁 Try Again / Спробувати ще раз", callback_data="mode_exam")]
@@ -410,7 +432,11 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
                 chat_data.clear()
                 return
             # --- End fail fast logic ---
-            result_title = f"<i><b>Question {current_index + 1} of {total_questions} ({fail_count} Fails)</b></i>"
+            if mode == "exam":
+                position = len(chat_data.get("used_questions", []))
+                result_title = f"<i><b>Question {position} of {total_questions} ({wrong_count} Fails)</b></i>"
+            else:
+                result_title = f"<i><b>Question {current_index + 1} of {total_questions}</b></i>"
             full_text = [result_title, ""]
             if lang_mode == "bilingual":
                 full_text += [
@@ -500,6 +526,21 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
         if not chat_data or "mode" not in chat_data:
             return
         mode = chat_data.get("mode", "learning")
+
+        # Numeric jump is ONLY for Learning Mode
+        if user_msg.isdigit():
+            if mode != "learning":
+                await update.message.reply_text("ℹ️ Jump by question number is available only in Learning Mode.")
+                return
+            # Jump to a specific question number in Learning
+            n = int(user_msg)
+            total = len(QUESTIONS)
+            if 1 <= n <= total:
+                chat_data["current_index"] = n - 1
+                await send_question(update.effective_chat.id, context)
+            else:
+                await update.message.reply_text(f"⚠️ Please enter a number from 1 to {total}.")
+            return
         current_index = chat_data.get("current_index", 0)
         if mode == "exam":
             used_questions = chat_data.get("used_questions", [])
@@ -623,7 +664,6 @@ def main() -> None:
     ).post_init(post_init).build()
 
     application.add_handler(CommandHandler("start", start))
-    application.add_handler(CommandHandler("pause", handle_pause))
     application.add_handler(CallbackQueryHandler(next_handler, pattern="^(NEXT|CONTINUE|RESTART)$"))
     application.add_handler(CallbackQueryHandler(answer_handler, pattern="^[ABCDSTOP]{1,4}$"))
     application.add_handler(CallbackQueryHandler(handle_language, pattern="^lang_.*$"))
@@ -631,6 +671,7 @@ def main() -> None:
     application.add_handler(CallbackQueryHandler(handle_pause, pattern="^mode_pause$"))
     application.add_handler(CallbackQueryHandler(handle_resume_pause, pattern="^RESUME_PAUSE$"))
     application.add_handler(CallbackQueryHandler(handle_main_menu, pattern="^MAIN_MENU$"))
+    application.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), answer_handler))
 
     port = int(os.environ.get("PORT", 10000))
     render_url = os.environ.get("RENDER_EXTERNAL_URL")
