@@ -125,6 +125,15 @@ def build_main_menu() -> ReplyKeyboardMarkup:
         input_field_placeholder="Choose an action…",
     )
 
+def build_running_menu() -> ReplyKeyboardMarkup:
+    """Reply keyboard shown while a test is running: only Restart button."""
+    return ReplyKeyboardMarkup(
+        [[KeyboardButton(BTN_RESTART)]],
+        resize_keyboard=True,
+        one_time_keyboard=False,
+        input_field_placeholder="Choose an action…",
+    )
+
 async def post_init(application):
     commands = [
         BotCommand("start", "Start the quiz"),
@@ -303,7 +312,17 @@ async def handle_mode(update: Update, context: CallbackContext) -> None:
                  "🧠 <b>Навчальний режим</b> – показує правильну відповідь і пояснення одразу після кожного питання. Усього 120 питань.",
             parse_mode=ParseMode.HTML
         )
-
+    try:
+        await upsert_message(
+            query.message.chat,
+            context,
+            "menu_message_id",
+            MENU_PLACEHOLDER,
+            reply_markup=build_running_menu(),
+            parse_mode=None,
+        )
+    except Exception:
+        pass
     await send_question(query.message.chat.id, context)
 
 
@@ -343,6 +362,17 @@ async def start_mode_from_menu(update: Update, context: CallbackContext, mode: s
         context.chat_data["used_questions"] = []
 
     await send_question(update.effective_chat.id, context)
+    try:
+        await upsert_message(
+            update.effective_chat,
+            context,
+            "menu_message_id",
+            MENU_PLACEHOLDER,
+            reply_markup=build_running_menu(),
+            parse_mode=None,
+        )
+    except Exception:
+        pass
 
 async def menu_learning(update: Update, context: CallbackContext):
     if is_debounced(context):
@@ -410,11 +440,33 @@ async def menu_restart(update: Update, context: CallbackContext):
             pass
         return
     clear_state(context)
+    try:
+        await upsert_message(
+            update.effective_chat,
+            context,
+            "menu_message_id",
+            MENU_PLACEHOLDER,
+            reply_markup=build_main_menu(),
+            parse_mode=None,
+        )
+    except Exception:
+        pass
     await start(update, context)
 
 async def stop_command(update: Update, context: CallbackContext):
     clear_state(context)
     await update.message.reply_text("⛔ Test stopped. Use /start to begin again.", reply_markup=build_main_menu())
+    try:
+        await upsert_message(
+            update.effective_chat,
+            context,
+            "menu_message_id",
+            MENU_PLACEHOLDER,
+            reply_markup=build_main_menu(),
+            parse_mode=None,
+        )
+    except Exception:
+        pass
 
 async def menu_stop(update: Update, context: CallbackContext):
     if is_debounced(context):
@@ -646,6 +698,18 @@ async def send_score(chat_id: int, context: CallbackContext) -> None:
             "Наберіть /quiz, щоб спробувати ще раз."
         )
     await context.bot.send_message(chat_id=chat_id, text=text, parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔁 Start Again", callback_data="mode_exam"), InlineKeyboardButton("🏠 Main Menu", callback_data="main_menu")]]))
+    try:
+        chat = await context.bot.get_chat(chat_id)
+        await upsert_message(
+            chat,
+            context,
+            "menu_message_id",
+            MENU_PLACEHOLDER,
+            reply_markup=build_main_menu(),
+            parse_mode=None,
+        )
+    except Exception:
+        pass
     chat_data.clear()
 
 async def quiz_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
