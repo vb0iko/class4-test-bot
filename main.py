@@ -26,7 +26,25 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
 )
 
+
 logger = logging.getLogger(__name__)
+
+# --- helpers to keep only current UI ---
+async def _safe_delete(bot, chat_id: int, message_id: int):
+    try:
+        await bot.delete_message(chat_id=chat_id, message_id=message_id)
+    except Exception:
+        # Ignore if already deleted or cannot delete
+        pass
+
+async def _purge_old_ui(context: CallbackContext, chat_id: int):
+    # Delete previously stored question/summary messages if they exist
+    last_id = context.chat_data.pop("last_message_id", None)
+    if last_id:
+        await _safe_delete(context.bot, chat_id, last_id)
+    summary_id = context.chat_data.pop("summary_message_id", None)
+    if summary_id:
+        await _safe_delete(context.bot, chat_id, summary_id)
 
 async def post_init(application):
     commands = [
@@ -54,6 +72,8 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     lang_options = LANG_OPTIONS.copy()
     if context.chat_data.get("paused"):
         lang_options.append([InlineKeyboardButton("▶️ Continue", callback_data="RESUME_PAUSE")])
+    # Remove any previous question/summary with buttons so user can't press old ones
+    await _purge_old_ui(context, update.effective_chat.id)
     await update.effective_chat.send_message(
         "Please choose your language / Будь ласка, оберіть мову:",
         reply_markup=InlineKeyboardMarkup(lang_options)
@@ -63,6 +83,13 @@ async def handle_main_menu(update: Update, context: CallbackContext) -> None:
     import telegram.error
     try:
         await query.answer()
+        # Remove the pressed message's buttons and delete it
+        try:
+            await query.edit_message_reply_markup(reply_markup=None)
+        except Exception:
+            pass
+        await _purge_old_ui(context, query.message.chat.id)
+        await _safe_delete(context.bot, query.message.chat.id, query.message.message_id)
     except telegram.error.BadRequest as e:
         if "Query is too old" in str(e):
             logger.warning("Callback query too old; skipping answer.")
@@ -82,6 +109,7 @@ async def handle_language(update: Update, context: CallbackContext) -> None:
             logger.warning("Callback query too old; skipping answer.")
         else:
             raise
+    await _purge_old_ui(context, query.message.chat.id)
     lang_mode = "en" if query.data == "lang_en" else "bilingual"
     context.chat_data["lang_mode"] = lang_mode
     context.chat_data["current_index"] = 0
@@ -139,6 +167,8 @@ async def handle_mode(update: Update, context: CallbackContext) -> None:
     context.chat_data["current_index"] = 0
     context.chat_data["score"] = 0
     context.chat_data["paused"] = False
+    # Make sure no previous question/summary message with buttons remains
+    await _purge_old_ui(context, query.message.chat.id)
     # Reset the wrong counter when starting Learning Mode
     if mode == "learning":
         context.chat_data["wrong_count"] = 0
@@ -298,6 +328,7 @@ async def send_question(chat_id: int, context: CallbackContext) -> None:
                 reply_markup=keyboard
             )
         context.chat_data["last_message_id"] = msg.message_id
+        context.chat_data.pop("summary_message_id", None)
     else:
         msg = await context.bot.send_message(
             chat_id=chat_id,
@@ -306,6 +337,7 @@ async def send_question(chat_id: int, context: CallbackContext) -> None:
             reply_markup=keyboard
         )
         context.chat_data["last_message_id"] = msg.message_id
+        context.chat_data.pop("summary_message_id", None)
 
 async def send_score(chat_id: int, context: CallbackContext) -> None:
     chat_data = context.chat_data
@@ -356,12 +388,14 @@ async def send_score(chat_id: int, context: CallbackContext) -> None:
             [InlineKeyboardButton("🏠 Main Menu", callback_data="MAIN_MENU")],
         ]
 
-    await context.bot.send_message(
+    msg = await context.bot.send_message(
         chat_id=chat_id,
         text=text,
         parse_mode=ParseMode.HTML,
         reply_markup=InlineKeyboardMarkup(buttons),
     )
+    # Remember summary id so we can delete/disable it on next actions
+    context.chat_data["summary_message_id"] = msg.message_id
 
     # Clear state after summary is shown so next action starts fresh
     chat_data.clear()
@@ -369,6 +403,7 @@ async def send_score(chat_id: int, context: CallbackContext) -> None:
 async def quiz_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     # Reset state and behave exactly like /start
     context.chat_data.clear()
+    await _purge_old_ui(context, update.effective_chat.id)
     await start(update, context)
 
 async def answer_handler(update: Update, context: CallbackContext) -> None:
@@ -380,6 +415,10 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
         query = update.callback_query
         try:
             await query.answer()
+            try:
+                await query.edit_message_reply_markup(reply_markup=None)
+            except Exception:
+                pass
         except telegram.error.BadRequest as e:
             if "Query is too old" in str(e):
                 logger.warning("Callback query too old; skipping answer.")
@@ -753,6 +792,7 @@ async def handle_pause(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
     try:
         await query.answer()
+        await _purge_old_ui(context, query.message.chat.id)
     except telegram.error.BadRequest as e:
         if "Query is too old" in str(e):
             logger.warning("Callback query too old; skipping answer.")
@@ -767,6 +807,7 @@ async def handle_resume_pause(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
     try:
         await query.answer()
+        await _purge_old_ui(context, query.message.chat.id)
     except telegram.error.BadRequest as e:
         if "Query is too old" in str(e):
             logger.warning("Callback query too old; skipping answer.")
