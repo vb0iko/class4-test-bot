@@ -139,6 +139,9 @@ async def handle_mode(update: Update, context: CallbackContext) -> None:
     context.chat_data["current_index"] = 0
     context.chat_data["score"] = 0
     context.chat_data["paused"] = False
+    # Reset the wrong counter when starting Learning Mode
+    if mode == "learning":
+        context.chat_data["wrong_count"] = 0
     # Reset used_questions only on new exam start
     if mode == "exam":
         import random
@@ -243,7 +246,12 @@ async def send_question(chat_id: int, context: CallbackContext) -> None:
     else:
         total_questions = len(QUESTIONS)
         position = index + 1
-        header = f"<i><b>Question {position} of {total_questions}</b></i>"
+        wrong_count = chat_data.get("wrong_count", 0)
+        correct_count = chat_data.get("score", 0)
+        header = (
+            f"<i><b>Question {position} of {total_questions} "
+            f"({wrong_count} Fails, {correct_count} Correct)</b></i>"
+        )
     lines = [header, ""]
 
     if lang_mode == "bilingual":
@@ -398,9 +406,10 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
             is_correct = selected_index == correct_index
             if is_correct:
                 chat_data["score"] = chat_data.get("score", 0) + 1
-            # Track mistakes separately for exam mode
-            if mode == "exam" and not is_correct:
-                chat_data["wrong_count"] = chat_data.get("wrong_count", 0) + 1
+            # Track mistakes (exam and learning)
+            if not is_correct:
+                if mode in ("exam", "learning"):
+                    chat_data["wrong_count"] = chat_data.get("wrong_count", 0) + 1
             option_labels = ["A", "B", "C", "D"]
             options_en = question["options"]
             options_uk = question.get("options_uk", [])
@@ -436,7 +445,11 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
                 position = len(chat_data.get("used_questions", []))
                 result_title = f"<i><b>Question {position} of {total_questions} ({wrong_count} Fails)</b></i>"
             else:
-                result_title = f"<i><b>Question {current_index + 1} of {total_questions}</b></i>"
+                correct_count = chat_data.get("score", 0)
+                result_title = (
+                    f"<i><b>Question {current_index + 1} of {total_questions} "
+                    f"({wrong_count} Fails, {correct_count} Correct)</b></i>"
+                )
             full_text = [result_title, ""]
             if lang_mode == "bilingual":
                 full_text += [
@@ -597,6 +610,8 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
         is_correct = selected_index == correct_index
         if is_correct:
             chat_data["score"] = chat_data.get("score", 0) + 1
+        elif mode == "learning":
+            chat_data["wrong_count"] = chat_data.get("wrong_count", 0) + 1
         # Prepare feedback message
         feedback_lines = []
         if is_correct:
