@@ -104,30 +104,30 @@ async def _purge_old_ui(context: CallbackContext, chat_id: int):
         await _safe_delete(context.bot, chat_id, summary_id)
 
 # --- small helper to draw a unicode box around text, wrapping long lines ---
-from textwrap import wrap
-from html import escape
-
 def _box(text: str, width: int = 48) -> str:
-    """Return a Unicode box as an *HTML preformatted* block so Telegram
-    renders it monospaced and aligned. `width` is the max characters per line
-    inside the box.
+    """Return a Unicode box as plain text (no <pre>/code), so Telegram
+    shows it as a normal message (without the 'copy' button). Width
+    controls the max characters per line inside the box.
     """
+    from textwrap import wrap
+
+    # Normalize paragraphs and wrap to requested width
     wrapped_lines = []
     for para in text.splitlines():
-        if not para.strip():
+        para = para.rstrip()
+        if not para:
             wrapped_lines.append("")
             continue
-        wrapped_lines.extend(wrap(para.strip(), width=width))
+        wrapped_lines.extend(wrap(para, width=width))
 
+    # Effective inner width for padding
     eff = min(width, max((len(l) for l in wrapped_lines), default=0))
 
     top = "┌" + "─" * (eff + 2) + "┐"
     bottom = "└" + "─" * (eff + 2) + "┘"
     body = [f"│ {l.ljust(eff)} │" for l in wrapped_lines]
-    box = "\n".join([top, *body, bottom])
 
-    # Wrap in <pre> and escape to keep alignment and avoid HTML issues
-    return f"<pre>{escape(box)}</pre>"
+    return "\n".join([top, *body, bottom])
 
 async def post_init(application):
     commands = [
