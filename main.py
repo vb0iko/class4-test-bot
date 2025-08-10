@@ -195,6 +195,40 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     context.chat_data.pop("used_questions", None)
     context.chat_data.pop("exam_questions", None)
 
+        # --- force clean any dangling UI before we show language picker ---
+    chat_id = update.effective_chat.id
+
+    # 1) Try to strip inline keyboard from the last question message (if any).
+    last_id = context.chat_data.get("last_message_id")
+    if last_id:
+        try:
+            # Remove inline keyboard if it still exists
+            await context.bot.edit_message_reply_markup(
+                chat_id=chat_id,
+                message_id=last_id,
+                reply_markup=None
+            )
+        except Exception:
+            # If we cannot edit (photo/old/changed), just delete it
+            try:
+                await context.bot.delete_message(chat_id=chat_id, message_id=last_id)
+            except Exception:
+                pass
+        finally:
+            # Make sure we won't consider it as "open with kb"
+            context.chat_data["last_has_kb"] = False
+            # Optionally also clear the id to avoid later reuse
+            # context.chat_data["last_message_id"] = None
+
+    # 2) Remove lingering summary (finish) message if present
+    summary_id = context.chat_data.pop("summary_message_id", None)
+    if summary_id:
+        try:
+            await context.bot.delete_message(chat_id=chat_id, message_id=summary_id)
+        except Exception:
+            pass
+
+
     # If paused, add Continue button
     lang_options = LANG_OPTIONS.copy()
     if context.chat_data.get("paused"):
