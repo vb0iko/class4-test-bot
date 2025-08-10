@@ -73,6 +73,7 @@ async def _safe_delete(bot, chat_id: int, message_id: int):
         # Ignore if already deleted or cannot delete
         pass
 
+
 async def _purge_old_ui(context: CallbackContext, chat_id: int):
     # Delete previously stored question/summary messages if they exist
     last_id = context.chat_data.pop("last_message_id", None)
@@ -81,6 +82,15 @@ async def _purge_old_ui(context: CallbackContext, chat_id: int):
     summary_id = context.chat_data.pop("summary_message_id", None)
     if summary_id:
         await _safe_delete(context.bot, chat_id, summary_id)
+
+# --- small helper to draw a unicode box around text ---
+def _box(text: str) -> str:
+    lines = text.splitlines()
+    width = max((len(l) for l in lines), default=0)
+    top = "┌" + "─" * (width + 2) + "┐"
+    bottom = "└" + "─" * (width + 2) + "┘"
+    body = [f"│ {l.ljust(width)} │" for l in lines]
+    return "\n".join([top, *body, bottom])
 
 async def post_init(application):
     commands = [
@@ -111,6 +121,14 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if now - last < LOCK_TTL:
         return
     context.chat_data["_last_start_at"] = now
+    # Reset counters/state so a fresh /start never inherits from previous runs
+    context.chat_data["wrong_count"] = 0
+    context.chat_data["score"] = 0
+    context.chat_data["current_index"] = 0
+    context.chat_data["paused"] = False
+    # Drop any stale exam state
+    context.chat_data.pop("used_questions", None)
+    context.chat_data.pop("exam_questions", None)
 
     # If paused, add Continue button
     lang_options = LANG_OPTIONS.copy()
@@ -223,45 +241,52 @@ async def handle_mode(update: Update, context: CallbackContext) -> None:
     context.chat_data["current_index"] = 0
     context.chat_data["score"] = 0
     context.chat_data["paused"] = False
+    # Reset mistake counter whenever a mode is (re)started
+    context.chat_data["wrong_count"] = 0
     # Make sure no previous question/summary message with buttons remains
     await _purge_old_ui(context, query.message.chat.id)
-    # Reset the wrong counter when starting Learning Mode
-    if mode == "learning":
-        context.chat_data["wrong_count"] = 0
     # Reset used_questions only on new exam start
     if mode == "exam":
+        # Fresh exam state — do not inherit from Learning mode
+        context.chat_data["wrong_count"] = 0
+        context.chat_data["score"] = 0
+        context.chat_data["current_index"] = 0
+        context.chat_data["used_questions"] = []
         import random
         if len(QUESTIONS) < 30:
             await query.edit_message_text("❌ Not enough questions to start the exam. Please add more questions.")
             return
         sample = random.sample(range(len(QUESTIONS)), 30)
         context.chat_data["exam_questions"] = sample
-        context.chat_data["used_questions"] = []
 
     # Show only selected mode's description after setting mode
     lang = context.chat_data.get("lang_mode", "en")
     selected_mode = mode
     if lang == "en":
-        total = len(QUESTIONS)
-        await query.edit_message_text(
-            "📝 <b>Exam Mode</b> – 30 random questions, no hints. You must answer at least 25 correctly to pass."
-            if selected_mode == "exam"
-            else "🧠 <b>Learning Mode</b> – shows the correct answer and explanation immediately after each question. Includes all 120 questions.\n"
-                 f"💡 <i>Tip:</i> send a number (1–{total}) to jump to that question.",
-            parse_mode=ParseMode.HTML
-        )
+        if selected_mode == "exam":
+            exam_line = "📝 Exam Mode – 30 random questions, no hints. You must answer at least 25 correctly to pass."
+            await query.edit_message_text(_box(exam_line))
+        else:
+            total = len(QUESTIONS)
+            await query.edit_message_text(
+                "🧠 <b>Learning Mode</b> – shows the correct answer and explanation immediately after each question. Includes all 120 questions.\n"
+                f"💡 <i>Tip:</i> send a number (1–{total}) to jump to that question.",
+                parse_mode=ParseMode.HTML,
+            )
     elif lang == "bilingual":
-        total = len(QUESTIONS)
-        await query.edit_message_text(
-            "📝 <b>Exam Mode</b> – 30 random questions, no hints. You must answer at least 25 correctly to pass.\n"
-            "📝 <b>Режим іспиту</b> – 30 випадкових питань, без підказок. Для успішного складання потрібно дати щонайменше 25 правильних відповідей."
-            if selected_mode == "exam"
-            else "🧠 <b>Learning Mode</b> – shows the correct answer and explanation immediately after each question. Includes all 120 questions.\n"
-                 f"💡 <i>Tip:</i> send a number (1–{total}) to jump to that question.\n"
-                 "🧠 <b>Навчальний режим</b> – показує правильну відповідь і пояснення одразу після кожного питання. Усього 120 питань.\n"
-                 f"💡 <i>Порада:</i> надішліть число (1–{total}), щоб перейти до відповідного питання.",
-            parse_mode=ParseMode.HTML
-        )
+        if selected_mode == "exam":
+            exam_en = "📝 Exam Mode – 30 random questions, no hints. You must answer at least 25 correctly to pass."
+            exam_uk = "📝 Режим іспиту – 30 випадкових питань, без підказок. Для успішного складання потрібно дати щонайменше 25 правильних відповідей."
+            await query.edit_message_text(_box(f"{exam_en}\n{exam_uk}"))
+        else:
+            total = len(QUESTIONS)
+            await query.edit_message_text(
+                "🧠 <b>Learning Mode</b> – shows the correct answer and explanation immediately after each question. Includes all 120 questions.\n"
+                f"💡 <i>Tip:</i> send a number (1–{total}) to jump to that question.\n"
+                "🧠 <b>Навчальний режим</b> – показує правильну відповідь і пояснення одразу після кожного питання. Усього 120 питань.\n"
+                f"💡 <i>Порада:</i> надішліть число (1–{total}), щоб перейти до відповідного питання.",
+                parse_mode=ParseMode.HTML,
+            )
 
     await send_question(query.message.chat.id, context)
 
