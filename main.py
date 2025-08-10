@@ -129,6 +129,20 @@ def _box(text: str, width: int = 48) -> str:
 
     return "\n".join([top, *body, bottom])
 
+# --- Progress bar helper ---
+def _progress_bar(done: int, total: int, width: int = 10) -> str:
+    """Return a simple unicode progress bar like ▰▰▰▱▱ and no copy button."""
+    if total <= 0:
+        return ""
+    # ensure 1..total mapping to 0..width (current question should show as filled)
+    filled = int(done / total * width)
+    if filled < 0:
+        filled = 0
+    if filled > width:
+        filled = width
+    empty = width - filled
+    return "▰" * filled + "▱" * empty
+
 async def post_init(application):
     commands = [
         BotCommand("start", "Start the quiz"),
@@ -304,7 +318,7 @@ async def handle_mode(update: Update, context: CallbackContext) -> None:
     if lang == "en":
         if selected_mode == "exam":
             exam_line = "📝 Exam Mode – 30 random questions, no hints. You must answer at least 25 correctly to pass."
-            await query.edit_message_text(_box(exam_line), parse_mode=ParseMode.HTML)
+            await query.edit_message_text(exam_line)
             _release_lock(context.chat_data)
         else:
             total = len(QUESTIONS)
@@ -318,7 +332,7 @@ async def handle_mode(update: Update, context: CallbackContext) -> None:
         if selected_mode == "exam":
             exam_en = "📝 Exam Mode – 30 random questions, no hints. You must answer at least 25 correctly to pass."
             exam_uk = "📝 Режим іспиту – 30 випадкових питань, без підказок. Для успішного складання потрібно дати щонайменше 25 правильних відповідей."
-            await query.edit_message_text(_box(f"{exam_en}\n{exam_uk}"), parse_mode=ParseMode.HTML)
+            await query.edit_message_text(f"{exam_en}\n{exam_uk}")
             _release_lock(context.chat_data)
         else:
             total = len(QUESTIONS)
@@ -393,19 +407,14 @@ async def send_question(chat_id: int, context: CallbackContext) -> None:
 
     if mode == "exam":
         total_questions = len(chat_data.get("exam_questions", []))
-        wrong_count = chat_data.get("wrong_count", 0)
-        # position in the exam is how many have been asked so far
+        # position equals the current question number in exam (we've just appended it to used_questions)
         position = len(chat_data.get("used_questions", []))
-        header = f"<i><b>Question {position} of {total_questions} ({wrong_count} Fails)</b></i>"
     else:
         total_questions = len(QUESTIONS)
         position = index + 1
-        wrong_count = chat_data.get("wrong_count", 0)
-        correct_count = chat_data.get("score", 0)
-        header = (
-            f"<i><b>Question {position} of {total_questions} "
-            f"({wrong_count} Fails, {correct_count} Correct)</b></i>"
-        )
+
+    bar = _progress_bar(position, total_questions, 10)
+    header = f"<b>{bar} {position}/{total_questions}</b>"
     lines = [header, ""]
 
     if lang_mode == "bilingual":
@@ -639,14 +648,12 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
                 return
             # --- End fail fast logic ---
             if mode == "exam":
-                position = len(chat_data.get("used_questions", []))
-                result_title = f"<i><b>Question {position} of {total_questions} ({wrong_count} Fails)</b></i>"
+                pos = len(chat_data.get("used_questions", []))
             else:
-                correct_count = chat_data.get("score", 0)
-                result_title = (
-                    f"<i><b>Question {current_index + 1} of {total_questions} "
-                    f"({wrong_count} Fails, {correct_count} Correct)</b></i>"
-                )
+                pos = current_index + 1
+            bar = _progress_bar(pos, total_questions, 10)
+            status_text = "✅ Correct!" if is_correct else "❌ Incorrect."
+            result_title = f"<b>{bar} {pos}/{total_questions} ({status_text})</b>"
             full_text = [result_title, ""]
             if lang_mode == "bilingual":
                 full_text += [
