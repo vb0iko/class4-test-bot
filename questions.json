@@ -1135,24 +1135,24 @@
     },
     {
         "question_number": 55,
-        "question": "A driver attempting to turn left at a steady green traffic light:",
-        "question_uk": "Водій, який намагається повернути ліворуч на постійне зелене світло:",
+        "question": "At a railway crossing with flashing red lights or ringing bells, you must:",
+        "question_uk": "На залізничному переїзді з миготливим червоним світлом або дзвінком ви повинні:",
         "options": [
-            "Has the right-of-way over pedestrians.",
-            "Must not cross the path of an approaching vehicle unless it is safe.",
-            "Must stop before the pedestrian crosswalk line, then proceed.",
-            "Has the right-of-way over oncoming traffic."
+            "Proceed carefully if no train is visible.",
+            "Stop before the stop line or at least 5 metres from the nearest rail and proceed only when the signals stop and it is safe.",
+            "Slow to 30 km/h and look both ways.",
+            "Sound your horn and continue through."
         ],
         "options_uk": [
-            "Має перевагу перед пішоходами.",
-            "Не повинен перетинати шлях зустрічного транспорту, якщо це небезпечно.",
-            "Повинен зупинитися перед лінією пішохідного переходу, потім продовжити рух.",
-            "Має перевагу перед зустрічним транспортом."
+            "Рухатися обережно, якщо поїзда не видно.",
+            "Зупинитися перед стоп-лінією або щонайменше за 5 метрів від найближчої рейки й їхати лише після припинення сигналів та коли це безпечно.",
+            "Зменшити швидкість до 30 км/год і подивитися в обидва боки.",
+            "Просигналити та продовжити рух."
         ],
         "answer_index": 1,
-        "explanation_en": "The driver must yield to oncoming traffic and turn only when safe.",
-        "explanation_uk": "Водій повинен поступитися дорогою зустрічному транспорту та повертати лише коли це безпечно.",
-        "image": "55.png"
+        "explanation_en": "Flashing red lights or bells mean a train is approaching. You must stop and wait until the signals stop and the crossing is clear before proceeding.",
+        "explanation_uk": "Миготливий червоний сигнал або дзвін означає наближення поїзда. Необхідно зупинитися та чекати, доки сигнали не припиняться і переїзд не буде вільним.",
+        "image": "55_rail_crossing.png"
     },
     {
         "question_number": 56,
@@ -1408,24 +1408,24 @@
     },
     {
         "question_number": 68,
-        "question": "Which of the following can impair your judgment and ability to safely operate a vehicle?",
-        "question_uk": "Що з наведеного може погіршити вашу здатність безпечно керувати транспортом?",
+        "question": "Before turning right from a multi-lane roadway, you should position your vehicle in the:",
+        "question_uk": "Перед поворотом праворуч на багатосмуговій дорозі слід зайняти:",
         "options": [
-            "Over the counter medications",
-            "Prescription drugs",
-            "Alcohol",
-            "All of the above"
+            "Any lane, as long as you signal.",
+            "Centre lane, then merge right in the turn.",
+            "Leftmost lane unless traffic is light.",
+            "Rightmost lane unless signs or markings indicate otherwise."
         ],
         "options_uk": [
-            "Безрецептурні ліки",
-            "Рецептурні препарати",
-            "Алкоголь",
-            "Усе перелічене вище"
+            "Будь-яку смугу за умови подачі сигналу.",
+            "Центральну смугу, а під час повороту перелаштуватися праворуч.",
+            "Найлівішу смугу, якщо рух не інтенсивний.",
+            "Найправішу смугу, якщо знаки чи розмітка не вказують інакше."
         ],
         "answer_index": 3,
-        "explanation_en": "All listed substances can impair your driving ability.",
-        "explanation_uk": "Усі перелічені речовини можуть погіршити вашу здатність до безпечного керування.",
-        "image": "68.png"
+        "explanation_en": "Right turns should be made from the rightmost lane unless signs/markings allow another lane to turn right.",
+        "explanation_uk": "Повороти праворуч виконують із крайньої правої смуги, якщо інше не дозволено знаками чи розміткою.",
+        "image": "68_right_turn_lane.png"
     },
     {
         "question_number": 69,
@@ -1446,7 +1446,7 @@
         "answer_index": 0,
         "explanation_en": "The first vehicle to arrive at the intersection has the right of way.",
         "explanation_uk": "Перший транспортний засіб, що під'їхав до перехрестя, має перевагу в русі.",
-        "image": "https://www.alberta.ca/content/dam/alberta/ab/transportation/sign-catalogue/ra-2.gif"
+        "image": "69.png"
     },
     {
         "question_number": 70,
@@ -1471,23 +1471,23 @@
     },
     {
         "question_number": 71,
-        "question": "What is the best approach when assisting a visually impaired passenger?",
-        "question_uk": "Який найкращий підхід при наданні допомоги пасажиру з вадами зору?",
+        "question": "When is a driver allowed to use a hand-held cellphone while driving a passenger vehicle?",
+        "question_uk": "Коли водієві дозволено користуватися телефонною трубкою під час керування легковим автомобілем?",
         "options": [
-            "Do not offer to help till they ask.",
-            "Offer to help and take their right arm for better body balance/support.",
-            "Offer to help and wait for them to accept before you assist.",
-            "Verbally and audibly inform them on how they should proceed."
+            "At a red light while stopped.",
+            "Only when travelling below 50 km/h.",
+            "Never while driving; pull over and park safely to use a phone (except to call 911 in an emergency).",
+            "When using the phone as a GPS."
         ],
         "options_uk": [
-            "Не пропонуйте допомогу, поки вас не попросять.",
-            "Запропонуйте допомогу та візьміть їх за праву руку для кращої підтримки.",
-            "Запропонуйте допомогу і дочекайтеся, поки пасажир погодиться, перш ніж допомагати.",
-            "Словесно та голосно поясніть, як діяти далі."
+            "На червоне світло під час зупинки.",
+            "Лише коли швидкість менша за 50 км/год.",
+            "Ніколи під час руху; потрібно зупинитися та припаркуватися безпечно, щоб скористатися телефоном (виняток — виклик 911 у надзвичайній ситуації).",
+            "Коли телефон використовується як навігація."
         ],
         "answer_index": 2,
-        "explanation_en": "You should always ask and wait for permission before offering assistance to a visually impaired person.",
-        "explanation_uk": "Ви завжди повинні запитати і дочекатися дозволу, перш ніж допомагати людині з вадами зору.",
+        "explanation_en": "Hand-held devices are not permitted while driving. If you must use a phone, park safely off the roadway. Emergency 911 calls are an exception.",
+        "explanation_uk": "Користування портативним телефоном під час керування заборонено. Якщо потрібно скористатися телефоном, зупиніться та припаркуйтеся безпечно. Виняток — екстрений дзвінок 911.",
         "image": "71.png"
     },
     {

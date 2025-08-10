@@ -182,6 +182,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         reply_markup=InlineKeyboardMarkup(lang_options)
     )
     context.chat_data["lang_prompt_id"] = msg.message_id
+    _release_lock(context.chat_data)
 @antispam
 async def handle_main_menu(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
@@ -303,6 +304,7 @@ async def handle_mode(update: Update, context: CallbackContext) -> None:
         if selected_mode == "exam":
             exam_line = "📝 Exam Mode – 30 random questions, no hints. You must answer at least 25 correctly to pass."
             await query.edit_message_text(_box(exam_line))
+            _release_lock(context.chat_data)
         else:
             total = len(QUESTIONS)
             await query.edit_message_text(
@@ -315,6 +317,7 @@ async def handle_mode(update: Update, context: CallbackContext) -> None:
             exam_en = "📝 Exam Mode – 30 random questions, no hints. You must answer at least 25 correctly to pass."
             exam_uk = "📝 Режим іспиту – 30 випадкових питань, без підказок. Для успішного складання потрібно дати щонайменше 25 правильних відповідей."
             await query.edit_message_text(_box(f"{exam_en}\n{exam_uk}"))
+            _release_lock(context.chat_data)
         else:
             total = len(QUESTIONS)
             await query.edit_message_text(
