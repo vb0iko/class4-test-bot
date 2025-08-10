@@ -83,13 +83,30 @@ async def _purge_old_ui(context: CallbackContext, chat_id: int):
     if summary_id:
         await _safe_delete(context.bot, chat_id, summary_id)
 
-# --- small helper to draw a unicode box around text ---
-def _box(text: str) -> str:
-    lines = text.splitlines()
-    width = max((len(l) for l in lines), default=0)
-    top = "┌" + "─" * (width + 2) + "┐"
-    bottom = "└" + "─" * (width + 2) + "┘"
-    body = [f"│ {l.ljust(width)} │" for l in lines]
+# --- small helper to draw a unicode box around text, wrapping long lines ---
+from textwrap import wrap
+
+def _box(text: str, width: int = 48) -> str:
+    """Return a Unicode box with the given text, wrapped to a fixed width so
+    it looks good in Telegram bubbles.
+
+    - `width` is the maximum characters per line inside the box.
+    - Preserves blank lines between paragraphs.
+    """
+    # Build wrapped lines while preserving paragraph breaks
+    wrapped_lines = []
+    for para in text.splitlines():
+        if not para.strip():
+            wrapped_lines.append("")
+            continue
+        wrapped_lines.extend(wrap(para.strip(), width=width))
+
+    # Compute effective width from the wrapped lines
+    eff = min(width, max((len(l) for l in wrapped_lines), default=0))
+
+    top = "┌" + "─" * (eff + 2) + "┐"
+    bottom = "└" + "─" * (eff + 2) + "┘"
+    body = [f"│ {l.ljust(eff)} │" for l in wrapped_lines]
     return "\n".join([top, *body, bottom])
 
 async def post_init(application):
