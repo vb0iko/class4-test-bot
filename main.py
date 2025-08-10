@@ -301,32 +301,26 @@ async def handle_mode(update: Update, context: CallbackContext) -> None:
     lang = context.chat_data.get("lang_mode", "en")
     selected_mode = mode
     if lang == "en":
-        if selected_mode == "exam":
-            exam_line = "📝 Exam Mode – 30 random questions, no hints. You must answer at least 25 correctly to pass."
-            await query.edit_message_text(_box(exam_line))
-            _release_lock(context.chat_data)
-        else:
-            total = len(QUESTIONS)
-            await query.edit_message_text(
-                "🧠 <b>Learning Mode</b> – shows the correct answer and explanation immediately after each question. Includes all 120 questions.\n"
-                f"💡 <i>Tip:</i> send a number (1–{total}) to jump to that question.",
-                parse_mode=ParseMode.HTML,
-            )
+        total = len(QUESTIONS)
+        await query.edit_message_text(
+            "📝 <b>Exam Mode</b> – 30 random questions, no hints. You must answer at least 25 correctly to pass."
+            if selected_mode == "exam"
+            else "🧠 <b>Learning Mode</b> – shows the correct answer and explanation immediately after each question. Includes all 120 questions.\n"
+                 f"💡 <i>Tip:</i> send a number (1–{total}) to jump to that question.",
+            parse_mode=ParseMode.HTML
+        )
     elif lang == "bilingual":
-        if selected_mode == "exam":
-            exam_en = "📝 Exam Mode – 30 random questions, no hints. You must answer at least 25 correctly to pass."
-            exam_uk = "📝 Режим іспиту – 30 випадкових питань, без підказок. Для успішного складання потрібно дати щонайменше 25 правильних відповідей."
-            await query.edit_message_text(_box(f"{exam_en}\n{exam_uk}"))
-            _release_lock(context.chat_data)
-        else:
-            total = len(QUESTIONS)
-            await query.edit_message_text(
-                "🧠 <b>Learning Mode</b> – shows the correct answer and explanation immediately after each question. Includes all 120 questions.\n"
-                f"💡 <i>Tip:</i> send a number (1–{total}) to jump to that question.\n"
-                "🧠 <b>Навчальний режим</b> – показує правильну відповідь і пояснення одразу після кожного питання. Усього 120 питань.\n"
-                f"💡 <i>Порада:</i> надішліть число (1–{total}), щоб перейти до відповідного питання.",
-                parse_mode=ParseMode.HTML,
-            )
+        total = len(QUESTIONS)
+        await query.edit_message_text(
+            "📝 <b>Exam Mode</b> – 30 random questions, no hints. You must answer at least 25 correctly to pass.\n"
+            "📝 <b>Режим іспиту</b> – 30 випадкових питань, без підказок. Для успішного складання потрібно дати щонайменше 25 правильних відповідей."
+            if selected_mode == "exam"
+            else "🧠 <b>Learning Mode</b> – shows the correct answer and explanation immediately after each question. Includes all 120 questions.\n"
+                 f"💡 <i>Tip:</i> send a number (1–{total}) to jump to that question.\n"
+                 "🧠 <b>Навчальний режим</b> – показує правильну відповідь і пояснення одразу після кожного питання. Усього 120 питань.\n"
+                 f"💡 <i>Порада:</i> надішліть число (1–{total}), щоб перейти до відповідного питання.",
+            parse_mode=ParseMode.HTML
+        )
 
     await send_question(query.message.chat.id, context)
 
