@@ -1,9 +1,11 @@
 import logging
 import os
 import json
+import time
 
 from telegram import BotCommand
 from typing import Dict
+from functools import wraps
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, InputFile
 import difflib
@@ -27,7 +29,40 @@ logging.basicConfig(
 )
 
 
+
 logger = logging.getLogger(__name__)
+
+# --- anti-spam / per-chat lock & decorator ---
+LOCK_TTL = 1.5  # seconds to ignore repeated taps / messages
+
+def _try_acquire_lock(chat_data, ttl: float = LOCK_TTL) -> bool:
+    """Return True if lock acquired; False if busy within ttl."""
+    now = time.monotonic()
+    lock_at = chat_data.get("_lock_at", 0.0)
+    if now - lock_at < ttl:
+        return False
+    chat_data["_lock_at"] = now
+    return True
+
+def _release_lock(chat_data) -> None:
+    chat_data["_lock_at"] = 0.0
+
+def antispam(handler):
+    @wraps(handler)
+    async def wrapper(update: Update, context: CallbackContext, *args, **kwargs):
+        if not _try_acquire_lock(context.chat_data):
+            # Politely ack callback taps to stop the spinner
+            if update.callback_query:
+                try:
+                    await update.callback_query.answer("⏳ Please wait…")
+                except Exception:
+                    pass
+            return
+        try:
+            return await handler(update, context, *args, **kwargs)
+        finally:
+            _release_lock(context.chat_data)
+    return wrapper
 
 # --- helpers to keep only current UI ---
 async def _safe_delete(bot, chat_id: int, message_id: int):
@@ -67,6 +102,7 @@ LANG_OPTIONS = [
     ]
 ]
 
+@antispam
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     # If paused, add Continue button
     lang_options = LANG_OPTIONS.copy()
@@ -78,6 +114,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         "Please choose your language / Будь ласка, оберіть мову:",
         reply_markup=InlineKeyboardMarkup(lang_options)
     )
+@antispam
 async def handle_main_menu(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
     import telegram.error
@@ -99,6 +136,7 @@ async def handle_main_menu(update: Update, context: CallbackContext) -> None:
     context.chat_data.clear()
     await start(update, context)
 
+@antispam
 async def handle_language(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
     import telegram.error
@@ -151,6 +189,7 @@ async def handle_language(update: Update, context: CallbackContext) -> None:
         parse_mode=ParseMode.HTML
     )
 
+@antispam
 async def handle_mode(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
     import telegram.error
@@ -406,6 +445,7 @@ async def quiz_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     await _purge_old_ui(context, update.effective_chat.id)
     await start(update, context)
 
+@antispam
 async def answer_handler(update: Update, context: CallbackContext) -> None:
     # Support both button (callback_query) and text answers (update.message)
     import telegram.error
@@ -709,6 +749,7 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
             await send_score(update.effective_chat.id, context)
         return
 
+@antispam
 async def next_handler(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
     import telegram.error
@@ -789,6 +830,7 @@ def main() -> None:
 
 # --- Pause/resume handlers ---
 import telegram.error
+@antispam
 async def handle_pause(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
     try:
@@ -804,6 +846,7 @@ async def handle_pause(update: Update, context: CallbackContext) -> None:
     context.chat_data["resume_question"] = context.chat_data.get("current_index", 0)
     await query.edit_message_text("⏸ Test paused. You can continue anytime by selecting Continue from the main menu.")
 
+@antispam
 async def handle_resume_pause(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
     try:
