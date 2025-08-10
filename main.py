@@ -60,8 +60,7 @@ def antispam(handler):
             return
         try:
             return await handler(update, context, *args, **kwargs)
-        finally:
-            _release_lock(context.chat_data)
+        # Deliberately do NOT release lock here: keep TTL window in effect
     return wrapper
 
 # --- helpers to keep only current UI ---
@@ -104,16 +103,28 @@ LANG_OPTIONS = [
 
 @antispam
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    # Debounce repeated /start commands (network lag, user double-taps)
+    now = time.monotonic()
+    last = context.chat_data.get("_last_start_at", 0.0)
+    if now - last < LOCK_TTL:
+        return
+    context.chat_data["_last_start_at"] = now
+
     # If paused, add Continue button
     lang_options = LANG_OPTIONS.copy()
     if context.chat_data.get("paused"):
         lang_options.append([InlineKeyboardButton("▶️ Continue", callback_data="RESUME_PAUSE")])
     # Remove any previous question/summary with buttons so user can't press old ones
     await _purge_old_ui(context, update.effective_chat.id)
-    await update.effective_chat.send_message(
+    # Remove previously sent language prompt if it exists
+    old_lang_msg = context.chat_data.pop("lang_prompt_id", None)
+    if old_lang_msg:
+        await _safe_delete(context.bot, update.effective_chat.id, old_lang_msg)
+    msg = await update.effective_chat.send_message(
         "Please choose your language / Будь ласка, оберіть мову:",
         reply_markup=InlineKeyboardMarkup(lang_options)
     )
+    context.chat_data["lang_prompt_id"] = msg.message_id
 @antispam
 async def handle_main_menu(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
@@ -133,6 +144,8 @@ async def handle_main_menu(update: Update, context: CallbackContext) -> None:
             return
         else:
             raise
+    # Housekeeping: clear stored lang_prompt_id since we delete the message anyway
+    context.chat_data.pop("lang_prompt_id", None)
     context.chat_data.clear()
     await start(update, context)
 
@@ -148,6 +161,8 @@ async def handle_language(update: Update, context: CallbackContext) -> None:
         else:
             raise
     await _purge_old_ui(context, query.message.chat.id)
+    # Clear stored language prompt id so old prompts don't linger
+    context.chat_data.pop("lang_prompt_id", None)
     lang_mode = "en" if query.data == "lang_en" else "bilingual"
     context.chat_data["lang_mode"] = lang_mode
     context.chat_data["current_index"] = 0
