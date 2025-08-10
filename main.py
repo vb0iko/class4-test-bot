@@ -341,6 +341,16 @@ async def send_question(chat_id: int, context: CallbackContext) -> None:
     index = chat_data.get("current_index", 0)
     lang_mode = chat_data.get("lang_mode", "en")
 
+    # --- Anti-spam/duplicate UI guard: keep only ONE active question ---
+    old_qid = chat_data.pop("last_message_id", None)
+    if old_qid:
+        try:
+            await context.bot.delete_message(chat_id=chat_id, message_id=old_qid)
+        except Exception:
+            pass
+    # mark that we are waiting for an answer to the next question
+    chat_data["awaiting_answer"] = True
+
     # Do not remove previous inline keyboard here to avoid UI flicker.
 
     mode = chat_data.get("mode", "learning")
@@ -444,6 +454,7 @@ async def send_question(chat_id: int, context: CallbackContext) -> None:
             )
         context.chat_data["last_message_id"] = msg.message_id
         context.chat_data.pop("summary_message_id", None)
+        # awaiting_answer remains True
     else:
         msg = await context.bot.send_message(
             chat_id=chat_id,
@@ -453,6 +464,7 @@ async def send_question(chat_id: int, context: CallbackContext) -> None:
         )
         context.chat_data["last_message_id"] = msg.message_id
         context.chat_data.pop("summary_message_id", None)
+        # awaiting_answer remains True
 
 async def send_score(chat_id: int, context: CallbackContext) -> None:
     chat_data = context.chat_data
@@ -529,6 +541,14 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
     # If this is a callback query (button answer)
     if update.callback_query:
         query = update.callback_query
+        # Ignore callbacks that belong to older, already-deleted questions
+        last_live_id = context.chat_data.get("last_message_id")
+        if last_live_id and query.message and query.message.message_id != last_live_id:
+            try:
+                await query.answer("⏳ This question expired.")
+            except Exception:
+                pass
+            return
         try:
             await query.answer()
             try:
@@ -588,6 +608,7 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
         selected_index = option_map.get(selected_letter, -1)
         max_questions = 30 if mode == "exam" else len(QUESTIONS)
         if current_index < max_questions and 0 <= selected_index < 4:
+            chat_data["awaiting_answer"] = False
             question = QUESTIONS[question_index]
             correct_index = question["answer_index"]
             is_correct = selected_index == correct_index
@@ -708,6 +729,7 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
             await asyncio.sleep(1.0)
             chat_data["current_index"] = chat_data.get("current_index", 0) + 1
             chat_data.pop("awaiting_next", None)
+            chat_data.pop("awaiting_answer", None)
             max_questions = len(chat_data.get("exam_questions", [])) if chat_data.get("mode", "learning") == "exam" else len(QUESTIONS)
             if chat_data["current_index"] < max_questions:
                 await send_question(query.message.chat.id, context)
@@ -723,6 +745,9 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
     # If this is a text message (user sends answer as text)
     if update.message and update.message.text:
         user_msg = update.message.text.strip()
+        # If no active question is on screen, ignore spammy text answers
+        if not context.chat_data.get("last_message_id"):
+            return
         # Defensive: skip if no quiz running
         if not chat_data or "mode" not in chat_data:
             return
