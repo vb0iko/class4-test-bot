@@ -182,6 +182,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         reply_markup=InlineKeyboardMarkup(lang_options)
     )
     context.chat_data["lang_prompt_id"] = msg.message_id
+    _release_lock(context.chat_data)
 @antispam
 async def handle_main_menu(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
@@ -260,6 +261,7 @@ async def handle_language(update: Update, context: CallbackContext) -> None:
         reply_markup=InlineKeyboardMarkup(MODE_OPTIONS),
         parse_mode=ParseMode.HTML
     )
+    _release_lock(context.chat_data)
 
 @antispam
 async def handle_mode(update: Update, context: CallbackContext) -> None:
@@ -303,6 +305,7 @@ async def handle_mode(update: Update, context: CallbackContext) -> None:
         if selected_mode == "exam":
             exam_line = "📝 Exam Mode – 30 random questions, no hints. You must answer at least 25 correctly to pass."
             await query.edit_message_text(_box(exam_line), parse_mode=ParseMode.HTML)
+            _release_lock(context.chat_data)
         else:
             total = len(QUESTIONS)
             await query.edit_message_text(
@@ -310,11 +313,13 @@ async def handle_mode(update: Update, context: CallbackContext) -> None:
                 f"💡 <i>Tip:</i> send a number (1–{total}) to jump to that question.",
                 parse_mode=ParseMode.HTML,
             )
+            _release_lock(context.chat_data)
     elif lang == "bilingual":
         if selected_mode == "exam":
             exam_en = "📝 Exam Mode – 30 random questions, no hints. You must answer at least 25 correctly to pass."
             exam_uk = "📝 Режим іспиту – 30 випадкових питань, без підказок. Для успішного складання потрібно дати щонайменше 25 правильних відповідей."
             await query.edit_message_text(_box(f"{exam_en}\n{exam_uk}"), parse_mode=ParseMode.HTML)
+            _release_lock(context.chat_data)
         else:
             total = len(QUESTIONS)
             await query.edit_message_text(
@@ -324,6 +329,7 @@ async def handle_mode(update: Update, context: CallbackContext) -> None:
                 f"💡 <i>Порада:</i> надішліть число (1–{total}), щоб перейти до відповідного питання.",
                 parse_mode=ParseMode.HTML,
             )
+            _release_lock(context.chat_data)
 
     await send_question(query.message.chat.id, context)
 
