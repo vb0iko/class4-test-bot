@@ -742,7 +742,7 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
                         parse_mode=ParseMode.HTML,
                         reply_markup=None,
                     )
-                    context.chat_data["last_message_id"] = query.message.message_id
+                    context.chat_data.pop("last_message_id", None)
                 except Exception as e:
                     # Some clients/messages may fail caption edit; try media edit as a fallback.
                     logger.warning(f"edit_message_caption failed, trying media edit: {e}")
@@ -759,7 +759,7 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
                                 ),
                                 reply_markup=None,
                             )
-                        context.chat_data["last_message_id"] = query.message.message_id
+                        context.chat_data.pop("last_message_id", None)
                     except Exception as e2:
                         # As a last resort, delete and resend
                         logger.warning(f"edit_message_media failed, fallback to delete/send: {e2}")
@@ -776,7 +776,7 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
                                 parse_mode=ParseMode.HTML,
                                 reply_markup=None,
                             )
-                        context.chat_data["last_message_id"] = msg.message_id
+                        # Do not set last_message_id here, so result message is kept
             else:
                 if query.message and query.message.text:
                     msg = await query.edit_message_text(
@@ -784,7 +784,7 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
                         reply_markup=None,
                         parse_mode=ParseMode.HTML
                     )
-                    context.chat_data["last_message_id"] = msg.message_id
+                    context.chat_data.pop("last_message_id", None)
             # Automatically proceed to next question after showing result
             import asyncio
             await asyncio.sleep(1.0)
