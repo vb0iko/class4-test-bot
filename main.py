@@ -60,7 +60,9 @@ def antispam(handler):
             return
         try:
             return await handler(update, context, *args, **kwargs)
-        # Deliberately do NOT release lock here: keep TTL window in effect
+        finally:
+            # Keep lock until TTL expires; do not reset here intentionally
+            pass
     return wrapper
 
 # --- helpers to keep only current UI ---
