@@ -33,7 +33,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # --- anti-spam / per-chat lock & decorator ---
-LOCK_TTL = 2.0  # seconds to ignore repeated taps / messages
+LOCK_TTL = 1.5  # seconds to ignore repeated taps / messages
 
 def _try_acquire_lock(chat_data, ttl: float = LOCK_TTL) -> bool:
     """Return True if lock acquired; False if busy within ttl."""
@@ -47,24 +47,9 @@ def _try_acquire_lock(chat_data, ttl: float = LOCK_TTL) -> bool:
 def _release_lock(chat_data) -> None:
     chat_data["_lock_at"] = 0.0
 
-# Per-chat busy flag to prevent double-sends
-def _is_busy(chat_data) -> bool:
-    return bool(chat_data.get("_busy"))
-
-def _set_busy(chat_data, value: bool) -> None:
-    chat_data["_busy"] = True if value else False
-
 def antispam(handler):
     @wraps(handler)
     async def wrapper(update: Update, context: CallbackContext, *args, **kwargs):
-        # If we are in the middle of editing/sending a message – politely ignore
-        if _is_busy(context.chat_data):
-            if getattr(update, "callback_query", None):
-                try:
-                    await update.callback_query.answer("⏳ Please wait…")
-                except Exception:
-                    pass
-            return
         # якщо замок активний, але це командне повідомлення — пропускаємо
         if not _try_acquire_lock(context.chat_data):
             # ввічливо «глушимо» спінер на старих callback'ах
@@ -97,7 +82,6 @@ async def stop_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     # повний ресет стану + скинути анти-спам лічильник
     context.chat_data.clear()
     context.chat_data["_lock_at"] = 0.0
-    context.chat_data["_busy"] = False
 
     await update.message.reply_text("🛑 Stopped. Send /start to begin again.")
 
@@ -120,45 +104,30 @@ async def _purge_old_ui(context: CallbackContext, chat_id: int):
         await _safe_delete(context.bot, chat_id, summary_id)
 
 # --- small helper to draw a unicode box around text, wrapping long lines ---
-def _box(text: str, width: int = 48) -> str:
-    """Return a Unicode box as plain text (no <pre>/code), so Telegram
-    shows it as a normal message (without the 'copy' button). Width
-    controls the max characters per line inside the box.
-    """
-    from textwrap import wrap
+from textwrap import wrap
 
-    # Normalize paragraphs and wrap to requested width
+def _box(text: str, width: int = 48) -> str:
+    """Return a Unicode box with the given text, wrapped to a fixed width so
+    it looks good in Telegram bubbles.
+
+    - `width` is the maximum characters per line inside the box.
+    - Preserves blank lines between paragraphs.
+    """
+    # Build wrapped lines while preserving paragraph breaks
     wrapped_lines = []
     for para in text.splitlines():
-        para = para.rstrip()
-        if not para:
+        if not para.strip():
             wrapped_lines.append("")
             continue
-        wrapped_lines.extend(wrap(para, width=width))
+        wrapped_lines.extend(wrap(para.strip(), width=width))
 
-    # Effective inner width for padding
+    # Compute effective width from the wrapped lines
     eff = min(width, max((len(l) for l in wrapped_lines), default=0))
 
     top = "┌" + "─" * (eff + 2) + "┐"
     bottom = "└" + "─" * (eff + 2) + "┘"
     body = [f"│ {l.ljust(eff)} │" for l in wrapped_lines]
-
     return "\n".join([top, *body, bottom])
-
-# --- Progress bar helper ---
-def _progress_bar(done: int, total: int, width: int = 10) -> str:
-    """Return a simple unicode progress bar like ■■■□□ and no copy button."""
-    if total <= 0:
-        return ""
-    # Map 1..total onto 1..width (current question should appear filled)
-    # Clamp to [0, width]
-    filled = int(round((done / max(total, 1)) * width))
-    if filled < 0:
-        filled = 0
-    if filled > width:
-        filled = width
-    empty = width - filled
-    return "■" * filled + "□" * empty
 
 async def post_init(application):
     commands = [
@@ -197,7 +166,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     # Drop any stale exam state
     context.chat_data.pop("used_questions", None)
     context.chat_data.pop("exam_questions", None)
-    context.chat_data["_busy"] = False
 
     # If paused, add Continue button
     lang_options = LANG_OPTIONS.copy()
@@ -214,7 +182,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         reply_markup=InlineKeyboardMarkup(lang_options)
     )
     context.chat_data["lang_prompt_id"] = msg.message_id
-    _release_lock(context.chat_data)
 @antispam
 async def handle_main_menu(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
@@ -293,7 +260,6 @@ async def handle_language(update: Update, context: CallbackContext) -> None:
         reply_markup=InlineKeyboardMarkup(MODE_OPTIONS),
         parse_mode=ParseMode.HTML
     )
-    _release_lock(context.chat_data)
 
 @antispam
 async def handle_mode(update: Update, context: CallbackContext) -> None:
@@ -336,8 +302,7 @@ async def handle_mode(update: Update, context: CallbackContext) -> None:
     if lang == "en":
         if selected_mode == "exam":
             exam_line = "📝 Exam Mode – 30 random questions, no hints. You must answer at least 25 correctly to pass."
-            await query.edit_message_text(exam_line)
-            _release_lock(context.chat_data)
+            await query.edit_message_text(_box(exam_line))
         else:
             total = len(QUESTIONS)
             await query.edit_message_text(
@@ -345,13 +310,11 @@ async def handle_mode(update: Update, context: CallbackContext) -> None:
                 f"💡 <i>Tip:</i> send a number (1–{total}) to jump to that question.",
                 parse_mode=ParseMode.HTML,
             )
-            _release_lock(context.chat_data)
     elif lang == "bilingual":
         if selected_mode == "exam":
             exam_en = "📝 Exam Mode – 30 random questions, no hints. You must answer at least 25 correctly to pass."
             exam_uk = "📝 Режим іспиту – 30 випадкових питань, без підказок. Для успішного складання потрібно дати щонайменше 25 правильних відповідей."
-            await query.edit_message_text(f"{exam_en}\n{exam_uk}")
-            _release_lock(context.chat_data)
+            await query.edit_message_text(_box(f"{exam_en}\n{exam_uk}"))
         else:
             total = len(QUESTIONS)
             await query.edit_message_text(
@@ -361,7 +324,6 @@ async def handle_mode(update: Update, context: CallbackContext) -> None:
                 f"💡 <i>Порада:</i> надішліть число (1–{total}), щоб перейти до відповідного питання.",
                 parse_mode=ParseMode.HTML,
             )
-            _release_lock(context.chat_data)
 
     await send_question(query.message.chat.id, context)
 
@@ -382,15 +344,7 @@ async def send_question(chat_id: int, context: CallbackContext) -> None:
     index = chat_data.get("current_index", 0)
     lang_mode = chat_data.get("lang_mode", "en")
 
-    # Ensure we don't have multiple active keyboards; mark chat busy
-    _set_busy(chat_data, True)
-    # Remove previously sent question/summary if they exist
-    last_id = chat_data.pop("last_message_id", None)
-    if last_id:
-        await _safe_delete(context.bot, chat_id, last_id)
-    summary_id = chat_data.pop("summary_message_id", None)
-    if summary_id:
-        await _safe_delete(context.bot, chat_id, summary_id)
+    # Do not remove previous inline keyboard here to avoid UI flicker.
 
     mode = chat_data.get("mode", "learning")
     if mode == "exam":
@@ -433,15 +387,19 @@ async def send_question(chat_id: int, context: CallbackContext) -> None:
 
     if mode == "exam":
         total_questions = len(chat_data.get("exam_questions", []))
-        # position equals the current question number in exam (we've just appended it to used_questions)
+        wrong_count = chat_data.get("wrong_count", 0)
+        # position in the exam is how many have been asked so far
         position = len(chat_data.get("used_questions", []))
+        header = f"<i><b>Question {position} of {total_questions} ({wrong_count} Fails)</b></i>"
     else:
         total_questions = len(QUESTIONS)
         position = index + 1
-
-    bar = _progress_bar(position, total_questions, 10)
-    wrong = chat_data.get("wrong_count", 0)
-    header = f"<b>{bar} {position}/{total_questions} • ❌{wrong}</b>"
+        wrong_count = chat_data.get("wrong_count", 0)
+        correct_count = chat_data.get("score", 0)
+        header = (
+            f"<i><b>Question {position} of {total_questions} "
+            f"({wrong_count} Fails, {correct_count} Correct)</b></i>"
+        )
     lines = [header, ""]
 
     if lang_mode == "bilingual":
@@ -454,7 +412,7 @@ async def send_question(chat_id: int, context: CallbackContext) -> None:
         else:
             lines.append(f"<b>🇬🇧 {q['question']}</b>")
 
-    lines.append("------------------------------------------------------------")
+    lines.append("------------------------------")
 
     option_labels = ["A", "B", "C", "D"]
     options_en = q["options"]
@@ -489,7 +447,6 @@ async def send_question(chat_id: int, context: CallbackContext) -> None:
             )
         context.chat_data["last_message_id"] = msg.message_id
         context.chat_data.pop("summary_message_id", None)
-        _set_busy(context.chat_data, False)
     else:
         msg = await context.bot.send_message(
             chat_id=chat_id,
@@ -499,14 +456,9 @@ async def send_question(chat_id: int, context: CallbackContext) -> None:
         )
         context.chat_data["last_message_id"] = msg.message_id
         context.chat_data.pop("summary_message_id", None)
-        _set_busy(context.chat_data, False)
 
 async def send_score(chat_id: int, context: CallbackContext) -> None:
     chat_data = context.chat_data
-    # Purge last question UI
-    last_id = chat_data.pop("last_message_id", None)
-    if last_id:
-        await _safe_delete(context.bot, chat_id, last_id)
     mode = chat_data.get("mode", "learning")
     score = chat_data.get("score", 0)
     lang = chat_data.get("lang_mode", "en")
@@ -577,13 +529,6 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
     # Support both button (callback_query) and text answers (update.message)
     import telegram.error
     chat_data = context.chat_data
-    if _is_busy(chat_data):
-        if getattr(update, "callback_query", None):
-            try:
-                await update.callback_query.answer("⏳ Please wait…")
-            except Exception:
-                pass
-        return
     # If this is a callback query (button answer)
     if update.callback_query:
         query = update.callback_query
@@ -683,22 +628,19 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
                     [InlineKeyboardButton("🔁 Try Again / Спробувати ще раз", callback_data="mode_exam")],
                     [InlineKeyboardButton("🏠 Main Menu", callback_data="MAIN_MENU")]
                 ])
-                # Remove the message with the inline keyboard to avoid extra taps
-                last_id = chat_data.pop("last_message_id", None)
-                if last_id:
-                    await _safe_delete(context.bot, query.message.chat.id, last_id)
                 await query.message.reply_text(text, parse_mode=ParseMode.HTML, reply_markup=keyboard)
                 chat_data.clear()
                 return
             # --- End fail fast logic ---
             if mode == "exam":
-                pos = len(chat_data.get("used_questions", []))
+                position = len(chat_data.get("used_questions", []))
+                result_title = f"<i><b>Question {position} of {total_questions} ({wrong_count} Fails)</b></i>"
             else:
-                pos = current_index + 1
-            bar = _progress_bar(pos, total_questions, 10)
-            status_text = "✅ Correct!" if is_correct else "❌ Incorrect."
-            wrong = chat_data.get("wrong_count", 0)
-            result_title = f"<b>{bar} {pos}/{total_questions} • ❌{wrong} ({status_text})</b>"
+                correct_count = chat_data.get("score", 0)
+                result_title = (
+                    f"<i><b>Question {current_index + 1} of {total_questions} "
+                    f"({wrong_count} Fails, {correct_count} Correct)</b></i>"
+                )
             full_text = [result_title, ""]
             if lang_mode == "bilingual":
                 full_text += [
@@ -710,7 +652,7 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
                     full_text.append(f"<b>{question['question']}</b>")
                 else:
                     full_text.append(f"<b>🇬🇧 {question['question']}</b>")
-            full_text.append("------------------------------------------------------------")
+            full_text.append("------------------------------")
             full_text += options_text
             # Do not show explanation in exam mode
             # Show explanation only in learning mode, and only if correct
@@ -718,7 +660,7 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
                 pass
             else:
                 if mode == "learning" and "explanation" in question:
-                    full_text.append("------------------------------------------------------------")
+                    full_text.append("------------------------------")
                     full_text.append("<b>Explanation:</b>")
                     full_text.append(f"*{question['explanation']}*")
             formatted_question = "\n".join(full_text)
@@ -734,49 +676,28 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
             # Show result and explanation, then automatically move to next question
             if image_filename:
                 try:
-                    # We only change the caption and remove buttons — image stays the same.
-                    await context.bot.edit_message_caption(
-                        chat_id=query.message.chat.id,
-                        message_id=query.message.message_id,
-                        caption=formatted_question,
-                        parse_mode=ParseMode.HTML,
-                        reply_markup=None,
-                    )
-                    context.chat_data.pop("last_message_id", None)
+                    import telegram
+                    with open(image_filename, "rb") as photo:
+                        await context.bot.edit_message_media(
+                            chat_id=query.message.chat.id,
+                            message_id=query.message.message_id,
+                            media=telegram.InputMediaPhoto(photo, caption=formatted_question, parse_mode=ParseMode.HTML),
+                            reply_markup=None
+                        )
+                    context.chat_data["last_message_id"] = query.message.message_id
                 except Exception as e:
-                    # Some clients/messages may fail caption edit; try media edit as a fallback.
-                    logger.warning(f"edit_message_caption failed, trying media edit: {e}")
-                    try:
-                        import telegram
-                        with open(image_filename, "rb") as photo:
-                            await context.bot.edit_message_media(
-                                chat_id=query.message.chat.id,
-                                message_id=query.message.message_id,
-                                media=telegram.InputMediaPhoto(
-                                    photo,
-                                    caption=formatted_question,
-                                    parse_mode=ParseMode.HTML,
-                                ),
-                                reply_markup=None,
-                            )
-                        context.chat_data.pop("last_message_id", None)
-                    except Exception as e2:
-                        # As a last resort, delete and resend
-                        logger.warning(f"edit_message_media failed, fallback to delete/send: {e2}")
-                        if query.message:
-                            await context.bot.delete_message(
-                                chat_id=query.message.chat.id,
-                                message_id=query.message.message_id,
-                            )
-                        with open(image_filename, 'rb') as photo:
-                            msg = await context.bot.send_photo(
-                                chat_id=query.message.chat.id,
-                                photo=photo,
-                                caption=formatted_question,
-                                parse_mode=ParseMode.HTML,
-                                reply_markup=None,
-                            )
-                        # Do not set last_message_id here, so result message is kept
+                    logger.warning(f"Failed to edit photo, fallback to delete/send: {e}")
+                    if query.message:
+                        await context.bot.delete_message(chat_id=query.message.chat.id, message_id=query.message.message_id)
+                    with open(image_filename, "rb") as photo:
+                        msg = await context.bot.send_photo(
+                            chat_id=query.message.chat.id,
+                            photo=photo,
+                            caption=formatted_question,
+                            parse_mode=ParseMode.HTML,
+                            reply_markup=None
+                        )
+                    context.chat_data["last_message_id"] = msg.message_id
             else:
                 if query.message and query.message.text:
                     msg = await query.edit_message_text(
@@ -784,7 +705,7 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
                         reply_markup=None,
                         parse_mode=ParseMode.HTML
                     )
-                    context.chat_data.pop("last_message_id", None)
+                    context.chat_data["last_message_id"] = msg.message_id
             # Automatically proceed to next question after showing result
             import asyncio
             await asyncio.sleep(1.0)
@@ -890,7 +811,7 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
             feedback_lines.append("❌ Incorrect.")
         # In learning mode, show explanation if correct
         if mode == "learning" and "explanation" in question:
-            feedback_lines.append("------------------------------------------------------------")
+            feedback_lines.append("------------------------------")
             feedback_lines.append("<b>Explanation:</b>")
             feedback_lines.append(f"*{question['explanation']}*")
         # Reply to user
