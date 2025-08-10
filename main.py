@@ -104,6 +104,19 @@ async def _purge_old_ui(context: CallbackContext, chat_id: int):
     if summary_id:
         await _safe_delete(context.bot, chat_id, summary_id)
 
+# --- Helper: soft purge UI (delete only last open question if has kb, and summary) ---
+async def _purge_ui_soft(context: CallbackContext, chat_id: int):
+    # Delete only the last question message if it still has an inline keyboard.
+    last_id = context.chat_data.get("last_message_id")
+    last_has_kb = context.chat_data.get("last_has_kb")
+    if last_id and last_has_kb:
+        await _safe_delete(context.bot, chat_id, last_id)
+        context.chat_data["last_message_id"] = None
+        context.chat_data["last_has_kb"] = False
+    summary_id = context.chat_data.pop("summary_message_id", None)
+    if summary_id:
+        await _safe_delete(context.bot, chat_id, summary_id)
+
 # --- New helper: delete only last open question (with keyboard), not already-answered ones ---
 async def _purge_open_question(context: CallbackContext, chat_id: int):
     """Delete only the last question message if it still has an inline keyboard.
@@ -187,7 +200,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if context.chat_data.get("paused"):
         lang_options.append([InlineKeyboardButton("▶️ Continue", callback_data="RESUME_PAUSE")])
     # Remove any previous question/summary with buttons so user can't press old ones
-    await _purge_old_ui(context, update.effective_chat.id)
+    await _purge_ui_soft(context, update.effective_chat.id)
     # Remove previously sent language prompt if it exists
     old_lang_msg = context.chat_data.pop("lang_prompt_id", None)
     if old_lang_msg:
@@ -209,7 +222,7 @@ async def handle_main_menu(update: Update, context: CallbackContext) -> None:
             await query.edit_message_reply_markup(reply_markup=None)
         except Exception:
             pass
-        await _purge_old_ui(context, query.message.chat.id)
+        await _purge_ui_soft(context, query.message.chat.id)
         await _safe_delete(context.bot, query.message.chat.id, query.message.message_id)
     except telegram.error.BadRequest as e:
         if "Query is too old" in str(e):
@@ -233,7 +246,7 @@ async def handle_language(update: Update, context: CallbackContext) -> None:
             logger.warning("Callback query too old; skipping answer.")
         else:
             raise
-    await _purge_old_ui(context, query.message.chat.id)
+    await _purge_ui_soft(context, query.message.chat.id)
     # Clear stored language prompt id so old prompts don't linger
     context.chat_data.pop("lang_prompt_id", None)
     lang_mode = "en" if query.data == "lang_en" else "bilingual"
@@ -297,7 +310,7 @@ async def handle_mode(update: Update, context: CallbackContext) -> None:
     # Reset mistake counter whenever a mode is (re)started
     context.chat_data["wrong_count"] = 0
     # Make sure no previous question/summary message with buttons remains
-    await _purge_old_ui(context, query.message.chat.id)
+    await _purge_ui_soft(context, query.message.chat.id)
     # Reset used_questions only on new exam start
     if mode == "exam":
         # Fresh exam state — do not inherit from Learning mode
@@ -538,7 +551,7 @@ async def send_score(chat_id: int, context: CallbackContext) -> None:
 async def quiz_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     # Reset state and behave exactly like /start
     context.chat_data.clear()
-    await _purge_old_ui(context, update.effective_chat.id)
+    await _purge_ui_soft(context, update.effective_chat.id)
     await start(update, context)
 
 @antispam
@@ -760,15 +773,17 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
             n = int(user_msg)
             total = len(QUESTIONS)
             if 1 <= n <= total:
-                # When jumping, remove the previous question message so there aren't two active messages
+                # When jumping, remove the previous question message if it still has an inline keyboard
                 last_id = chat_data.get("last_message_id")
-                if last_id:
+                last_has_kb = chat_data.get("last_has_kb")
+                if last_id and last_has_kb:
                     try:
                         await context.bot.delete_message(chat_id=update.effective_chat.id, message_id=last_id)
                     except Exception as _:
                         # If deletion fails (already gone/edited), ignore
                         pass
-                    chat_data.pop("last_message_id", None)
+                    chat_data["last_message_id"] = None
+                    chat_data["last_has_kb"] = False
                 chat_data["current_index"] = n - 1
                 await send_question(update.effective_chat.id, context)
             else:
@@ -935,7 +950,7 @@ async def handle_pause(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
     try:
         await query.answer()
-        await _purge_old_ui(context, query.message.chat.id)
+        await _purge_ui_soft(context, query.message.chat.id)
     except telegram.error.BadRequest as e:
         if "Query is too old" in str(e):
             logger.warning("Callback query too old; skipping answer.")
@@ -951,7 +966,7 @@ async def handle_resume_pause(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
     try:
         await query.answer()
-        await _purge_old_ui(context, query.message.chat.id)
+        await _purge_ui_soft(context, query.message.chat.id)
     except telegram.error.BadRequest as e:
         if "Query is too old" in str(e):
             logger.warning("Callback query too old; skipping answer.")
