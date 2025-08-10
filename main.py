@@ -147,17 +147,18 @@ def _box(text: str, width: int = 48) -> str:
 
 # --- Progress bar helper ---
 def _progress_bar(done: int, total: int, width: int = 10) -> str:
-    """Return a simple unicode progress bar like ▰▰▰▱▱ and no copy button."""
+    """Return a simple unicode progress bar like ■■■□□ and no copy button."""
     if total <= 0:
         return ""
-    # ensure 1..total mapping to 0..width (current question should show as filled)
-    filled = int(done / total * width)
+    # Map 1..total onto 1..width (current question should appear filled)
+    # Clamp to [0, width]
+    filled = int(round((done / max(total, 1)) * width))
     if filled < 0:
         filled = 0
     if filled > width:
         filled = width
     empty = width - filled
-    return "▰" * filled + "▱" * empty
+    return "■" * filled + "□" * empty
 
 async def post_init(application):
     commands = [
@@ -439,7 +440,8 @@ async def send_question(chat_id: int, context: CallbackContext) -> None:
         position = index + 1
 
     bar = _progress_bar(position, total_questions, 10)
-    header = f"<b>{bar} {position}/{total_questions}</b>"
+    wrong = chat_data.get("wrong_count", 0)
+    header = f"<b>{bar} {position}/{total_questions} • ❌{wrong}</b>"
     lines = [header, ""]
 
     if lang_mode == "bilingual":
@@ -452,7 +454,7 @@ async def send_question(chat_id: int, context: CallbackContext) -> None:
         else:
             lines.append(f"<b>🇬🇧 {q['question']}</b>")
 
-    lines.append("------------------------------")
+    lines.append("------------------------------------------------------------")
 
     option_labels = ["A", "B", "C", "D"]
     options_en = q["options"]
@@ -695,7 +697,8 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
                 pos = current_index + 1
             bar = _progress_bar(pos, total_questions, 10)
             status_text = "✅ Correct!" if is_correct else "❌ Incorrect."
-            result_title = f"<b>{bar} {pos}/{total_questions} ({status_text})</b>"
+            wrong = chat_data.get("wrong_count", 0)
+            result_title = f"<b>{bar} {pos}/{total_questions} • ❌{wrong} ({status_text})</b>"
             full_text = [result_title, ""]
             if lang_mode == "bilingual":
                 full_text += [
@@ -707,7 +710,7 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
                     full_text.append(f"<b>{question['question']}</b>")
                 else:
                     full_text.append(f"<b>🇬🇧 {question['question']}</b>")
-            full_text.append("------------------------------")
+            full_text.append("------------------------------------------------------------")
             full_text += options_text
             # Do not show explanation in exam mode
             # Show explanation only in learning mode, and only if correct
@@ -715,7 +718,7 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
                 pass
             else:
                 if mode == "learning" and "explanation" in question:
-                    full_text.append("------------------------------")
+                    full_text.append("------------------------------------------------------------")
                     full_text.append("<b>Explanation:</b>")
                     full_text.append(f"*{question['explanation']}*")
             formatted_question = "\n".join(full_text)
@@ -731,28 +734,49 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
             # Show result and explanation, then automatically move to next question
             if image_filename:
                 try:
-                    import telegram
-                    with open(image_filename, "rb") as photo:
-                        await context.bot.edit_message_media(
-                            chat_id=query.message.chat.id,
-                            message_id=query.message.message_id,
-                            media=telegram.InputMediaPhoto(photo, caption=formatted_question, parse_mode=ParseMode.HTML),
-                            reply_markup=None
-                        )
+                    # We only change the caption and remove buttons — image stays the same.
+                    await context.bot.edit_message_caption(
+                        chat_id=query.message.chat.id,
+                        message_id=query.message.message_id,
+                        caption=formatted_question,
+                        parse_mode=ParseMode.HTML,
+                        reply_markup=None,
+                    )
                     context.chat_data["last_message_id"] = query.message.message_id
                 except Exception as e:
-                    logger.warning(f"Failed to edit photo, fallback to delete/send: {e}")
-                    if query.message:
-                        await context.bot.delete_message(chat_id=query.message.chat.id, message_id=query.message.message_id)
-                    with open(image_filename, "rb") as photo:
-                        msg = await context.bot.send_photo(
-                            chat_id=query.message.chat.id,
-                            photo=photo,
-                            caption=formatted_question,
-                            parse_mode=ParseMode.HTML,
-                            reply_markup=None
-                        )
-                    context.chat_data["last_message_id"] = msg.message_id
+                    # Some clients/messages may fail caption edit; try media edit as a fallback.
+                    logger.warning(f"edit_message_caption failed, trying media edit: {e}")
+                    try:
+                        import telegram
+                        with open(image_filename, "rb") as photo:
+                            await context.bot.edit_message_media(
+                                chat_id=query.message.chat.id,
+                                message_id=query.message.message_id,
+                                media=telegram.InputMediaPhoto(
+                                    photo,
+                                    caption=formatted_question,
+                                    parse_mode=ParseMode.HTML,
+                                ),
+                                reply_markup=None,
+                            )
+                        context.chat_data["last_message_id"] = query.message.message_id
+                    except Exception as e2:
+                        # As a last resort, delete and resend
+                        logger.warning(f"edit_message_media failed, fallback to delete/send: {e2}")
+                        if query.message:
+                            await context.bot.delete_message(
+                                chat_id=query.message.chat.id,
+                                message_id=query.message.message_id,
+                            )
+                        with open(image_filename, 'rb') as photo:
+                            msg = await context.bot.send_photo(
+                                chat_id=query.message.chat.id,
+                                photo=photo,
+                                caption=formatted_question,
+                                parse_mode=ParseMode.HTML,
+                                reply_markup=None,
+                            )
+                        context.chat_data["last_message_id"] = msg.message_id
             else:
                 if query.message and query.message.text:
                     msg = await query.edit_message_text(
@@ -866,7 +890,7 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
             feedback_lines.append("❌ Incorrect.")
         # In learning mode, show explanation if correct
         if mode == "learning" and "explanation" in question:
-            feedback_lines.append("------------------------------")
+            feedback_lines.append("------------------------------------------------------------")
             feedback_lines.append("<b>Explanation:</b>")
             feedback_lines.append(f"*{question['explanation']}*")
         # Reply to user
