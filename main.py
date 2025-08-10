@@ -33,7 +33,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # --- anti-spam / per-chat lock & decorator ---
-LOCK_TTL = 1.5  # seconds to ignore repeated taps / messages
+LOCK_TTL = 2.0  # seconds to ignore repeated taps / messages
 
 def _try_acquire_lock(chat_data, ttl: float = LOCK_TTL) -> bool:
     """Return True if lock acquired; False if busy within ttl."""
@@ -47,9 +47,24 @@ def _try_acquire_lock(chat_data, ttl: float = LOCK_TTL) -> bool:
 def _release_lock(chat_data) -> None:
     chat_data["_lock_at"] = 0.0
 
+# Per-chat busy flag to prevent double-sends
+def _is_busy(chat_data) -> bool:
+    return bool(chat_data.get("_busy"))
+
+def _set_busy(chat_data, value: bool) -> None:
+    chat_data["_busy"] = True if value else False
+
 def antispam(handler):
     @wraps(handler)
     async def wrapper(update: Update, context: CallbackContext, *args, **kwargs):
+        # If we are in the middle of editing/sending a message – politely ignore
+        if _is_busy(context.chat_data):
+            if getattr(update, "callback_query", None):
+                try:
+                    await update.callback_query.answer("⏳ Please wait…")
+                except Exception:
+                    pass
+            return
         # якщо замок активний, але це командне повідомлення — пропускаємо
         if not _try_acquire_lock(context.chat_data):
             # ввічливо «глушимо» спінер на старих callback'ах
@@ -82,6 +97,7 @@ async def stop_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     # повний ресет стану + скинути анти-спам лічильник
     context.chat_data.clear()
     context.chat_data["_lock_at"] = 0.0
+    context.chat_data["_busy"] = False
 
     await update.message.reply_text("🛑 Stopped. Send /start to begin again.")
 
@@ -180,6 +196,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     # Drop any stale exam state
     context.chat_data.pop("used_questions", None)
     context.chat_data.pop("exam_questions", None)
+    context.chat_data["_busy"] = False
 
     # If paused, add Continue button
     lang_options = LANG_OPTIONS.copy()
@@ -364,7 +381,15 @@ async def send_question(chat_id: int, context: CallbackContext) -> None:
     index = chat_data.get("current_index", 0)
     lang_mode = chat_data.get("lang_mode", "en")
 
-    # Do not remove previous inline keyboard here to avoid UI flicker.
+    # Ensure we don't have multiple active keyboards; mark chat busy
+    _set_busy(chat_data, True)
+    # Remove previously sent question/summary if they exist
+    last_id = chat_data.pop("last_message_id", None)
+    if last_id:
+        await _safe_delete(context.bot, chat_id, last_id)
+    summary_id = chat_data.pop("summary_message_id", None)
+    if summary_id:
+        await _safe_delete(context.bot, chat_id, summary_id)
 
     mode = chat_data.get("mode", "learning")
     if mode == "exam":
@@ -462,6 +487,7 @@ async def send_question(chat_id: int, context: CallbackContext) -> None:
             )
         context.chat_data["last_message_id"] = msg.message_id
         context.chat_data.pop("summary_message_id", None)
+        _set_busy(context.chat_data, False)
     else:
         msg = await context.bot.send_message(
             chat_id=chat_id,
@@ -471,9 +497,14 @@ async def send_question(chat_id: int, context: CallbackContext) -> None:
         )
         context.chat_data["last_message_id"] = msg.message_id
         context.chat_data.pop("summary_message_id", None)
+        _set_busy(context.chat_data, False)
 
 async def send_score(chat_id: int, context: CallbackContext) -> None:
     chat_data = context.chat_data
+    # Purge last question UI
+    last_id = chat_data.pop("last_message_id", None)
+    if last_id:
+        await _safe_delete(context.bot, chat_id, last_id)
     mode = chat_data.get("mode", "learning")
     score = chat_data.get("score", 0)
     lang = chat_data.get("lang_mode", "en")
@@ -544,6 +575,13 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
     # Support both button (callback_query) and text answers (update.message)
     import telegram.error
     chat_data = context.chat_data
+    if _is_busy(chat_data):
+        if getattr(update, "callback_query", None):
+            try:
+                await update.callback_query.answer("⏳ Please wait…")
+            except Exception:
+                pass
+        return
     # If this is a callback query (button answer)
     if update.callback_query:
         query = update.callback_query
@@ -643,6 +681,10 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
                     [InlineKeyboardButton("🔁 Try Again / Спробувати ще раз", callback_data="mode_exam")],
                     [InlineKeyboardButton("🏠 Main Menu", callback_data="MAIN_MENU")]
                 ])
+                # Remove the message with the inline keyboard to avoid extra taps
+                last_id = chat_data.pop("last_message_id", None)
+                if last_id:
+                    await _safe_delete(context.bot, query.message.chat.id, last_id)
                 await query.message.reply_text(text, parse_mode=ParseMode.HTML, reply_markup=keyboard)
                 chat_data.clear()
                 return
