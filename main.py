@@ -506,7 +506,8 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
                     f"<b>🇺🇦 Ви зробили {wrong_count} помилок. Тест не складено.</b>\n\n"
                 )
                 keyboard = InlineKeyboardMarkup([
-                    [InlineKeyboardButton("🔁 Try Again / Спробувати ще раз", callback_data="mode_exam")]
+                    [InlineKeyboardButton("🔁 Try Again / Спробувати ще раз", callback_data="mode_exam")],
+                    [InlineKeyboardButton("🏠 Main Menu", callback_data="MAIN_MENU")]
                 ])
                 await query.message.reply_text(text, parse_mode=ParseMode.HTML, reply_markup=keyboard)
                 chat_data.clear()
