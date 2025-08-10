@@ -255,17 +255,25 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     lang_options = LANG_OPTIONS.copy()
     if context.chat_data.get("paused"):
         lang_options.append([InlineKeyboardButton("▶️ Continue", callback_data="RESUME_PAUSE")])
+
     # Remove any previous question/summary with buttons so user can't press old ones
     await _purge_ui_soft(context, update.effective_chat.id)
     # Remove previously sent language prompt if it exists
     old_lang_msg = context.chat_data.pop("lang_prompt_id", None)
     if old_lang_msg:
         await _safe_delete(context.bot, update.effective_chat.id, old_lang_msg)
-    msg = await update.effective_chat.send_message(
-        "Please choose your language / Будь ласка, оберіть мову:",
+
+    # Send quick feedback for cold starts and then morph into the menu
+    warm_msg = await update.effective_chat.send_message("⏳ Waking up…")
+
+    edited = await context.bot.edit_message_text(
+        chat_id=update.effective_chat.id,
+        message_id=warm_msg.message_id,
+        text="Please choose your language / Будь ласка, оберіть мову:",
         reply_markup=InlineKeyboardMarkup(lang_options)
     )
-    context.chat_data["lang_prompt_id"] = msg.message_id
+    # Remember prompt id (use edited message id if available)
+    context.chat_data["lang_prompt_id"] = getattr(edited, "message_id", warm_msg.message_id)
     _release_lock(context.chat_data)
 @antispam
 async def handle_main_menu(update: Update, context: CallbackContext) -> None:
