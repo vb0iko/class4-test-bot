@@ -50,20 +50,40 @@ def _release_lock(chat_data) -> None:
 def antispam(handler):
     @wraps(handler)
     async def wrapper(update: Update, context: CallbackContext, *args, **kwargs):
+        # якщо замок активний, але це командне повідомлення — пропускаємо
         if not _try_acquire_lock(context.chat_data):
-            # Politely ack callback taps to stop the spinner
+            # ввічливо «глушимо» спінер на старих callback'ах
             if update.callback_query:
                 try:
                     await update.callback_query.answer("⏳ Please wait…")
                 except Exception:
                     pass
-            return
+            # команди (починаються з /) не блокуємо: даємо пройти обробнику
+            if not (getattr(update, "message", None)
+                    and update.message.text
+                    and update.message.text.startswith("/")):
+                return
         try:
             return await handler(update, context, *args, **kwargs)
         finally:
-            # Keep lock until TTL expires; do not reset here intentionally
+            # замок тримаємо до спливу TTL — спеціально нічого не робимо
             pass
-    return wrapper
+    return wrapper  
+
+@antispam
+async def stop_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    chat_id = update.effective_chat.id
+    # прибрати попередні повідомлення з кнопками
+    await _purge_old_ui(context, chat_id)
+    pid = context.chat_data.pop("lang_prompt_id", None)
+    if pid:
+        await _safe_delete(context.bot, chat_id, pid)
+
+    # повний ресет стану + скинути анти-спам лічильник
+    context.chat_data.clear()
+    context.chat_data["_lock_at"] = 0.0
+
+    await update.message.reply_text("🛑 Stopped. Send /start to begin again.")
 
 # --- helpers to keep only current UI ---
 async def _safe_delete(bot, chat_id: int, message_id: int):
@@ -860,6 +880,7 @@ def main() -> None:
     ).post_init(post_init).build()
 
     application.add_handler(CommandHandler("start", start))
+    application.add_handler(CommandHandler("stop", stop_command))
     application.add_handler(CallbackQueryHandler(next_handler, pattern="^(NEXT|CONTINUE|RESTART)$"))
     application.add_handler(CallbackQueryHandler(answer_handler, pattern="^[ABCDSTOP]{1,4}$"))
     application.add_handler(CallbackQueryHandler(handle_language, pattern="^lang_.*$"))
