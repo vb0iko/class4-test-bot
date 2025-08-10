@@ -105,15 +105,13 @@ async def _purge_old_ui(context: CallbackContext, chat_id: int):
 
 # --- small helper to draw a unicode box around text, wrapping long lines ---
 from textwrap import wrap
+from html import escape
 
 def _box(text: str, width: int = 48) -> str:
-    """Return a Unicode box with the given text, wrapped to a fixed width so
-    it looks good in Telegram bubbles.
-
-    - `width` is the maximum characters per line inside the box.
-    - Preserves blank lines between paragraphs.
+    """Return a Unicode box as an *HTML preformatted* block so Telegram
+    renders it monospaced and aligned. `width` is the max characters per line
+    inside the box.
     """
-    # Build wrapped lines while preserving paragraph breaks
     wrapped_lines = []
     for para in text.splitlines():
         if not para.strip():
@@ -121,13 +119,15 @@ def _box(text: str, width: int = 48) -> str:
             continue
         wrapped_lines.extend(wrap(para.strip(), width=width))
 
-    # Compute effective width from the wrapped lines
     eff = min(width, max((len(l) for l in wrapped_lines), default=0))
 
     top = "┌" + "─" * (eff + 2) + "┐"
     bottom = "└" + "─" * (eff + 2) + "┘"
     body = [f"│ {l.ljust(eff)} │" for l in wrapped_lines]
-    return "\n".join([top, *body, bottom])
+    box = "\n".join([top, *body, bottom])
+
+    # Wrap in <pre> and escape to keep alignment and avoid HTML issues
+    return f"<pre>{escape(box)}</pre>"
 
 async def post_init(application):
     commands = [
@@ -302,7 +302,7 @@ async def handle_mode(update: Update, context: CallbackContext) -> None:
     if lang == "en":
         if selected_mode == "exam":
             exam_line = "📝 Exam Mode – 30 random questions, no hints. You must answer at least 25 correctly to pass."
-            await query.edit_message_text(_box(exam_line))
+            await query.edit_message_text(_box(exam_line), parse_mode=ParseMode.HTML)
         else:
             total = len(QUESTIONS)
             await query.edit_message_text(
@@ -314,7 +314,7 @@ async def handle_mode(update: Update, context: CallbackContext) -> None:
         if selected_mode == "exam":
             exam_en = "📝 Exam Mode – 30 random questions, no hints. You must answer at least 25 correctly to pass."
             exam_uk = "📝 Режим іспиту – 30 випадкових питань, без підказок. Для успішного складання потрібно дати щонайменше 25 правильних відповідей."
-            await query.edit_message_text(_box(f"{exam_en}\n{exam_uk}"))
+            await query.edit_message_text(_box(f"{exam_en}\n{exam_uk}"), parse_mode=ParseMode.HTML)
         else:
             total = len(QUESTIONS)
             await query.edit_message_text(
