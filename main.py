@@ -33,7 +33,27 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # --- anti-spam / per-chat lock & decorator ---
+
 LOCK_TTL = 1.5  # seconds to ignore repeated taps / messages
+
+# Extra debounce specifically for answer taps and question sending
+ANSWER_DEBOUNCE = 0.8  # seconds
+
+def _debounce_answer(chat_data) -> bool:
+    """Return True if we should handle this answer now; False if still cooling down."""
+    now = time.monotonic()
+    last = chat_data.get("_answer_at", 0.0)
+    if now - last < ANSWER_DEBOUNCE:
+        return False
+    chat_data["_answer_at"] = now
+    return True
+
+def _is_stale_callback(chat_data, msg_id: int) -> bool:
+    """Callback that doesn't belong to the last question with active keyboard."""
+    return (
+        msg_id != chat_data.get("last_message_id")
+        or not chat_data.get("last_has_kb", False)
+    )
 
 def _try_acquire_lock(chat_data, ttl: float = LOCK_TTL) -> bool:
     """Return True if lock acquired; False if busy within ttl."""
@@ -113,6 +133,8 @@ async def _purge_ui_soft(context: CallbackContext, chat_id: int):
         await _safe_delete(context.bot, chat_id, last_id)
         context.chat_data["last_message_id"] = None
         context.chat_data["last_has_kb"] = False
+        # Clear any pending send (in-flight question)
+        context.chat_data.pop("_sending_question", None)
     summary_id = context.chat_data.pop("summary_message_id", None)
     if summary_id:
         await _safe_delete(context.bot, chat_id, summary_id)
@@ -403,123 +425,136 @@ async def send_question(chat_id: int, context: CallbackContext) -> None:
     index = chat_data.get("current_index", 0)
     lang_mode = chat_data.get("lang_mode", "en")
 
-    # Remove only a dangling question with buttons (if any)
-    await _purge_open_question(context, chat_id)
+    # Не дозволяємо паралельні відправки питання (анти-спам/дубль-тиски)
+    if chat_data.get("_sending_question"):
+        return
+    chat_data["_sending_question"] = True
 
-    # Do not remove previous inline keyboard here to avoid UI flicker.
+    try:
+        # Видаляємо лише останнє відкрите питання з клавіатурою (якщо є)
+        await _purge_open_question(context, chat_id)
 
-    mode = chat_data.get("mode", "learning")
-    if mode == "exam":
-        exam_questions = chat_data.get("exam_questions", [])
-        # used_questions as a list for persistence
-        used_questions = chat_data.get("used_questions", [])
-        used_ids = set(used_questions)
-        # Exclude used questions
-        remaining_questions = [qidx for qidx in exam_questions if qidx not in used_ids]
-        if not remaining_questions:
-            await send_score(chat_id, context)
-            return
-        # Find the next question index to ask
-        # Use current_index to preserve ordering, but skip used
-        # Find the first not-yet-used question at or after current_index
-        next_qidx = None
-        for i in range(chat_data.get("current_index", 0), len(exam_questions)):
-            if exam_questions[i] not in used_ids:
-                next_qidx = exam_questions[i]
-                chat_data["current_index"] = i
-                break
-        if next_qidx is None:
-            # If all questions from current_index are used, try from beginning
-            for i, qidx in enumerate(exam_questions):
-                if qidx not in used_ids:
-                    next_qidx = qidx
+        mode = chat_data.get("mode", "learning")
+        if mode == "exam":
+            exam_questions = chat_data.get("exam_questions", [])
+            used_questions = chat_data.get("used_questions", [])
+            used_ids = set(used_questions)
+
+            # залишки ще не використаних
+            remaining = [qidx for qidx in exam_questions if qidx not in used_ids]
+            if not remaining:
+                await send_score(chat_id, context)
+                return
+
+            # шукаємо перше не використане починаючи з current_index
+            next_qidx = None
+            start = chat_data.get("current_index", 0)
+            for i in range(start, len(exam_questions)):
+                if exam_questions[i] not in used_ids:
+                    next_qidx = exam_questions[i]
                     chat_data["current_index"] = i
                     break
-        if next_qidx is None:
-            await send_score(chat_id, context)
-            return
-        # Add this question to used_questions
-        chat_data.setdefault("used_questions", []).append(next_qidx)
-        q = QUESTIONS[next_qidx]
-    else:
-        if index >= len(QUESTIONS):
-            await send_score(chat_id, context)
-            return
-        q = QUESTIONS[index]
 
-    if mode == "exam":
-        total_questions = len(chat_data.get("exam_questions", []))
-        wrong_count = chat_data.get("wrong_count", 0)
-        # position in the exam is how many have been asked so far
-        position = len(chat_data.get("used_questions", []))
-        header = f"<i><b>Question {position} of {total_questions} ({wrong_count} Fails)</b></i>"
-    else:
-        total_questions = len(QUESTIONS)
-        position = index + 1
-        wrong_count = chat_data.get("wrong_count", 0)
-        correct_count = chat_data.get("score", 0)
-        header = (
-            f"<i><b>Question {position} of {total_questions} "
-            f"({wrong_count} Fails, {correct_count} Correct)</b></i>"
-        )
-    lines = [header, ""]
+            # якщо після start нічого не знайшлось — беремо з початку
+            if next_qidx is None:
+                for i, qidx in enumerate(exam_questions):
+                    if qidx not in used_ids:
+                        next_qidx = qidx
+                        chat_data["current_index"] = i
+                        break
 
-    if lang_mode == "bilingual":
-        lines.append(f"<b>🇬🇧 {q['question']}</b>")
-        lines.append(f"<b>🇺🇦 {q['question_uk']}</b>")
-    else:
-        # If mode is 'en', do not show the 🇬🇧 flag
-        if lang_mode == "en":
-            lines.append(f"<b>{q['question']}</b>")
+            if next_qidx is None:
+                await send_score(chat_id, context)
+                return
+
+            chat_data.setdefault("used_questions", []).append(next_qidx)
+            q = QUESTIONS[next_qidx]
         else:
+            if index >= len(QUESTIONS):
+                await send_score(chat_id, context)
+                return
+            q = QUESTIONS[index]
+
+        # Заголовок
+        if mode == "exam":
+            total_questions = len(chat_data.get("exam_questions", []))
+            wrong_count = chat_data.get("wrong_count", 0)
+            position = len(chat_data.get("used_questions", []))
+            header = f"<i><b>Question {position} of {total_questions} ({wrong_count} Fails)</b></i>"
+        else:
+            total_questions = len(QUESTIONS)
+            position = index + 1
+            wrong_count = chat_data.get("wrong_count", 0)
+            correct_count = chat_data.get("score", 0)
+            header = (
+                f"<i><b>Question {position} of {total_questions} "
+                f"({wrong_count} Fails, {correct_count} Correct)</b></i>"
+            )
+
+        lines = [header, ""]
+
+        # Текст питання
+        if lang_mode == "bilingual":
             lines.append(f"<b>🇬🇧 {q['question']}</b>")
-
-    lines.append("------------------------------")
-
-    option_labels = ["A", "B", "C", "D"]
-    options_en = q["options"]
-    options_uk = q.get("options_uk", [])
-
-    for idx, label in enumerate(option_labels):
-        if lang_mode == "bilingual" and options_uk:
-            lines.append(f"       <b>{label}.</b> {options_en[idx]} / {options_uk[idx]}")
+            lines.append(f"<b>🇺🇦 {q['question_uk']}</b>")
         else:
-            lines.append(f"       <b>{label}.</b> {options_en[idx]}")
+            # якщо 'en' — прапор не показуємо
+            if lang_mode == "en":
+                lines.append(f"<b>{q['question']}</b>")
+            else:
+                lines.append(f"<b>🇬🇧 {q['question']}</b>")
 
-    # Load image based on question_number (matches file like '12.jpg' or '12.png')
-    image_filename = None
-    possible_extensions = [".jpg", ".jpeg", ".png", ".webp"]
-    for ext in possible_extensions:
-        path = f"images/{q['question_number']}{ext}"
-        if os.path.exists(path):
-            image_filename = path
-            break
+        lines.append("------------------------------")
 
-    text = "\n".join(lines)
+        # Варіанти
+        option_labels = ["A", "B", "C", "D"]
+        options_en = q["options"]
+        options_uk = q.get("options_uk", [])
+        for idx, label in enumerate(option_labels):
+            if lang_mode == "bilingual" and options_uk:
+                lines.append(f"       <b>{label}.</b> {options_en[idx]} / {options_uk[idx]}")
+            else:
+                lines.append(f"       <b>{label}.</b> {options_en[idx]}")
 
-    keyboard = build_option_keyboard()
-    if image_filename:
-        with open(image_filename, "rb") as photo:
-            msg = await context.bot.send_photo(
+        # Картинка (якщо є)
+        image_filename = None
+        for ext in [".jpg", ".jpeg", ".png", ".webp"]:
+            path = f"images/{q['question_number']}{ext}"
+            if os.path.exists(path):
+                image_filename = path
+                break
+
+        text = "\n".join(lines)
+        keyboard = build_option_keyboard()
+
+        # Відправка
+        if image_filename:
+            with open(image_filename, "rb") as photo:
+                msg = await context.bot.send_photo(
+                    chat_id=chat_id,
+                    photo=photo,
+                    caption=text,
+                    parse_mode=ParseMode.HTML,
+                    reply_markup=keyboard
+                )
+        else:
+            msg = await context.bot.send_message(
                 chat_id=chat_id,
-                photo=photo,
-                caption=text,
+                text=text,
                 parse_mode=ParseMode.HTML,
                 reply_markup=keyboard
             )
-        context.chat_data["last_message_id"] = msg.message_id
-        context.chat_data["last_has_kb"] = True
-        context.chat_data.pop("summary_message_id", None)
-    else:
-        msg = await context.bot.send_message(
-            chat_id=chat_id,
-            text=text,
-            parse_mode=ParseMode.HTML,
-            reply_markup=keyboard
-        )
-        context.chat_data["last_message_id"] = msg.message_id
-        context.chat_data["last_has_kb"] = True
-        context.chat_data.pop("summary_message_id", None)
+
+        # Позначаємо, що є активна клавіатура в останньому повідомленні
+        chat_data["last_message_id"] = msg.message_id
+        chat_data["last_has_kb"] = True
+        chat_data.pop("summary_message_id", None)
+
+    except Exception:
+        logger.exception("Failed to send question")
+    finally:
+        # Гарантовано знімаємо прапорець відправки
+        chat_data["_sending_question"] = False
 
 async def send_score(chat_id: int, context: CallbackContext) -> None:
     chat_data = context.chat_data
