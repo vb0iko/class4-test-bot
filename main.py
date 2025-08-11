@@ -512,7 +512,7 @@ async def send_question(chat_id: int, context: CallbackContext) -> None:
             else:
                 lines.append(f"<b>🇬🇧 {q['question']}</b>")
 
-        lines.append("------------------------------")
+        lines.append("🚗═════════════════════════🚦")
 
         # Варіанти
         option_labels = ["A", "B", "C", "D"]
@@ -779,7 +779,7 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
                     full_text.append(f"<b>{question['question']}</b>")
                 else:
                     full_text.append(f"<b>🇬🇧 {question['question']}</b>")
-            full_text.append("------------------------------")
+            full_text.append("🚗═════════════════════════🚦")
             full_text += options_text
             # Do not show explanation in exam mode
             # Show explanation only in learning mode, and only if correct
@@ -787,7 +787,7 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
                 pass
             else:
                 if mode == "learning" and "explanation" in question:
-                    full_text.append("---------------------------------")
+                    full_text.append("🚗═════════════════════════🚦")
                     full_text.append("<b>Explanation:</b>")
                     full_text.append(f"*{question['explanation']}*")
             formatted_question = "\n".join(full_text)
@@ -943,7 +943,7 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
             feedback_lines.append("❌ Incorrect.")
         # In learning mode, show explanation if correct
         if mode == "learning" and "explanation" in question:
-            feedback_lines.append("--------------------------------")
+            feedback_lines.append("🚗═════════════════════════🚦")
             feedback_lines.append("<b>Explanation:</b>")
             feedback_lines.append(f"*{question['explanation']}*")
         # Reply to user
