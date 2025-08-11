@@ -488,7 +488,7 @@ async def send_question(chat_id: int, context: CallbackContext) -> None:
             total_questions = len(chat_data.get("exam_questions", []))
             wrong_count = chat_data.get("wrong_count", 0)
             position = len(chat_data.get("used_questions", []))
-            header = f"<i><b>Question {position} of {total_questions} ({wrong_count} Fails)</b></i>"
+            header = f"<i><b>Question {position} of {total_questions} ({wrong_count} Fails ❌)</b></i>"
         else:
             total_questions = len(QUESTIONS)
             position = index + 1
@@ -496,7 +496,7 @@ async def send_question(chat_id: int, context: CallbackContext) -> None:
             correct_count = chat_data.get("score", 0)
             header = (
                 f"<i><b>Question {position} of {total_questions} "
-                f"({wrong_count} Fails, {correct_count} Correct)</b></i>"
+                f"({wrong_count} Fails ❌, {correct_count} Correct ✅)</b></i>"
             )
 
         lines = [header, ""]
@@ -557,6 +557,8 @@ async def send_question(chat_id: int, context: CallbackContext) -> None:
         chat_data["last_message_id"] = msg.message_id
         chat_data["last_has_kb"] = True
         chat_data.pop("summary_message_id", None)
+        # Reset per-message consume guard so next question can be handled
+        chat_data["_consumed_msg_id"] = None
 
     except Exception:
         logger.exception("Failed to send question")
@@ -639,6 +641,14 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
     # If this is a callback query (button answer)
     if update.callback_query:
         query = update.callback_query
+        # --- Early drop of stale callbacks ---
+        # Ignore callbacks that aren't from the last message with active keyboard
+        if _is_stale_callback(context.chat_data, query.message.message_id):
+            try:
+                await query.answer()
+            except Exception:
+                pass
+            return
         try:
             await query.answer()
             try:
@@ -650,6 +660,16 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
                 logger.warning("Callback query too old; skipping answer.")
             else:
                 raise
+        # --- Per-message consume guard: process each question only once even if user taps many times ---
+        consumed_id = context.chat_data.get("_consumed_msg_id")
+        if consumed_id == query.message.message_id:
+            # already handled this message; politely ack and stop
+            try:
+                await query.answer("⏳ Please wait…")
+            except Exception:
+                pass
+            return
+        context.chat_data["_consumed_msg_id"] = query.message.message_id
         if not chat_data:
             if query.message:
                 await query.edit_message_text(
@@ -741,7 +761,7 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
             # --- End fail fast logic ---
             if mode == "exam":
                 position = len(chat_data.get("used_questions", []))
-                result_title = f"<i><b>Question {position} of {total_questions} ({wrong_count} Fails)</b></i>"
+                result_title = f"<i><b>Question {position} of {total_questions} ({wrong_count} Fails ❌)</b></i>"
             else:
                 correct_count = chat_data.get("score", 0)
                 result_title = (
@@ -767,7 +787,7 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
                 pass
             else:
                 if mode == "learning" and "explanation" in question:
-                    full_text.append("------------------------------")
+                    full_text.append("---------------------------------")
                     full_text.append("<b>Explanation:</b>")
                     full_text.append(f"*{question['explanation']}*")
             formatted_question = "\n".join(full_text)
@@ -923,7 +943,7 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
             feedback_lines.append("❌ Incorrect.")
         # In learning mode, show explanation if correct
         if mode == "learning" and "explanation" in question:
-            feedback_lines.append("------------------------------")
+            feedback_lines.append("--------------------------------")
             feedback_lines.append("<b>Explanation:</b>")
             feedback_lines.append(f"*{question['explanation']}*")
         # Reply to user
