@@ -179,6 +179,24 @@ def _box(text: str, width: int = 48) -> str:
     body = [f"│ {l.ljust(eff)} │" for l in wrapped_lines]
     return "\n".join([top, *body, bottom])
 
+# --- Helper: unicode "road" progress bar ---
+def road_progress(position: int, total: int, bar_len: int = 14) -> str:
+    """
+    Unicode progress bar that looks like a road:
+    returns a string like: 🚦━━🚗━━━━━━━🏁
+    """
+    total = max(1, int(total))
+    position = max(1, min(int(position), total))
+    if bar_len < 3:
+        bar_len = 3
+    if total == 1:
+        car_idx = 0
+    else:
+        car_idx = round((position - 1) * (bar_len - 1) / (total - 1))
+    road = ["━"] * bar_len
+    road[car_idx] = "🚗"
+    return "🚦" + "".join(road) + "🏁"
+
 async def post_init(application):
     commands = [
         BotCommand("start", "Start the quiz"),
@@ -512,7 +530,10 @@ async def send_question(chat_id: int, context: CallbackContext) -> None:
             else:
                 lines.append(f"<b>🇬🇧 {q['question']}</b>")
 
-        lines.append("🚗═════════════════════════🚦")
+        try:
+            lines.append(road_progress(position, total_questions))
+        except Exception:
+            pass
 
         # Варіанти
         option_labels = ["A", "B", "C", "D"]
@@ -779,7 +800,14 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
                     full_text.append(f"<b>{question['question']}</b>")
                 else:
                     full_text.append(f"<b>🇬🇧 {question['question']}</b>")
-            full_text.append("🚗═════════════════════════🚦")
+            try:
+                if mode == "exam":
+                    pos_for_bar = len(chat_data.get("used_questions", []))
+                else:
+                    pos_for_bar = current_index + 1
+                full_text.append(road_progress(pos_for_bar, total_questions))
+            except Exception:
+                pass
             full_text += options_text
             # Do not show explanation in exam mode
             # Show explanation only in learning mode, and only if correct
@@ -787,7 +815,14 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
                 pass
             else:
                 if mode == "learning" and "explanation" in question:
-                    full_text.append("🚗═════════════════════════🚦")
+                    try:
+                        if mode == "exam":
+                            pos_for_bar = len(chat_data.get("used_questions", []))
+                        else:
+                            pos_for_bar = current_index + 1
+                        full_text.append(road_progress(pos_for_bar, total_questions))
+                    except Exception:
+                        pass
                     full_text.append("<b>Explanation:</b>")
                     full_text.append(f"*{question['explanation']}*")
             formatted_question = "\n".join(full_text)

@@ -1161,13 +1161,13 @@
         "options": [
             "Take a convenient route that driver prefers.",
             "Take the most direct route unless otherwise discussed with passenger.",
-            "Take the most direct route unless otherwise discussed with passenger.",
+            "Ask the passenger for their preferred route before starting the trip.",
             "Take a scenic or pleasurable route for passenger."
         ],
         "options_uk": [
             "Обрати зручний маршрут, який подобається водієві.",
             "Обрати найкоротший маршрут, якщо з пасажиром не обговорено інше.",
-            "Обрати найкоротший маршрут, якщо з пасажиром не обговорено інше.",
+            "Запитати у пасажира, який маршрут він віддає перевагу, перед початком поїздки.",
             "Обрати мальовничий або приємний маршрут для пасажира."
         ],
         "answer_index": 1,
