@@ -496,7 +496,7 @@ async def send_question(chat_id: int, context: CallbackContext) -> None:
             correct_count = chat_data.get("score", 0)
             header = (
                 f"<i><b>Question {position} of {total_questions} "
-                f"({wrong_count} Fails ❌, {correct_count} Correct ✅)</b></i>"
+                f"({wrong_count} Fails, {correct_count} Correct)</b></i>"
             )
 
         lines = [header, ""]
