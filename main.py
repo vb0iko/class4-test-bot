@@ -766,7 +766,11 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
             is_correct = selected_index == correct_index
             if is_correct:
                 chat_data["score"] = chat_data.get("score", 0) + 1
-            # Ephemeral toast with quick feedback plus counters
+            else:
+                # Track mistakes first so the toast shows the updated count
+                if mode in ("exam", "learning"):
+                    chat_data["wrong_count"] = chat_data.get("wrong_count", 0) + 1
+            # Ephemeral toast with quick feedback plus counters (uses updated values)
             try:
                 if is_correct:
                     total_correct = chat_data.get("score", 0)
@@ -777,10 +781,6 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
                 await query.answer(toast)
             except Exception:
                 pass
-            # Track mistakes (exam and learning)
-            if not is_correct:
-                if mode in ("exam", "learning"):
-                    chat_data["wrong_count"] = chat_data.get("wrong_count", 0) + 1
             option_labels = ["A", "B", "C", "D"]
             options_en = question["options"]
             options_uk = question.get("options_uk", [])
