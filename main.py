@@ -180,7 +180,7 @@ def _box(text: str, width: int = 48) -> str:
     return "\n".join([top, *body, bottom])
 
 # --- Helper: unicode "road" progress bar ---
-def road_progress(position: int, total: int, bar_len: int = 14) -> str:
+def road_progress(position: int, total: int, bar_len: int = 7) -> str:
     """
     Unicode progress bar that looks like a road:
     returns a string like: 🚦━━🚗━━━━━━━🏁
