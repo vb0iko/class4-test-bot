@@ -558,9 +558,9 @@ async def send_question(chat_id: int, context: CallbackContext) -> None:
         options_uk = q.get("options_uk", [])
         for idx, label in enumerate(option_labels):
             if lang_mode == "bilingual" and options_uk:
-                lines.append(f"       <b>{label}.</b> {options_en[idx]} / {options_uk[idx]}")
+                lines.append(f"<b>{label}.</b> {options_en[idx]} / {options_uk[idx]}")
             else:
-                lines.append(f"       <b>{label}.</b> {options_en[idx]}")
+                lines.append(f"<b>{label}.</b> {options_en[idx]}")
 
         # Картинка (якщо є)
         image_filename = None
