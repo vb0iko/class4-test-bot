@@ -183,7 +183,7 @@ def _box(text: str, width: int = 48) -> str:
 def road_progress(position: int, total: int, bar_len: int = 7) -> str:
     """
     Unicode progress bar that looks like a road:
-    returns a string like: 🚦━━🚗━━━━━━━🏁
+    returns a string like: 🚦━━🚖━━━━━━━🏁
     """
     total = max(1, int(total))
     position = max(1, min(int(position), total))
@@ -194,7 +194,7 @@ def road_progress(position: int, total: int, bar_len: int = 7) -> str:
     else:
         car_idx = round((position - 1) * (bar_len - 1) / (total - 1))
     road = ["━"] * bar_len
-    road[car_idx] = "🚗"
+    road[car_idx] = "🚖"
     return "🚦" + "".join(road) + "🏁"
 
 async def post_init(application):
