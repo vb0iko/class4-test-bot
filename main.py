@@ -180,10 +180,10 @@ def _box(text: str, width: int = 48) -> str:
     return "\n".join([top, *body, bottom])
 
 # --- Helper: unicode "road" progress bar ---
-def road_progress(position: int, total: int, bar_len: int = 15) -> str:
+def road_progress(position: int, total: int, bar_len: int = 30) -> str:
     """
     Simple square progress bar (filled/empty):
-    Example for bar_len=7 => ■■■□□□
+    Example for bar_len=7 => ▮▮▮▮▮▯▯
     """
     total = max(1, int(total))
     pos = max(0, min(int(position), total))
@@ -192,7 +192,7 @@ def road_progress(position: int, total: int, bar_len: int = 15) -> str:
     # Compute how many squares to fill
     filled = round((pos / total) * bar_len)
     filled = max(0, min(filled, bar_len))
-    return "■" * filled + "□" * (bar_len - filled)
+    return "▮" * filled + "▯" * (bar_len - filled)
 
 async def post_init(application):
     commands = [
