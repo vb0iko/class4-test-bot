@@ -7,7 +7,7 @@ from telegram import BotCommand
 from typing import Dict
 from functools import wraps
 
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, InputFile
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, InputFile, ReplyKeyboardMarkup, KeyboardButton
 import difflib
 from telegram.constants import ParseMode
 from telegram.ext import (
@@ -75,7 +75,7 @@ def antispam(handler):
             # ввічливо «глушимо» спінер на старих callback'ах
             if update.callback_query:
                 try:
-                    await update.callback_query.answer("⏳ Please wait…")
+                    await update.callback_query.answer("Please try again or restart the BOT")
                 except Exception:
                     pass
             # команди (починаються з /) не блокуємо: даємо пройти обробнику
@@ -180,22 +180,19 @@ def _box(text: str, width: int = 48) -> str:
     return "\n".join([top, *body, bottom])
 
 # --- Helper: unicode "road" progress bar ---
-def road_progress(position: int, total: int, bar_len: int = 7) -> str:
+def road_progress(position: int, total: int, bar_len: int = 9) -> str:
     """
-    Unicode progress bar that looks like a road:
-    returns a string like: 🚦━━🚖━━━━━━━🏁
+    Simple square progress bar (filled/empty):
+    Example for bar_len=7 => ■■■□□□
     """
     total = max(1, int(total))
-    position = max(1, min(int(position), total))
-    if bar_len < 3:
-        bar_len = 3
-    if total == 1:
-        car_idx = 0
-    else:
-        car_idx = round((position - 1) * (bar_len - 1) / (total - 1))
-    road = ["━"] * bar_len
-    road[car_idx] = "🚖"
-    return "🚦" + "".join(road) + "🏁"
+    pos = max(0, min(int(position), total))
+    if bar_len < 1:
+        bar_len = 1
+    # Compute how many squares to fill
+    filled = round((pos / total) * bar_len)
+    filled = max(0, min(filled, bar_len))
+    return "■" * filled + "□" * (bar_len - filled)
 
 async def post_init(application):
     commands = [
@@ -203,6 +200,7 @@ async def post_init(application):
         BotCommand("stop", "Stop the quiz")
     ]
     await application.bot.set_my_commands(commands)
+
 
 MODE_OPTIONS = [
     [
@@ -217,6 +215,16 @@ LANG_OPTIONS = [
         InlineKeyboardButton("🇬🇧 English + 🇺🇦 Українська", callback_data="lang_bilingual"),
     ]
 ]
+
+# --- Reply keyboard: persistent bottom menu ---
+def build_reply_menu() -> ReplyKeyboardMarkup:
+    return ReplyKeyboardMarkup(
+        [[KeyboardButton("🔄 Restart BOT")]],
+        resize_keyboard=True,
+        one_time_keyboard=False,
+        selective=False,
+        is_persistent=True,
+    )
 
 @antispam
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -290,6 +298,15 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         text="Please choose your language / Будь ласка, оберіть мову:",
         reply_markup=InlineKeyboardMarkup(lang_options)
     )
+    # Attach persistent bottom menu with a single restart button
+    try:
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text="Menu",  # short label; keeps the reply keyboard visible
+            reply_markup=build_reply_menu(),
+        )
+    except Exception:
+        pass
     # Remember prompt id (use edited message id if available)
     context.chat_data["lang_prompt_id"] = getattr(edited, "message_id", warm_msg.message_id)
     _release_lock(context.chat_data)
@@ -686,7 +703,7 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
         if consumed_id == query.message.message_id:
             # already handled this message; politely ack and stop
             try:
-                await query.answer("⏳ Please wait…")
+                await query.answer("Please try again or restart the BOT")
             except Exception:
                 pass
             return
@@ -1055,6 +1072,12 @@ def main() -> None:
     application.add_handler(CallbackQueryHandler(handle_pause, pattern="^mode_pause$"))
     application.add_handler(CallbackQueryHandler(handle_resume_pause, pattern="^RESUME_PAUSE$"))
     application.add_handler(CallbackQueryHandler(handle_main_menu, pattern="^MAIN_MENU$"))
+    application.add_handler(
+        MessageHandler(
+            filters.Regex(r"(?i)^\s*🔄?\s*restart\s*bot\s*$"),
+            start,
+        )
+    )
     application.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), answer_handler))
 
     port = int(os.environ.get("PORT", 10000))
