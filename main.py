@@ -688,7 +688,8 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
                 pass
             return
         try:
-            await query.answer()
+            # Do not answer yet – we'll show a toast (✅/❌) after we compute correctness.
+            # Remove the inline keyboard right away to prevent double taps.
             try:
                 await query.edit_message_reply_markup(reply_markup=None)
             except Exception:
