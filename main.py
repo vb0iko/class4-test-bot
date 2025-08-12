@@ -180,19 +180,22 @@ def _box(text: str, width: int = 48) -> str:
     return "\n".join([top, *body, bottom])
 
 # --- Helper: unicode "road" progress bar ---
-def road_progress(position: int, total: int, bar_len: int = 30) -> str:
+def road_progress(position: int, total: int, bar_len: int = 30, last_wrong: bool = False) -> str:
     """
-    Simple square progress bar (filled/empty):
-    Example for bar_len=7 => •••••····
+    Square progress bar (filled/empty), with optional last_wrong marker:
+    Example for bar_len=7, position=5, last_wrong=True => ••••×···
     """
     total = max(1, int(total))
     pos = max(0, min(int(position), total))
     if bar_len < 1:
         bar_len = 1
-    # Compute how many squares to fill
     filled = round((pos / total) * bar_len)
     filled = max(0, min(filled, bar_len))
-    return "•" * filled + "·" * (bar_len - filled)
+    if last_wrong and filled > 0:
+        # All but last filled: "•", last filled: "×"
+        return "•" * (filled - 1) + "×" + "·" * (bar_len - filled)
+    else:
+        return "•" * filled + "·" * (bar_len - filled)
 
 async def post_init(application):
     commands = [
@@ -518,25 +521,15 @@ async def send_question(chat_id: int, context: CallbackContext) -> None:
                 return
             q = QUESTIONS[index]
 
-        # Заголовок (не показуємо 0 Fails)
+        # Заголовок (без лічильників)
         if mode == "exam":
             total_questions = len(chat_data.get("exam_questions", []))
-            wrong_count = chat_data.get("wrong_count", 0)
             position = len(chat_data.get("used_questions", []))
-            fail_part = f" ({wrong_count} Fails ❌)" if wrong_count > 0 else ""
-            header = f"<i><b>Question {position} of {total_questions}{fail_part}</b></i>"
+            header = f"<i><b>Question {position} of {total_questions}</b></i>"
         else:
             total_questions = len(QUESTIONS)
             position = index + 1
-            wrong_count = chat_data.get("wrong_count", 0)
-            correct_count = chat_data.get("score", 0)
-            parts = []
-            if wrong_count > 0:
-                parts.append(f"{wrong_count} Fails")
-            if correct_count > 0:
-                parts.append(f"{correct_count} Correct")
-            suffix = f" (" + ", ".join(parts) + ")" if parts else ""
-            header = f"<i><b>Question {position} of {total_questions}{suffix}</b></i>"
+            header = f"<i><b>Question {position} of {total_questions}</b></i>"
 
         lines = [header, ""]
 
@@ -552,7 +545,7 @@ async def send_question(chat_id: int, context: CallbackContext) -> None:
                 lines.append(f"<b>🇬🇧 {q['question']}</b>")
 
         try:
-            lines.append(road_progress(position, total_questions))
+            lines.append(road_progress(position, total_questions, last_wrong=False))
         except Exception:
             pass
 
@@ -815,17 +808,9 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
             # --- End fail fast logic ---
             if mode == "exam":
                 position = len(chat_data.get("used_questions", []))
-                fail_part = f" ({wrong_count} Fails ❌)" if wrong_count > 0 else ""
-                result_title = f"<i><b>Question {position} of {total_questions}{fail_part}</b></i>"
+                result_title = f"<i><b>Question {position} of {total_questions}</b></i>"
             else:
-                correct_count = chat_data.get("score", 0)
-                parts = []
-                if wrong_count > 0:
-                    parts.append(f"{wrong_count} Fails")
-                if correct_count > 0:
-                    parts.append(f"{correct_count} Correct")
-                suffix = f" (" + ", ".join(parts) + ")" if parts else ""
-                result_title = f"<i><b>Question {current_index + 1} of {total_questions}{suffix}</b></i>"
+                result_title = f"<i><b>Question {current_index + 1} of {total_questions}</b></i>"
             full_text = [result_title, ""]
             if lang_mode == "bilingual":
                 full_text += [
@@ -842,7 +827,7 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
                     pos_for_bar = len(chat_data.get("used_questions", []))
                 else:
                     pos_for_bar = current_index + 1
-                full_text.append(road_progress(pos_for_bar, total_questions))
+                full_text.append(road_progress(pos_for_bar, total_questions, last_wrong=(not is_correct)))
             except Exception:
                 pass
             full_text += options_text
@@ -857,7 +842,7 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
                             pos_for_bar = len(chat_data.get("used_questions", []))
                         else:
                             pos_for_bar = current_index + 1
-                        full_text.append(road_progress(pos_for_bar, total_questions))
+                        full_text.append(road_progress(pos_for_bar, total_questions, last_wrong=(not is_correct)))
                     except Exception:
                         pass
                     full_text.append("<b>Explanation:</b>")
