@@ -180,7 +180,7 @@ def _box(text: str, width: int = 48) -> str:
     return "\n".join([top, *body, bottom])
 
 # --- Helper: unicode "road" progress bar ---
-def road_progress(position: int, total: int, bar_len: int = 30) -> str:
+def road_progress(position: int, total: int, bar_len: int = 15) -> str:
     """
     Simple square progress bar (filled/empty):
     Example for bar_len=7 => ■■■□□□
@@ -759,14 +759,14 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
             question = QUESTIONS[question_index]
             correct_index = question["answer_index"]
             is_correct = selected_index == correct_index
-            # Show a quick ephemeral toast with the result (Correct/Fail)
-            try:
-                await query.answer("✅ Correct" if is_correct else "❌ Fail", show_alert=False)
-            except Exception:
-                # Ignore if query was already answered earlier or is stale
-                pass
             if is_correct:
                 chat_data["score"] = chat_data.get("score", 0) + 1
+            # Ephemeral toast with quick feedback (non-intrusive, disappears automatically)
+            try:
+                await query.answer("✅ Correct!" if is_correct else "❌ Incorrect.")
+            except Exception:
+                # Ignore if we've already answered this callback earlier
+                pass
             # Track mistakes (exam and learning)
             if not is_correct:
                 if mode in ("exam", "learning"):
