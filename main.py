@@ -98,12 +98,14 @@ async def stop_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     pid = context.chat_data.pop("lang_prompt_id", None)
     if pid:
         await _safe_delete(context.bot, chat_id, pid)
+    await _purge_history(context, chat_id)
 
     # повний ресет стану + скинути анти-спам лічильник
     context.chat_data.clear()
     context.chat_data["_lock_at"] = 0.0
 
     await update.message.reply_text("🛑 Stopped. Send /start to begin again.")
+
 
 # --- helpers to keep only current UI ---
 async def _safe_delete(bot, chat_id: int, message_id: int):
@@ -112,6 +114,17 @@ async def _safe_delete(bot, chat_id: int, message_id: int):
     except Exception:
         # Ignore if already deleted or cannot delete
         pass
+
+
+# --- Helper to purge all previous quiz messages remembered in chat_data['history_ids'] ---
+async def _purge_history(context: CallbackContext, chat_id: int):
+    """Delete all previously sent quiz messages remembered in chat_data['history_ids']."""
+    ids = context.chat_data.pop("history_ids", [])
+    for mid in ids:
+        try:
+            await _safe_delete(context.bot, chat_id, mid)
+        except Exception:
+            pass
 
 
 
@@ -258,7 +271,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     context.chat_data.pop("used_questions", None)
     context.chat_data.pop("exam_questions", None)
 
-        # --- force clean any dangling UI before we show language picker ---
+    # --- force clean any dangling UI before we show language picker ---
     chat_id = update.effective_chat.id
 
     # 1) Try to strip inline keyboard from the last question message (if any).
@@ -291,6 +304,8 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         except Exception:
             pass
 
+    # Also wipe the full previous history so old questions aren't visible
+    await _purge_history(context, chat_id)
 
     # If paused, add Continue button
     lang_options = LANG_OPTIONS.copy()
@@ -416,6 +431,8 @@ async def handle_mode(update: Update, context: CallbackContext) -> None:
             logger.warning("Callback query too old; skipping answer.")
         else:
             raise
+    # Starting a new mode should clear previous questions completely
+    await _purge_history(context, query.message.chat.id)
     mode = "learning" if query.data == "mode_learning" else "exam"
     context.chat_data["mode"] = mode
     context.chat_data["current_index"] = 0
@@ -593,6 +610,7 @@ async def send_question(chat_id: int, context: CallbackContext) -> None:
                     parse_mode=ParseMode.HTML,
                     reply_markup=keyboard
                 )
+            context.chat_data.setdefault("history_ids", []).append(msg.message_id)
         else:
             msg = await context.bot.send_message(
                 chat_id=chat_id,
@@ -600,6 +618,7 @@ async def send_question(chat_id: int, context: CallbackContext) -> None:
                 parse_mode=ParseMode.HTML,
                 reply_markup=keyboard
             )
+            context.chat_data.setdefault("history_ids", []).append(msg.message_id)
 
         # Позначаємо, що є активна клавіатура в останньому повідомленні
         chat_data["last_message_id"] = msg.message_id
@@ -898,6 +917,7 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
                             parse_mode=ParseMode.HTML,
                             reply_markup=None
                         )
+                    context.chat_data.setdefault("history_ids", []).append(msg.message_id)
                     context.chat_data["last_message_id"] = msg.message_id
                     context.chat_data["last_has_kb"] = False
             else:
