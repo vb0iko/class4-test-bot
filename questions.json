@@ -1449,27 +1449,6 @@
       "image": "curbside_pickup_parallel_30cm.png"
     },
     {
-      "question_number": 99,
-      "question": "Before beginning a shift, a Class 4 driver should complete a pre-trip inspection that includes checking:",
-      "question_uk": "Перед початком зміни водій класу 4 повинен виконати передрейсовий огляд, який включає перевірку:",
-      "options": [
-        "Only the fuel level and washer fluid.",
-        "Lights, tires, brakes (including park brake), mirrors, horn, windshield wipers, and fluid leaks.",
-        "Only the first-aid kit and fire extinguisher.",
-        "Only the cleanliness of the passenger area."
-      ],
-      "options_uk": [
-        "Лише рівня пального та рідини омивача.",
-        "Світла, шин, гальм (включно зі стоянковим), дзеркал, сигналу, двірників і відсутності витоків рідин.",
-        "Лише аптечки та вогнегасника.",
-        "Лише чистоти пасажирського салону."
-      ],
-      "answer_index": 1,
-      "explanation_en": "A proper Class 4 pre-trip includes safety-critical items: lights, tires, brakes/park brake, mirrors, horn, wipers, and checking for leaks.",
-      "explanation_uk": "Належний передрейсовий огляд для класу 4 охоплює критично важливі елементи: світло, шини, гальма/стояночне, дзеркала, звуковий сигнал, двірники та перевірку на витоки.",
-      "image": "class4_pretrip_checklist.png"
-    },
-    {
         "question_number": 70,
         "question": "What is the best approach when assisting a visually impaired passenger?",
         "question_uk": "Який найкращий підхід при наданні допомоги пасажиру з вадами зору?",
@@ -2080,24 +2059,24 @@
     },
     {
         "question_number": 99,
-        "question": "The holder of a Class 4 driver’s licence may operate a bus with a maximum seating capacity of:",
-        "question_uk": "Власник водійських прав класу 4 може керувати автобусом з максимальною кількістю місць для сидіння:",
+        "question": "Before beginning a shift, a Class 4 driver should complete a pre-trip inspection that includes checking:",
+        "question_uk": "Перед початком зміни водій класу 4 повинен виконати передрейсовий огляд, який включає перевірку:",
         "options": [
-            "12 passengers, excluding the driver.",
-            "24 passengers, excluding the driver.",
-            "36 passengers, excluding the driver.",
-            "15 passengers, excluding the driver."
+            "Only the fuel level and washer fluid.",
+            "Lights, tires, brakes (including park brake), mirrors, horn, windshield wipers, and fluid leaks.",
+            "Only the first-aid kit and fire extinguisher.",
+            "Only the cleanliness of the passenger area."
         ],
         "options_uk": [
-            "12 пасажирів, не враховуючи водія.",
-            "24 пасажири, не враховуючи водія.",
-            "36 пасажирів, не враховуючи водія.",
-            "15 пасажирів, не враховуючи водія."
+            "Лише рівня пального та рідини омивача.",
+            "Світла, шин, гальм (включно зі стоянковим), дзеркал, сигналу, двірників і відсутності витоків рідин.",
+            "Лише аптечки та вогнегасника.",
+            "Лише чистоти пасажирського салону."
         ],
         "answer_index": 1,
-        "explanation_en": "Class 4 licence holders may operate buses with up to 24 passenger seats.",
-        "explanation_uk": "Водії з правами класу 4 можуть керувати автобусами до 24 пасажирських місць.",
-        "image": ""
+        "explanation_en": "A proper Class 4 pre-trip includes safety-critical items: lights, tires, brakes/park brake, mirrors, horn, wipers, and checking for leaks.",
+        "explanation_uk": "Належний передрейсовий огляд для класу 4 охоплює критично важливі елементи: світло, шини, гальма/стояночне, дзеркала, звуковий сигнал, двірники та перевірку на витоки.",
+        "image": "class4_pretrip_checklist.png"
     },
     {
         "question_number": 100,
