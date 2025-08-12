@@ -127,6 +127,7 @@ async def _purge_history(context: CallbackContext, chat_id: int):
         except Exception:
             pass
 
+
 # --- Helper to purge only exam messages remembered in chat_data['exam_history_ids'] ---
 async def _purge_exam_history(context: CallbackContext, chat_id: int):
     """Delete only messages from the last Exam session.
@@ -135,6 +136,40 @@ async def _purge_exam_history(context: CallbackContext, chat_id: int):
     for mid in ids:
         try:
             await _safe_delete(context.bot, chat_id, mid)
+        except Exception:
+            pass
+
+# --- NEW: Helper to aggressively purge all recent bot messages in this chat before new Exam ---
+async def _purge_all_exam_messages(context: CallbackContext, chat_id: int, sweep: int = 500):
+    """
+    Aggressively delete recent bot messages in this chat before starting a new Exam.
+    This does NOT rely only on stored ids (which may be lost after state resets).
+    Strategy:
+      1) Purge tracked exam messages (best-effort).
+      2) Send a short placeholder to learn the current top message_id.
+      3) Sweep backward for `sweep` ids and try to delete whatever belongs to the bot.
+         (In private chats the bot can delete only its own messages; failures are ignored.)
+    """
+    # First, try tracked sets
+    await _purge_exam_history(context, chat_id)
+
+    # Post a marker to discover the top message id
+    marker = None
+    try:
+        marker = await context.bot.send_message(chat_id=chat_id, text="🧹 Preparing exam…")
+    except Exception:
+        marker = None
+
+    top_id = getattr(marker, "message_id", None)
+    if top_id is None:
+        # Fallback: try also purging generic history we might have
+        await _purge_history(context, chat_id)
+        return
+
+    # Sweep backwards and try to delete; ignore any errors
+    for mid in range(top_id, max(0, top_id - sweep), -1):
+        try:
+            await context.bot.delete_message(chat_id=chat_id, message_id=mid)
         except Exception:
             pass
 
@@ -447,6 +482,10 @@ async def handle_mode(update: Update, context: CallbackContext) -> None:
     await _purge_history(context, query.message.chat.id)
     # If user starts Exam again, wipe previous Exam thread completely
     await _purge_exam_history(context, query.message.chat.id)
+    # Extra hard clean ONLY for Exam: remove any lingering bot messages in chat history
+    # so a fresh exam never mixes with old threads.
+    if query.data == "mode_exam":
+        await _purge_all_exam_messages(context, query.message.chat.id)
     mode = "learning" if query.data == "mode_learning" else "exam"
     context.chat_data["mode"] = mode
     context.chat_data["current_index"] = 0
