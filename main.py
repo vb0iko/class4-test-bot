@@ -759,6 +759,12 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
             question = QUESTIONS[question_index]
             correct_index = question["answer_index"]
             is_correct = selected_index == correct_index
+            # Show a quick ephemeral toast with the result (Correct/Fail)
+            try:
+                await query.answer("✅ Correct" if is_correct else "❌ Fail", show_alert=False)
+            except Exception:
+                # Ignore if query was already answered earlier or is stale
+                pass
             if is_correct:
                 chat_data["score"] = chat_data.get("score", 0) + 1
             # Track mistakes (exam and learning)
