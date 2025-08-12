@@ -903,25 +903,25 @@
         "image": "43.png"
     },
     {
-        "question_number": 44,
-        "question": "When your vehicle is being passed on two lane highway where traffic flows in different directions, it is good practice to ____________",
-        "question_uk": "Коли ваш автомобіль обганяють на двосмуговій дорозі з зустрічним рухом, хорошою практикою є ____________",
-        "options": [
-            "Increase your speed.",
-            "Decrease your speed.",
-            "Move to the right side of your lane to give the other driver a better view of the road ahead, if safe.",
-            "Always shoulder check if a vehicle wants to overtake your vehicle."
-        ],
-        "options_uk": [
-            "Збільшити швидкість.",
-            "Зменшити швидкість.",
-            "Зміститися до правого краю смуги, щоб дати водієві, який обганяє, кращий огляд дороги попереду, якщо це безпечно.",
-            "Завжди оглядатися через плече, якщо хтось хоче вас обігнати."
-        ],
-        "answer_index": 2,
-        "explanation_en": "Shoulder checking improves awareness and safety during overtaking.",
-        "explanation_uk": "Оглядання через плече підвищує обізнаність і безпеку під час обгону.",
-        "image": "44.png"
+      "question_number": 44,
+      "question": "When approaching a school bus with alternating flashing red lights and an extended stop arm, a driver must:",
+      "question_uk": "Наближаючись до шкільного автобуса з поперемінними миготливими червоними вогнями та висунутим знаком STOP, водій повинен:",
+      "options": [
+        "Slow down and pass carefully if no children are visible.",
+        "Stop before reaching the bus and remain stopped until the red lights stop flashing and it is safe to proceed.",
+        "Sound the horn and pass at 30 km/h or less.",
+        "Stop only when travelling in the same direction as the bus."
+      ],
+      "options_uk": [
+        "Зменшити швидкість і обережно об'їхати, якщо дітей не видно.",
+        "Зупинитися до автобуса і залишатися зупиненим, доки червоні вогні не припинять миготіти та не стане безпечно рушати.",
+        "Просигналити та об'їхати зі швидкістю до 30 км/год.",
+        "Зупинятися лише якщо рухаєтесь у тому ж напрямку, що й автобус."
+      ],
+      "answer_index": 1,
+      "explanation_en": "When a school bus displays alternating flashing red lights and a stop arm, all drivers in both directions (unless on a divided roadway) must stop and remain stopped until the signals stop and it is safe.",
+      "explanation_uk": "Коли шкільний автобус увімкнув поперемінні миготливі червоні вогні та висунув знак STOP, усі водії в обох напрямках (окрім розділених доріг) повинні зупинитися і чекати, доки сигнали не припиняться та не стане безпечно рушати.",
+      "image": "school_bus_stop_red_lights.png"
     },
     {
         "question_number": 45,
@@ -1050,25 +1050,25 @@
         "image": "50.png"
     },
     {
-        "question_number": 51,
-        "question": "The law requires that headlights be turned on when driving at night or when the driver cannot see clearly for a minimum distance of:",
-        "question_uk": "Згідно з законом, фари мають бути увімкнені вночі або коли водій не бачить чітко на відстань мінімум:",
-        "options": [
-            "500 metres.",
-            "250 metres.",
-            "150 metres.",
-            "1,000 metres."
-        ],
-        "options_uk": [
-            "500 метрів.",
-            "250 метрів.",
-            "150 метрів.",
-            "1 000 метрів."
-        ],
-        "answer_index": 2,
-        "explanation_en": "Headlights must be used when visibility is less than 150 metres.",
-        "explanation_uk": "Фари повинні бути увімкнені, якщо видимість менше ніж 150 метрів.",
-        "image": "51.png"
+      "question_number": 51,
+      "question": "What is the maximum speed limit in a school zone during the posted times unless otherwise indicated?",
+      "question_uk": "Яке максимальне обмеження швидкості в зоні школи у зазначений час, якщо не вказано інакше?",
+      "options": [
+        "40 km/h",
+        "30 km/h",
+        "20 km/h",
+        "50 km/h"
+      ],
+      "options_uk": [
+        "40 км/год",
+        "30 км/год",
+        "20 км/год",
+        "50 км/год"
+      ],
+      "answer_index": 1,
+      "explanation_en": "In Alberta, school zones are typically posted at 30 km/h during the specified times unless signage indicates a different limit.",
+      "explanation_uk": "В Альберті у зоні школи зазвичай встановлюється обмеження 30 км/год у зазначений час, якщо знаками не вказано іншу межу.",
+      "image": "school_zone_speed_limit.png"
     },
     {
         "question_number": 52,
@@ -1428,25 +1428,46 @@
         "image": "68_right_turn_lane.png"
     },
     {
-        "question_number": 69,
-        "question": "At an intersections where stop signs are located at all corners, a driver should:",
-        "question_uk": "На перехресті, де знаки Стоп є на всіх кутах, водій повинен:",
-        "options": [
-            "Stop, allow the vehicle that arrived first to proceed first.",
-            "Stop, proceed when it is safe.",
-            "Stop, allow the vehicle on the right to proceed first.",
-            "Stop, allow vehicles on the left to proceed first."
-        ],
-        "options_uk": [
-            "Зупинитися, дати проїхати транспортному засобу, який під’їхав першим.",
-            "Зупинитися, їхати, коли це безпечно.",
-            "Зупинитися, дати проїхати транспортному засобу праворуч.",
-            "Зупинитися, дати проїхати транспортним засобам ліворуч."
-        ],
-        "answer_index": 0,
-        "explanation_en": "The first vehicle to arrive at the intersection has the right of way.",
-        "explanation_uk": "Перший транспортний засіб, що під'їхав до перехрестя, має перевагу в русі.",
-        "image": "69.png"
+      "question_number": 69,
+      "question": "When picking up or dropping off passengers at a curb, a Class 4 driver should stop the vehicle:",
+      "question_uk": "Під час посадки або висадки пасажирів біля бордюру, водій з правами класу 4 повинен зупинити транспортний засіб:",
+      "options": [
+        "At an angle to the curb for faster loading.",
+        "Parallel and as close to the curb as practicable (about 30 cm), with hazard lights as needed.",
+        "Two metres away from the curb to avoid scraping the tires.",
+        "Anywhere that is convenient for the driver."
+      ],
+      "options_uk": [
+        "Під кутом до бордюру для швидшої посадки.",
+        "Паралельно та якнайближче до бордюру (близько 30 см), за потреби з аварійною сигналізацією.",
+        "На відстані двох метрів від бордюру, щоб не пошкодити шини.",
+        "У будь-якому зручному для водія місці."
+      ],
+      "answer_index": 1,
+      "explanation_en": "For safe passenger service, stop parallel and close to the curb so passengers can board/alight safely; use hazard lights as appropriate.",
+      "explanation_uk": "Для безпечної посадки/висадки зупиняйтеся паралельно й максимально близько до бордюру; за потреби вмикайте аварійну сигналізацію.",
+      "image": "curbside_pickup_parallel_30cm.png"
+    },
+    {
+      "question_number": 99,
+      "question": "Before beginning a shift, a Class 4 driver should complete a pre-trip inspection that includes checking:",
+      "question_uk": "Перед початком зміни водій класу 4 повинен виконати передрейсовий огляд, який включає перевірку:",
+      "options": [
+        "Only the fuel level and washer fluid.",
+        "Lights, tires, brakes (including park brake), mirrors, horn, windshield wipers, and fluid leaks.",
+        "Only the first-aid kit and fire extinguisher.",
+        "Only the cleanliness of the passenger area."
+      ],
+      "options_uk": [
+        "Лише рівня пального та рідини омивача.",
+        "Світла, шин, гальм (включно зі стоянковим), дзеркал, сигналу, двірників і відсутності витоків рідин.",
+        "Лише аптечки та вогнегасника.",
+        "Лише чистоти пасажирського салону."
+      ],
+      "answer_index": 1,
+      "explanation_en": "A proper Class 4 pre-trip includes safety-critical items: lights, tires, brakes/park brake, mirrors, horn, wipers, and checking for leaks.",
+      "explanation_uk": "Належний передрейсовий огляд для класу 4 охоплює критично важливі елементи: світло, шини, гальма/стояночне, дзеркала, звуковий сигнал, двірники та перевірку на витоки.",
+      "image": "class4_pretrip_checklist.png"
     },
     {
         "question_number": 70,
