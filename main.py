@@ -126,6 +126,16 @@ async def _purge_history(context: CallbackContext, chat_id: int):
         except Exception:
             pass
 
+# --- Helper: reset quiz runtime state but preserve persistent ids (like history_ids) ---
+def _reset_quiz_state(chat_data: dict):
+    """Remove only quiz runtime keys, preserving history_ids and others for future purging."""
+    for k in [
+        "mode", "current_index", "score", "wrong_count", "wrong_steps",
+        "used_questions", "exam_questions", "paused", "resume_question",
+        "last_message_id", "last_has_kb", "_consumed_msg_id", "_sending_question"
+    ]:
+        chat_data.pop(k, None)
+
 
 
 async def _purge_old_ui(context: CallbackContext, chat_id: int):
@@ -306,6 +316,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
     # Also wipe the full previous history so old questions aren't visible
     await _purge_history(context, chat_id)
+    await _purge_open_question(context, chat_id)
 
     # If paused, add Continue button
     lang_options = LANG_OPTIONS.copy()
@@ -433,6 +444,7 @@ async def handle_mode(update: Update, context: CallbackContext) -> None:
             raise
     # Starting a new mode should clear previous questions completely
     await _purge_history(context, query.message.chat.id)
+    await _purge_open_question(context, query.message.chat.id)
     mode = "learning" if query.data == "mode_learning" else "exam"
     context.chat_data["mode"] = mode
     context.chat_data["current_index"] = 0
@@ -690,9 +702,12 @@ async def send_score(chat_id: int, context: CallbackContext) -> None:
     )
     # Remember summary id so we can delete/disable it on next actions
     context.chat_data["summary_message_id"] = msg.message_id
+    # Append summary message id to history_ids for later cleanup
+    history_ids = context.chat_data.setdefault("history_ids", [])
+    history_ids.append(msg.message_id)
 
-    # Clear state after summary is shown so next action starts fresh
-    chat_data.clear()
+    # Clear only quiz state, preserving history_ids for future cleanup
+    _reset_quiz_state(chat_data)
 
 async def quiz_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     # Reset state and behave exactly like /start
