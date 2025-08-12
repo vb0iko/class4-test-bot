@@ -518,21 +518,25 @@ async def send_question(chat_id: int, context: CallbackContext) -> None:
                 return
             q = QUESTIONS[index]
 
-        # Заголовок
+        # Заголовок (не показуємо 0 Fails)
         if mode == "exam":
             total_questions = len(chat_data.get("exam_questions", []))
             wrong_count = chat_data.get("wrong_count", 0)
             position = len(chat_data.get("used_questions", []))
-            header = f"<i><b>Question {position} of {total_questions} ({wrong_count} Fails ❌)</b></i>"
+            fail_part = f" ({wrong_count} Fails ❌)" if wrong_count > 0 else ""
+            header = f"<i><b>Question {position} of {total_questions}{fail_part}</b></i>"
         else:
             total_questions = len(QUESTIONS)
             position = index + 1
             wrong_count = chat_data.get("wrong_count", 0)
             correct_count = chat_data.get("score", 0)
-            header = (
-                f"<i><b>Question {position} of {total_questions} "
-                f"({wrong_count} Fails, {correct_count} Correct)</b></i>"
-            )
+            parts = []
+            if wrong_count > 0:
+                parts.append(f"{wrong_count} Fails")
+            if correct_count > 0:
+                parts.append(f"{correct_count} Correct")
+            suffix = f" (" + ", ".join(parts) + ")" if parts else ""
+            header = f"<i><b>Question {position} of {total_questions}{suffix}</b></i>"
 
         lines = [header, ""]
 
@@ -762,11 +766,16 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
             is_correct = selected_index == correct_index
             if is_correct:
                 chat_data["score"] = chat_data.get("score", 0) + 1
-            # Ephemeral toast with quick feedback (non-intrusive, disappears automatically)
+            # Ephemeral toast with quick feedback plus counters
             try:
-                await query.answer("✅ Correct!" if is_correct else "❌ Incorrect.")
+                if is_correct:
+                    total_correct = chat_data.get("score", 0)
+                    toast = f"✅ Correct. ({total_correct} Correct)"
+                else:
+                    fails_now = chat_data.get("wrong_count", 0)
+                    toast = f"❌ Incorrect. ({fails_now} Fails)"
+                await query.answer(toast)
             except Exception:
-                # Ignore if we've already answered this callback earlier
                 pass
             # Track mistakes (exam and learning)
             if not is_correct:
@@ -806,13 +815,17 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
             # --- End fail fast logic ---
             if mode == "exam":
                 position = len(chat_data.get("used_questions", []))
-                result_title = f"<i><b>Question {position} of {total_questions} ({wrong_count} Fails ❌)</b></i>"
+                fail_part = f" ({wrong_count} Fails ❌)" if wrong_count > 0 else ""
+                result_title = f"<i><b>Question {position} of {total_questions}{fail_part}</b></i>"
             else:
                 correct_count = chat_data.get("score", 0)
-                result_title = (
-                    f"<i><b>Question {current_index + 1} of {total_questions} "
-                    f"({wrong_count} Fails, {correct_count} Correct)</b></i>"
-                )
+                parts = []
+                if wrong_count > 0:
+                    parts.append(f"{wrong_count} Fails")
+                if correct_count > 0:
+                    parts.append(f"{correct_count} Correct")
+                suffix = f" (" + ", ".join(parts) + ")" if parts else ""
+                result_title = f"<i><b>Question {current_index + 1} of {total_questions}{suffix}</b></i>"
             full_text = [result_title, ""]
             if lang_mode == "bilingual":
                 full_text += [
