@@ -302,7 +302,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     try:
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
-            text="Menu",  # short label; keeps the reply keyboard visible
+            # text="Menu",  # short label; keeps the reply keyboard visible
             reply_markup=build_reply_menu(),
         )
     except Exception:
