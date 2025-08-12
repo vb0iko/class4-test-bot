@@ -1680,25 +1680,25 @@
         "image": "79.png"
     },
     {
-        "question_number": 80,
-        "question": "When are dual turns permitted at an intersection?",
-        "question_uk": "Коли дозволені подвійні повороти на перехресті?",
-        "options": [
-            "Any time there are at least 2 lanes on the road being entered.",
-            "Only when turning from a one-way road onto a one-way road.",
-            "Only when the road has 6 or more lanes.",
-            "Only when indicated by pavement markings or traffic control signs."
-        ],
-        "options_uk": [
-            "У будь-який час, якщо на дорозі, на яку ви в’їжджаєте, є щонайменше 2 смуги.",
-            "Лише під час повороту з односторонньої дороги на односторонню.",
-            "Лише якщо дорога має 6 або більше смуг.",
-            "Лише якщо це вказано дорожньою розміткою або знаками."
-        ],
-        "answer_index": 3,
-        "explanation_en": "Dual turns are only permitted where clearly marked by signage or pavement markings.",
-        "explanation_uk": "Подвійні повороти дозволені лише там, де це чітко позначено знаками або розміткою.",
-        "image": "80.png"
+    "question_number": 80,
+    "question": "What is the safest procedure for a Class 4 driver when approaching a railway crossing without gates or lights?",
+    "question_uk": "Яка найбезпечніша процедура для водія класу 4 при наближенні до залізничного переїзду без шлагбаумів або світлофорів?",
+    "options": [
+        "Slow down, look both ways, listen for trains, and proceed only when safe.",
+        "Maintain speed and cross quickly to avoid delays.",
+        "Stop at least 15 metres away and wait for another vehicle to proceed first.",
+        "Honk and drive through without stopping."
+    ],
+    "options_uk": [
+        "Зменшити швидкість, подивитися в обидва боки, прислухатися до поїздів і рухатися далі лише коли безпечно.",
+        "Зберігати швидкість і перетнути швидко, щоб уникнути затримок.",
+        "Зупинитися не менше ніж за 15 метрів і дочекатися, поки інший транспортний засіб проїде першим.",
+        "Посигналити і проїхати без зупинки."
+    ],
+    "answer_index": 0,
+    "explanation_en": "At uncontrolled railway crossings, Class 4 drivers must slow down, check for trains in both directions, listen, and only proceed when safe to avoid collisions.",
+    "explanation_uk": "На нерегульованих залізничних переїздах водії класу 4 повинні зменшити швидкість, перевірити наявність поїздів у обох напрямках, прислухатися і рухатися далі лише коли це безпечно, щоб уникнути зіткнень.",
+    "image": "80.jpg"
     },
     {
         "question_number": 81,
@@ -1722,25 +1722,25 @@
         ]
     },
     {
-        "question_number": 82,
-        "question": "Which of the following activity is not allowed under the distracted driving law?",
-        "question_uk": "Яка з наступних дій не дозволена відповідно до закону про відволікання уваги під час водіння?",
-        "options": [
-            "Reading printed material in the vehicle.",
-            "Using a citizen’s band radio to contact one's employer.",
-            "Eating a snack.",
-            "Smoking cigarettes."
-        ],
-        "answer_index": 0,
-        "explanation_en": "Reading printed material is considered a distraction and is prohibited by law.",
-        "explanation_uk": "Читання друкованих матеріалів під час водіння вважається відволіканням уваги і заборонено законом.",
-        "image": "82.png",
-        "options_uk": [
-            "Читання друкованих матеріалів у транспортному засобі",
-            "Використання радіостанції громадянського діапазону для зв'язку зі своїм роботодавцем",
-            "Вживання закуски",
-            "Куріння сигарет"
-        ]
+    "question_number": 82,
+    "question": "When driving a taxi or bus in heavy rain, what should you do to maintain visibility and safety?",
+    "question_uk": "Керуючи таксі або автобусом під час сильної зливи, що слід робити для збереження видимості та безпеки?",
+    "options": [
+        "Use low beam headlights, reduce speed, and increase following distance.",
+        "Turn on high beams to see further ahead.",
+        "Drive at normal speed but turn on hazard lights.",
+        "Stop immediately in the lane until the rain eases."
+    ],
+    "options_uk": [
+        "Використовувати ближнє світло фар, зменшити швидкість і збільшити дистанцію.",
+        "Увімкнути дальнє світло, щоб бачити далі.",
+        "Рухатися з нормальною швидкістю, але ввімкнути аварійні вогні.",
+        "Зупинитися одразу на смузі, поки дощ не вщухне."
+    ],
+    "answer_index": 0,
+    "explanation_en": "In heavy rain, low beams improve visibility without glare, reduced speed allows more reaction time, and increased following distance compensates for longer stopping distances.",
+    "explanation_uk": "Під час сильної зливи ближнє світло фар покращує видимість без засліплення, зменшена швидкість дає більше часу для реакції, а збільшена дистанція компенсує довший гальмівний шлях.",
+    "image": "driving_in_heavy_rain.png"
     },
     {
         "question_number": 83,
