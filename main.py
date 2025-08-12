@@ -139,35 +139,50 @@ async def _purge_exam_history(context: CallbackContext, chat_id: int):
         except Exception:
             pass
 
-# --- NEW: Helper to aggressively purge all recent bot messages in this chat before new Exam ---
-async def _purge_all_exam_messages(context: CallbackContext, chat_id: int, sweep: int = 500):
+async def _purge_all_exam_messages(context: CallbackContext, chat_id: int, sweep: int = 500, keep_after_id: int | None = None):
     """
     Aggressively delete recent bot messages in this chat before starting a new Exam.
-    This does NOT rely only on stored ids (which may be lost after state resets).
+
+    IMPORTANT: Will NOT delete messages with id >= keep_after_id (e.g., the current menu/callback message).
+    This prevents wiping the UI we’re about to edit.
+
     Strategy:
       1) Purge tracked exam messages (best-effort).
-      2) Send a short placeholder to learn the current top message_id.
-      3) Sweep backward for `sweep` ids and try to delete whatever belongs to the bot.
+      2) Determine an upper bound to sweep up to (exclusive): `upper = (keep_after_id or top_id) - 1`.
+      3) Sweep backward for `sweep` ids from `upper` and try to delete whatever belongs to the bot.
          (In private chats the bot can delete only its own messages; failures are ignored.)
     """
     # First, try tracked sets
     await _purge_exam_history(context, chat_id)
 
-    # Post a marker to discover the top message id
-    marker = None
-    try:
-        marker = await context.bot.send_message(chat_id=chat_id, text="🧹 Preparing exam…")
-    except Exception:
-        marker = None
-
-    top_id = getattr(marker, "message_id", None)
-    if top_id is None:
-        # Fallback: try also purging generic history we might have
+    # If we have no bound, try also generic history (best-effort)
+    if keep_after_id is None:
         await _purge_history(context, chat_id)
+
+    # Establish an upper bound (exclusive). If not provided, try to infer from sending a short marker.
+    upper = None
+    if keep_after_id is not None:
+        upper = keep_after_id - 1
+    else:
+        marker = None
+        try:
+            marker = await context.bot.send_message(chat_id=chat_id, text="🧹 Preparing exam…")
+        except Exception:
+            marker = None
+        if marker is not None:
+            upper = marker.message_id - 1
+            # Try to delete the marker right away
+            try:
+                await context.bot.delete_message(chat_id=chat_id, message_id=marker.message_id)
+            except Exception:
+                pass
+
+    if upper is None or upper <= 0:
         return
 
+    lower = max(1, upper - sweep + 1)
     # Sweep backwards and try to delete; ignore any errors
-    for mid in range(top_id, max(0, top_id - sweep), -1):
+    for mid in range(upper, lower - 1, -1):
         try:
             await context.bot.delete_message(chat_id=chat_id, message_id=mid)
         except Exception:
@@ -485,7 +500,8 @@ async def handle_mode(update: Update, context: CallbackContext) -> None:
     # Extra hard clean ONLY for Exam: remove any lingering bot messages in chat history
     # so a fresh exam never mixes with old threads.
     if query.data == "mode_exam":
-        await _purge_all_exam_messages(context, query.message.chat.id)
+        # Do not delete the menu/callback message we’re about to edit
+        await _purge_all_exam_messages(context, query.message.chat.id, keep_after_id=query.message.message_id)
     mode = "learning" if query.data == "mode_learning" else "exam"
     context.chat_data["mode"] = mode
     context.chat_data["current_index"] = 0
