@@ -180,10 +180,13 @@ def _box(text: str, width: int = 48) -> str:
     return "\n".join([top, *body, bottom])
 
 # --- Helper: unicode "road" progress bar ---
-def road_progress(position: int, total: int, bar_len: int = 30, last_wrong: bool = False) -> str:
+def progress_bar(position: int, total: int, wrong_steps: set, bar_len: int = 30) -> str:
     """
-    Square progress bar (filled/empty), with optional last_wrong marker:
-    Example for bar_len=7, position=5, last_wrong=True => ••••×···
+    Unicode progress bar showing filled steps, with wrong steps marked as ×.
+    - position: current step (1-based)
+    - total: total steps
+    - wrong_steps: set of 1-based indices where mistakes were made
+    - bar_len: visual bar length
     """
     total = max(1, int(total))
     pos = max(0, min(int(position), total))
@@ -191,11 +194,19 @@ def road_progress(position: int, total: int, bar_len: int = 30, last_wrong: bool
         bar_len = 1
     filled = round((pos / total) * bar_len)
     filled = max(0, min(filled, bar_len))
-    if last_wrong and filled > 0:
-        # All but last filled: "•", last filled: "×"
-        return "•" * (filled - 1) + "×" + "·" * (bar_len - filled)
-    else:
-        return "•" * filled + "·" * (bar_len - filled)
+    bar = []
+    for i in range(1, bar_len + 1):
+        # Map bar positions to question indices
+        # Spread questions evenly along bar
+        step_num = int(round(i * total / bar_len + 0.4999))
+        if i <= filled:
+            if step_num in wrong_steps:
+                bar.append("×")
+            else:
+                bar.append("•")
+        else:
+            bar.append("·")
+    return "".join(bar)
 
 async def post_init(application):
     commands = [
@@ -242,6 +253,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     context.chat_data["score"] = 0
     context.chat_data["current_index"] = 0
     context.chat_data["paused"] = False
+    context.chat_data["wrong_steps"] = set()
     # Drop any stale exam state
     context.chat_data.pop("used_questions", None)
     context.chat_data.pop("exam_questions", None)
@@ -409,8 +421,8 @@ async def handle_mode(update: Update, context: CallbackContext) -> None:
     context.chat_data["current_index"] = 0
     context.chat_data["score"] = 0
     context.chat_data["paused"] = False
-    # Reset mistake counter whenever a mode is (re)started
     context.chat_data["wrong_count"] = 0
+    context.chat_data["wrong_steps"] = set()
     # Make sure no previous question/summary message with buttons remains
     await _purge_ui_soft(context, query.message.chat.id)
     # Reset used_questions only on new exam start
@@ -420,6 +432,7 @@ async def handle_mode(update: Update, context: CallbackContext) -> None:
         context.chat_data["score"] = 0
         context.chat_data["current_index"] = 0
         context.chat_data["used_questions"] = []
+        context.chat_data["wrong_steps"] = set()
         import random
         if len(QUESTIONS) < 30:
             await query.edit_message_text("❌ Not enough questions to start the exam. Please add more questions.")
@@ -545,7 +558,7 @@ async def send_question(chat_id: int, context: CallbackContext) -> None:
                 lines.append(f"<b>🇬🇧 {q['question']}</b>")
 
         try:
-            lines.append(road_progress(position, total_questions, last_wrong=False))
+            lines.append(progress_bar(position, total_questions, chat_data.get("wrong_steps", set())))
         except Exception:
             pass
 
@@ -827,7 +840,9 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
                     pos_for_bar = len(chat_data.get("used_questions", []))
                 else:
                     pos_for_bar = current_index + 1
-                full_text.append(road_progress(pos_for_bar, total_questions, last_wrong=(not is_correct)))
+                # Update wrong_steps set if not already done
+                wrong_steps = chat_data.get("wrong_steps", set())
+                full_text.append(progress_bar(pos_for_bar, total_questions, wrong_steps))
             except Exception:
                 pass
             full_text += options_text
@@ -842,7 +857,8 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
                             pos_for_bar = len(chat_data.get("used_questions", []))
                         else:
                             pos_for_bar = current_index + 1
-                        full_text.append(road_progress(pos_for_bar, total_questions, last_wrong=(not is_correct)))
+                        wrong_steps = chat_data.get("wrong_steps", set())
+                        full_text.append(progress_bar(pos_for_bar, total_questions, wrong_steps))
                     except Exception:
                         pass
                     full_text.append("<b>Explanation:</b>")
@@ -893,7 +909,15 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
                     )
                     context.chat_data["last_message_id"] = msg.message_id
                     context.chat_data["last_has_kb"] = False
-            # Automatically proceed to next question after showing result
+            # Track wrong_steps persistently
+            # Compute current position (1-based)
+            if mode == "exam":
+                pos_for_bar = len(chat_data.get("used_questions", []))
+            else:
+                pos_for_bar = current_index + 1
+            if not is_correct:
+                ws = chat_data.setdefault("wrong_steps", set())
+                ws.add(pos_for_bar)
             import asyncio
             await asyncio.sleep(1.0)
             chat_data["current_index"] = chat_data.get("current_index", 0) + 1
@@ -1000,7 +1024,7 @@ async def answer_handler(update: Update, context: CallbackContext) -> None:
             feedback_lines.append("❌ Incorrect.")
         # In learning mode, show explanation if correct
         if mode == "learning" and "explanation" in question:
-            feedback_lines.append("🚗═════════════════════════🚦")
+            feedback_lines.append(progress_bar(current_index + 1, len(QUESTIONS), chat_data.get("wrong_steps", set())))
             feedback_lines.append("<b>Explanation:</b>")
             feedback_lines.append(f"*{question['explanation']}*")
         # Reply to user
